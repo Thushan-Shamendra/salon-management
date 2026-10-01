@@ -42,7 +42,21 @@ export default function AdminServicesPage() {
   };
 
   useEffect(() => {
-    loadServices();
+    let isMounted = true;
+    fetch("/api/admin/services")
+      .then((res) => res.json())
+      .then((data) => {
+        if (isMounted && data.success) {
+          setServices(data.services);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setMessage("Failed to load services");
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleChange = (
