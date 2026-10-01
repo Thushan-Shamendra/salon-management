@@ -318,6 +318,19 @@ async function runAll12Tests() {
     report("TEST 12: Admin changes password again later", false, err.message);
   }
 
+  // Cleanup: Reset admin back to initial bootstrap state for user convenience
+  try {
+    const bcrypt = (await import("bcryptjs")).default;
+    const initialHashed = await bcrypt.hash(initialPassword, 10);
+    await usersCol.updateOne(
+      { email: adminEmail.toLowerCase() },
+      { $set: { password: initialHashed, mustChangePassword: true } }
+    );
+    console.log(`[CLEANUP] Admin account restored to initial temporary password.`);
+  } catch (cleanErr) {
+    console.error("[CLEANUP] Failed to restore admin account:", cleanErr.message);
+  }
+
   await mongoose.disconnect();
 
   console.log(`\n==================================================`);
