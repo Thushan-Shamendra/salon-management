@@ -29,16 +29,16 @@ export default function LogoutButton({
       });
 
       if (response.ok) {
-        router.push("/login");
+        router.push("/");
         router.refresh();
       } else {
         // Fallback redirect even if response code was unexpected
-        router.push("/login");
+        router.push("/");
         router.refresh();
       }
     } catch (err) {
       console.error("Logout error:", err);
-      router.push("/login");
+      router.push("/");
       router.refresh();
     } finally {
       setLoading(false);

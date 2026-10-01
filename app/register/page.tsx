@@ -1,11 +1,28 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const rawRedirect = searchParams.get("redirect");
+
+  const getSafeRedirect = (url: string | null): string | null => {
+    if (!url) return null;
+    const trimmed = url.trim();
+    if (
+      trimmed.startsWith("/") &&
+      !trimmed.startsWith("//") &&
+      !trimmed.includes("://")
+    ) {
+      return trimmed;
+    }
+    return null;
+  };
+
+  const safeRedirect = getSafeRedirect(rawRedirect);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -47,7 +64,10 @@ export default function RegisterPage() {
         return;
       }
 
-      router.push("/login");
+      const loginTarget = safeRedirect
+        ? `/login?redirect=${encodeURIComponent(safeRedirect)}`
+        : "/login";
+      router.push(loginTarget);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -55,115 +75,133 @@ export default function RegisterPage() {
     }
   };
 
+  const loginHref = safeRedirect
+    ? `/login?redirect=${encodeURIComponent(safeRedirect)}`
+    : "/login";
+
   return (
-    <main className="min-h-screen flex items-center justify-center bg-stone-50 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
-        <h1 className="text-3xl font-semibold text-center text-stone-900">
-          Create Account
-        </h1>
+    <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg border border-stone-200/80">
+      <h1 className="text-3xl font-serif text-center text-stone-900">
+        Create Account
+      </h1>
 
-        <p className="mt-2 text-center text-stone-500">
-          Create your salon customer account
-        </p>
+      <p className="mt-2 text-center text-stone-500 text-sm">
+        Join our salon community to book appointments and enjoy tailored care
+      </p>
 
-        {error && (
-          <div className="mt-5 rounded-lg bg-red-50 p-3 text-sm text-red-600">
-            {error}
+      {error && (
+        <div className="mt-5 rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <div>
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
+            Full Name
+          </label>
+
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm text-stone-900 outline-none focus:border-[#B7925A] focus:ring-2 focus:ring-[#B7925A]/20"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
+            Email
+          </label>
+
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm text-stone-900 outline-none focus:border-[#B7925A] focus:ring-2 focus:ring-[#B7925A]/20"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
+            Phone Number
+          </label>
+
+          <input
+            type="tel"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            required
+            className="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm text-stone-900 outline-none focus:border-[#B7925A] focus:ring-2 focus:ring-[#B7925A]/20"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
+            Password
+          </label>
+
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            className="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm text-stone-900 outline-none focus:border-[#B7925A] focus:ring-2 focus:ring-[#B7925A]/20"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
+            Confirm Password
+          </label>
+
+          <input
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
+            className="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm text-stone-900 outline-none focus:border-[#B7925A] focus:ring-2 focus:ring-[#B7925A]/20"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-xl bg-stone-900 py-3 text-sm font-semibold text-white hover:bg-stone-800 disabled:opacity-50 transition-colors border border-[#B7925A]/30"
+        >
+          {loading ? "Creating Account..." : "Create Account"}
+        </button>
+      </form>
+
+      <p className="mt-6 text-center text-sm text-stone-600">
+        Already have an account?{" "}
+        <Link href={loginHref} className="font-semibold text-[#B7925A] hover:underline">
+          Login
+        </Link>
+      </p>
+    </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <main className="min-h-screen flex items-center justify-center bg-[#FAF7F2] px-4 py-12">
+      <Suspense
+        fallback={
+          <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg text-center text-stone-500 text-sm">
+            Loading...
           </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Full Name
-            </label>
-
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full rounded-lg border border-stone-300 px-4 py-3 outline-none focus:border-stone-900"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Email
-            </label>
-
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full rounded-lg border border-stone-300 px-4 py-3 outline-none focus:border-stone-900"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Phone Number
-            </label>
-
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-              className="w-full rounded-lg border border-stone-300 px-4 py-3 outline-none focus:border-stone-900"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Password
-            </label>
-
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full rounded-lg border border-stone-300 px-4 py-3 outline-none focus:border-stone-900"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Confirm Password
-            </label>
-
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-              className="w-full rounded-lg border border-stone-300 px-4 py-3 outline-none focus:border-stone-900"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-stone-900 py-3 font-medium text-white hover:bg-stone-800 disabled:opacity-50"
-          >
-            {loading ? "Creating Account..." : "Create Account"}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-stone-600">
-          Already have an account?{" "}
-          <Link href="/login" className="font-medium text-stone-900">
-            Login
-          </Link>
-        </p>
-      </div>
+        }
+      >
+        <RegisterForm />
+      </Suspense>
     </main>
   );
 }

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ScissorsIcon,
   CalendarIcon,
@@ -56,6 +56,21 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      setUser(null);
+      setMobileMenuOpen(false);
+      router.push("/");
+      router.refresh();
+    }
+  };
+
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
@@ -64,18 +79,6 @@ export default function Navbar() {
     { name: "Reviews", href: "/reviews" },
     { name: "Contact", href: "/contact" },
   ];
-
-  const accountHref = user
-    ? user.role === "admin"
-      ? "/admin"
-      : "/account"
-    : "/login";
-
-  const accountLabel = user
-    ? user.role === "admin"
-      ? "Admin Panel"
-      : "My Account"
-    : "Login";
 
   return (
     <header
@@ -131,30 +134,80 @@ export default function Navbar() {
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden sm:flex items-center gap-3">
-          {/* Login / Account button */}
-          <Link
-            href={accountHref}
-            className="flex items-center gap-1.5 rounded-full border border-stone-300/80 bg-white px-4 py-2 text-xs lg:text-sm font-medium text-stone-800 transition-all hover:border-[#B7925A] hover:text-[#B7925A] hover:bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] shadow-xs"
-          >
-            <UserIcon className="h-4 w-4 text-[#B7925A]" />
-            <span>{accountLabel}</span>
-          </Link>
+        <div className="hidden sm:flex items-center gap-2.5">
+          {user ? (
+            <>
+              {/* Authenticated State */}
+              {user.role === "admin" ? (
+                <Link
+                  href="/admin"
+                  className="flex items-center gap-1.5 rounded-full border border-stone-300/80 bg-white px-4 py-2 text-xs lg:text-sm font-medium text-stone-800 transition-all hover:border-[#B7925A] hover:text-[#B7925A] hover:bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] shadow-xs"
+                >
+                  <UserIcon className="h-4 w-4 text-[#B7925A]" />
+                  <span>Admin Portal</span>
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/account"
+                    className="flex items-center gap-1.5 rounded-full border border-stone-300/80 bg-white px-4 py-2 text-xs lg:text-sm font-medium text-stone-800 transition-all hover:border-[#B7925A] hover:text-[#B7925A] hover:bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] shadow-xs"
+                  >
+                    <UserIcon className="h-4 w-4 text-[#B7925A]" />
+                    <span>Account</span>
+                  </Link>
 
-          {/* Book Appointment button */}
-          <Link
-            href="/appointments"
-            className="flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-xs lg:text-sm font-medium text-[#FAF7F2] transition-all hover:bg-stone-800 hover:shadow-md hover:shadow-stone-900/10 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] border border-[#B7925A]/30"
-          >
-            <CalendarIcon className="h-4 w-4 text-[#C5A46D]" />
-            <span>Book Appointment</span>
-          </Link>
+                  <Link
+                    href="/appointments"
+                    className="flex items-center gap-2 rounded-full bg-stone-900 px-4 py-2 text-xs lg:text-sm font-medium text-[#FAF7F2] transition-all hover:bg-stone-800 hover:shadow-md hover:shadow-stone-900/10 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] border border-[#B7925A]/30"
+                  >
+                    <CalendarIcon className="h-4 w-4 text-[#C5A46D]" />
+                    <span>Book Appointment</span>
+                  </Link>
+                </>
+              )}
+
+              {/* Logout Button */}
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex items-center gap-1 rounded-full border border-stone-200 bg-white px-3.5 py-2 text-xs font-medium text-stone-600 transition-all hover:border-red-200 hover:bg-red-50 hover:text-red-600 focus:outline-none"
+              >
+                <span>Logout</span>
+              </button>
+            </>
+          ) : (
+            <>
+              {/* Logged Out State */}
+              <Link
+                href="/login"
+                className="rounded-full px-3.5 py-2 text-xs lg:text-sm font-medium text-stone-700 hover:text-stone-950 transition-colors"
+              >
+                Login
+              </Link>
+
+              <Link
+                href="/register"
+                className="rounded-full border border-stone-300 bg-white px-3.5 py-2 text-xs lg:text-sm font-medium text-stone-800 hover:border-[#B7925A] hover:text-[#B7925A] transition-all shadow-xs"
+              >
+                Register
+              </Link>
+
+              {/* Book Appointment: unauthenticated clicks send to login preserving destination */}
+              <Link
+                href="/login?redirect=/appointments"
+                className="flex items-center gap-2 rounded-full bg-stone-900 px-4 py-2 text-xs lg:text-sm font-medium text-[#FAF7F2] transition-all hover:bg-stone-800 hover:shadow-md hover:shadow-stone-900/10 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] border border-[#B7925A]/30"
+              >
+                <CalendarIcon className="h-4 w-4 text-[#C5A46D]" />
+                <span>Book Appointment</span>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile menu trigger */}
         <div className="flex items-center gap-2 md:hidden">
           <Link
-            href="/appointments"
+            href={user ? "/appointments" : "/login?redirect=/appointments"}
             className="sm:hidden flex items-center justify-center rounded-full bg-stone-900 px-3 py-1.5 text-xs font-medium text-[#FAF7F2] border border-[#B7925A]/30"
           >
             <span>Book</span>
@@ -195,24 +248,78 @@ export default function Navbar() {
             })}
           </nav>
 
-          <div className="mt-6 pt-5 border-t border-stone-200/80 space-y-3">
-            <Link
-              href={accountHref}
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white py-3 text-sm font-medium text-stone-800 hover:bg-stone-50"
-            >
-              <UserIcon className="h-4 w-4 text-[#B7925A]" />
-              <span>{accountLabel}</span>
-            </Link>
+          <div className="mt-6 pt-5 border-t border-stone-200/80 space-y-2.5">
+            {user ? (
+              <>
+                {user.role === "admin" ? (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white py-3 text-sm font-medium text-stone-800 hover:bg-stone-50"
+                  >
+                    <UserIcon className="h-4 w-4 text-[#B7925A]" />
+                    <span>Admin Portal</span>
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      href="/account"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white py-3 text-sm font-medium text-stone-800 hover:bg-stone-50"
+                    >
+                      <UserIcon className="h-4 w-4 text-[#B7925A]" />
+                      <span>Account</span>
+                    </Link>
 
-            <Link
-              href="/appointments"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-stone-900 py-3 text-sm font-semibold text-[#FAF7F2] shadow-sm hover:bg-stone-800 border border-[#B7925A]/30"
-            >
-              <CalendarIcon className="h-4 w-4 text-[#C5A46D]" />
-              <span>Book Appointment</span>
-            </Link>
+                    <Link
+                      href="/appointments"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-stone-900 py-3 text-sm font-semibold text-[#FAF7F2] shadow-sm hover:bg-stone-800 border border-[#B7925A]/30"
+                    >
+                      <CalendarIcon className="h-4 w-4 text-[#C5A46D]" />
+                      <span>Book Appointment</span>
+                    </Link>
+                  </>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50/50 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                >
+                  <span>Logout</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-center rounded-xl border border-stone-300 bg-white py-2.5 text-sm font-medium text-stone-800 hover:bg-stone-50"
+                  >
+                    Login
+                  </Link>
+
+                  <Link
+                    href="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-center rounded-xl border border-stone-300 bg-white py-2.5 text-sm font-medium text-stone-800 hover:bg-stone-50"
+                  >
+                    Register
+                  </Link>
+                </div>
+
+                <Link
+                  href="/login?redirect=/appointments"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-stone-900 py-3 text-sm font-semibold text-[#FAF7F2] shadow-sm hover:bg-stone-800 border border-[#B7925A]/30"
+                >
+                  <CalendarIcon className="h-4 w-4 text-[#C5A46D]" />
+                  <span>Book Appointment</span>
+                </Link>
+              </>
+            )}
           </div>
 
           <div className="mt-4 text-center">

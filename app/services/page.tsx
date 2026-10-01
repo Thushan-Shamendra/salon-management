@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 
 type Service = {
   _id: string;
@@ -36,7 +38,9 @@ export default async function ServicesPage() {
   const services = await getServices();
 
   return (
-    <main className="min-h-screen bg-stone-50">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1C1917]">
+      <Navbar />
+      <main className="flex-1 bg-stone-50">
       {/* Hero */}
       <section className="bg-stone-900 px-6 py-20 text-center text-white">
         <div className="mx-auto max-w-4xl">
@@ -76,6 +80,7 @@ export default async function ServicesPage() {
                   className="overflow-hidden rounded-2xl bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
                 >
                   {service.image ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
                     <img
                       src={service.image}
                       alt={service.name}
@@ -127,6 +132,8 @@ export default async function ServicesPage() {
           )}
         </div>
       </section>
-    </main>
+      </main>
+      <Footer />
+    </div>
   );
 }
