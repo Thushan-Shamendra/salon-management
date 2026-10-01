@@ -71,6 +71,7 @@ export default function AdminSettingsPage() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -139,6 +140,36 @@ export default function AdminSettingsPage() {
       };
       return { ...prev, openingHours: updatedHours };
     });
+  };
+
+  const handleLogoUpload = async (file: File | undefined) => {
+    if (!file) return;
+
+    const uploadData = new FormData();
+    uploadData.append("logo", file);
+    setUploadingLogo(true);
+    setStatusMessage(null);
+
+    try {
+      const res = await fetch("/api/admin/settings/logo", {
+        method: "POST",
+        body: uploadData,
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to upload logo");
+      }
+
+      setFormData((prev) => ({ ...prev, logo: data.url }));
+      setStatusMessage({ type: "success", text: "Logo uploaded. Save settings to publish it." });
+    } catch (err) {
+      setStatusMessage({
+        type: "error",
+        text: err instanceof Error ? err.message : "Failed to upload logo",
+      });
+    } finally {
+      setUploadingLogo(false);
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -242,15 +273,35 @@ export default function AdminSettingsPage() {
 
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Logo URL (Optional)
+                  Logo Image
                 </label>
+                <div className="flex items-center gap-3">
+                  {formData.logo && (
+                    <img
+                      src={formData.logo}
+                      alt="Salon logo preview"
+                      className="h-12 w-12 rounded-xl border border-stone-200 bg-stone-50 object-contain p-1"
+                    />
+                  )}
+                  <label className="inline-flex cursor-pointer items-center rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-xs font-semibold text-stone-700 hover:border-[#B7925A] hover:text-[#B7925A]">
+                    {uploadingLogo ? "Uploading..." : "Choose image"}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                      disabled={uploadingLogo}
+                      onChange={(e) => void handleLogoUpload(e.target.files?.[0])}
+                      className="sr-only"
+                    />
+                  </label>
+                </div>
+                <p className="mt-1 text-[11px] text-stone-500">JPG, PNG, WEBP, or SVG. Maximum 5 MB.</p>
                 <input
                   type="text"
                   value={formData.logo}
                   onChange={(e) =>
                     setFormData({ ...formData, logo: e.target.value })
                   }
-                  placeholder="/images/logo.svg"
+                  placeholder="Or paste a logo URL"
                   className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
                 />
               </div>

@@ -9,13 +9,15 @@ import {
   ClockIcon,
   SparklesIcon,
 } from "@/components/ui/icons";
+import { formatSalonTime, getSalonSettings } from "@/lib/salon-settings";
 
 export const metadata = {
   title: "Contact Us | Lumina Salon Colombo",
   description: "Get in touch with Lumina Salon for appointments, inquiries, and bridal consultation.",
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const settings = await getSalonSettings();
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1C1917]">
       <Navbar />
@@ -29,7 +31,7 @@ export default function ContactPage() {
               <span>Concierge & Inquiries</span>
             </div>
             <h1 className="font-serif text-3xl sm:text-4xl font-normal text-stone-900 tracking-tight">
-              Get in Touch with Lumina
+              Get in Touch with {settings.salonName}
             </h1>
             <p className="mt-3 text-xs sm:text-sm text-[#78716C] leading-relaxed">
               Have questions about our treatments, styling experts, or bridal packages? We would love to welcome you to our Colombo 07 sanctuary.
@@ -56,8 +58,7 @@ export default function ContactPage() {
                         Location
                       </h3>
                       <p className="text-stone-600 mt-1 leading-relaxed">
-                        42 Horton Place, Cinnamon Gardens<br />
-                        Colombo 07, Sri Lanka
+                        {settings.address}
                       </p>
                     </div>
                   </div>
@@ -72,12 +73,12 @@ export default function ContactPage() {
                         Telephone
                       </h3>
                       <p className="text-stone-600 mt-1">
-                        <a href="tel:+94112345678" className="hover:text-[#B7925A] transition-colors">
-                          +94 11 234 5678
+                        <a href={`tel:${settings.phone.replace(/[^+\d]/g, "")}`} className="hover:text-[#B7925A] transition-colors">
+                          {settings.phone}
                         </a>
                         <br />
-                        <a href="tel:+94771234567" className="hover:text-[#B7925A] transition-colors">
-                          +94 77 123 4567
+                        <a href={`tel:${settings.phoneSecondary.replace(/[^+\d]/g, "")}`} className="hover:text-[#B7925A] transition-colors">
+                          {settings.phoneSecondary}
                         </a>
                       </p>
                     </div>
@@ -94,10 +95,10 @@ export default function ContactPage() {
                       </h3>
                       <p className="text-stone-600 mt-1">
                         <a
-                          href="mailto:concierge@luminasalon.lk"
+                          href={`mailto:${settings.email}`}
                           className="hover:text-[#B7925A] transition-colors"
                         >
-                          concierge@luminasalon.lk
+                          {settings.email}
                         </a>
                       </p>
                     </div>
@@ -112,7 +113,8 @@ export default function ContactPage() {
                       <h3 className="font-semibold text-stone-900 text-xs uppercase tracking-wider">
                         Opening Hours
                       </h3>
-                      <p className="text-stone-600 mt-1 leading-relaxed">
+                      <div className="mt-1 space-y-1 text-stone-600">{settings.openingHours.map((hour) => <p key={hour.day}>{hour.day}: {hour.isClosed ? "Closed" : `${formatSalonTime(hour.open)} – ${formatSalonTime(hour.close)}`}</p>)}</div>
+                      <p className="hidden text-stone-600 mt-1 leading-relaxed">
                         Monday – Saturday: 9:00 AM – 7:00 PM<br />
                         Sunday: 10:00 AM – 5:00 PM<br />
                         <span className="text-[11px] text-stone-400">Poya & Public Holidays by appointment</span>
@@ -124,12 +126,12 @@ export default function ContactPage() {
                 {/* Instant WhatsApp Link */}
                 <div className="mt-8 pt-6 border-t border-stone-100">
                   <a
-                    href="https://wa.me/94771234567"
+                    href={settings.socialMedia.whatsapp || `https://wa.me/${settings.whatsapp.replace(/\D/g, "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-xs sm:text-sm font-semibold text-white hover:bg-[#20bd5a] transition-colors shadow-xs"
                   >
-                    <span>Chat on WhatsApp (+94 77 123 4567)</span>
+                    <span>Chat on WhatsApp ({settings.whatsapp})</span>
                   </a>
                 </div>
               </div>

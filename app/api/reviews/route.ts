@@ -86,21 +86,8 @@ export async function GET() {
   } catch (err) {
     console.error("GET /api/reviews error:", err);
     return NextResponse.json(
-      {
-        success: true,
-        averageRating: 4.9,
-        totalReviews: INITIAL_APPROVED_REVIEWS.length,
-        reviews: INITIAL_APPROVED_REVIEWS.map((r, i) => ({
-          id: `seed-${i}`,
-          author: r.author,
-          rating: r.rating,
-          service: r.service,
-          comment: r.comment,
-          status: r.status,
-          date: "March 2026",
-        })),
-      },
-      { status: 200 }
+      { success: false, message: "Could not load approved reviews" },
+      { status: 500 }
     );
   }
 }
