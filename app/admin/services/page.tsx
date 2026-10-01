@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 type Service = {
   _id: string;
@@ -201,21 +202,18 @@ export default function AdminServicesPage() {
   };
 
   return (
-    <main className="min-h-screen bg-stone-50 p-6">
-      <div className="mx-auto max-w-6xl">
-        <h1 className="text-3xl font-semibold text-stone-900">
-          Service Management
-        </h1>
+    <div className="space-y-8 animate-fadeIn">
+      <AdminPageHeader
+        title="Service Management"
+        description="Add, update, activate, and manage your full salon treatment catalog, durations, and pricing."
+        breadcrumbs={[{ label: "Services" }]}
+      />
 
-        <p className="mt-2 text-stone-500">
-          Manage salon services, prices, durations and availability.
-        </p>
-
-        {message && (
-          <div className="mt-5 rounded-lg bg-white p-3 shadow-sm">
-            {message}
-          </div>
-        )}
+      {message && (
+        <div className="rounded-xl border border-stone-200 bg-white p-4 text-xs sm:text-sm text-stone-800 shadow-xs">
+          {message}
+        </div>
+      )}
 
         <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="text-xl font-semibold">
@@ -430,7 +428,6 @@ export default function AdminServicesPage() {
             </tbody>
           </table>
         </div>
-      </div>
-    </main>
+    </div>
   );
 }

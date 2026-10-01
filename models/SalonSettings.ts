@@ -1,0 +1,110 @@
+import mongoose, { Schema, Document, Model } from "mongoose";
+
+export interface IOpeningHour {
+  day: string;
+  open: string;
+  close: string;
+  isClosed: boolean;
+}
+
+export interface ISalonSettings extends Document {
+  salonName: string;
+  logo: string;
+  aboutDescription: string;
+  phone: string;
+  phoneSecondary: string;
+  whatsapp: string;
+  email: string;
+  address: string;
+  openingHours: IOpeningHour[];
+  socialMedia: {
+    facebook: string;
+    instagram: string;
+    tiktok: string;
+    whatsapp: string;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const defaultOpeningHours: IOpeningHour[] = [
+  { day: "Monday", open: "09:00", close: "19:00", isClosed: false },
+  { day: "Tuesday", open: "09:00", close: "19:00", isClosed: false },
+  { day: "Wednesday", open: "09:00", close: "19:00", isClosed: false },
+  { day: "Thursday", open: "09:00", close: "19:00", isClosed: false },
+  { day: "Friday", open: "09:00", close: "19:00", isClosed: false },
+  { day: "Saturday", open: "09:00", close: "19:00", isClosed: false },
+  { day: "Sunday", open: "10:00", close: "17:00", isClosed: false },
+];
+
+const SalonSettingsSchema = new Schema<ISalonSettings>(
+  {
+    salonName: {
+      type: String,
+      default: "LUMINA Luxury Salon",
+      trim: true,
+    },
+    logo: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    aboutDescription: {
+      type: String,
+      default:
+        "Colombo's premier sanctuary for bespoke hair styling, aesthetic skin therapy, and luxury bridal services.",
+      trim: true,
+    },
+    phone: {
+      type: String,
+      default: "+94 11 234 5678",
+      trim: true,
+    },
+    phoneSecondary: {
+      type: String,
+      default: "+94 77 123 4567",
+      trim: true,
+    },
+    whatsapp: {
+      type: String,
+      default: "+94 77 123 4567",
+      trim: true,
+    },
+    email: {
+      type: String,
+      default: "concierge@luminasalon.lk",
+      trim: true,
+    },
+    address: {
+      type: String,
+      default: "42 Horton Place, Cinnamon Gardens, Colombo 07, Sri Lanka",
+      trim: true,
+    },
+    openingHours: {
+      type: [
+        {
+          day: { type: String, required: true },
+          open: { type: String, default: "09:00" },
+          close: { type: String, default: "19:00" },
+          isClosed: { type: Boolean, default: false },
+        },
+      ],
+      default: defaultOpeningHours,
+    },
+    socialMedia: {
+      facebook: { type: String, default: "https://facebook.com/luminasalon" },
+      instagram: { type: String, default: "https://instagram.com/luminasalon" },
+      tiktok: { type: String, default: "https://tiktok.com/@luminasalon" },
+      whatsapp: { type: String, default: "https://wa.me/94771234567" },
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const SalonSettings: Model<ISalonSettings> =
+  mongoose.models.SalonSettings ||
+  mongoose.model<ISalonSettings>("SalonSettings", SalonSettingsSchema);
+
+export default SalonSettings;

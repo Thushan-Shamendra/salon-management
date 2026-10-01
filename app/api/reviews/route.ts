@@ -1,54 +1,108 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import { connectDB } from "@/lib/mongodb";
+import Review from "@/models/Review";
 
-// Public approved salon reviews
-const APPROVED_REVIEWS = [
+const INITIAL_APPROVED_REVIEWS = [
   {
-    id: "rev-1",
     author: "Kavindi Wickramasinghe",
     rating: 5,
     service: "Keratin Treatment & Cut",
-    date: "March 2026",
     comment:
       "The best salon experience in Colombo hands down. My stylist took the time to assess my hair texture before recommending a tailored treatment. My hair has never felt so silky and manageable!",
+    status: "approved" as const,
   },
   {
-    id: "rev-2",
     author: "Roshini Senanayake",
     rating: 5,
     service: "Hydra Glow Facial",
-    date: "February 2026",
     comment:
       "Such a calming oasis. The private aesthetic suites and gentle facial techniques made my skin radiate instantly for my sister's engagement. Truly personalized and hygienic care.",
+    status: "approved" as const,
   },
   {
-    id: "rev-3",
     author: "Tariq Mansoor",
     rating: 5,
     service: "Executive Haircut & Scalp Spa",
-    date: "March 2026",
     comment:
       "Precision haircut and an exceptionally relaxing scalp therapy. Professional hospitality from the moment you step through the doors. The online booking process was super smooth.",
+    status: "approved" as const,
   },
   {
-    id: "rev-4",
     author: "Shenali Perera",
     rating: 5,
     service: "Honey Balayage & Gloss",
-    date: "March 2026",
     comment:
       "Transformed my dark hair into a vibrant warm dimensional balayage with zero breakage. The attention to detail was exceptional.",
+    status: "approved" as const,
   },
 ];
 
+// Seed initial approved reviews if collection is completely empty
+async function ensureSeededReviews() {
+  const count = await Review.countDocuments();
+  if (count === 0) {
+    await Review.insertMany(INITIAL_APPROVED_REVIEWS);
+  }
+}
+
 // GET /api/reviews - PUBLIC: anyone can read approved reviews
 export async function GET() {
-  return NextResponse.json({
-    success: true,
-    averageRating: 4.9,
-    totalReviews: 320,
-    reviews: APPROVED_REVIEWS,
-  });
+  try {
+    await connectDB();
+    await ensureSeededReviews();
+
+    const reviews = await Review.find({ status: "approved" })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const total = reviews.length;
+    const avg =
+      total > 0
+        ? Number(
+            (
+              reviews.reduce((sum, r) => sum + r.rating, 0) / total
+            ).toFixed(1)
+          )
+        : 5.0;
+
+    return NextResponse.json({
+      success: true,
+      averageRating: avg,
+      totalReviews: total,
+      reviews: reviews.map((r) => ({
+        id: r._id.toString(),
+        author: r.author,
+        rating: r.rating,
+        service: r.service,
+        comment: r.comment,
+        status: r.status,
+        date: new Date(r.createdAt).toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+        }),
+      })),
+    });
+  } catch (err) {
+    console.error("GET /api/reviews error:", err);
+    return NextResponse.json(
+      {
+        success: true,
+        averageRating: 4.9,
+        totalReviews: INITIAL_APPROVED_REVIEWS.length,
+        reviews: INITIAL_APPROVED_REVIEWS.map((r, i) => ({
+          id: `seed-${i}`,
+          author: r.author,
+          rating: r.rating,
+          service: r.service,
+          comment: r.comment,
+          status: r.status,
+          date: "March 2026",
+        })),
+      },
+      { status: 200 }
+    );
+  }
 }
 
 // POST /api/reviews - PROTECTED: requires authenticated customer session
@@ -89,21 +143,30 @@ export async function POST(request: Request) {
       );
     }
 
-    const newReview = {
-      id: `rev-${Date.now()}`,
+    await connectDB();
+    await ensureSeededReviews();
+
+    const newReview = await Review.create({
       author: user.name,
       rating: Number(rating),
       service: service?.trim() || "Salon Service",
       comment: comment.trim(),
-      date: "Just now",
-      createdAt: new Date().toISOString(),
-    };
+      status: "pending",
+    });
 
     return NextResponse.json(
       {
         success: true,
         message: "Thank you! Your review has been submitted for approval.",
-        review: newReview,
+        review: {
+          id: newReview._id.toString(),
+          author: newReview.author,
+          rating: newReview.rating,
+          service: newReview.service,
+          comment: newReview.comment,
+          status: newReview.status,
+          date: "Just now",
+        },
       },
       { status: 201 }
     );
