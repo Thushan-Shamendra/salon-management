@@ -9,6 +9,7 @@ import {
   ShieldCheckIcon,
   LogOutIcon,
   UserIcon,
+  LockIcon,
 } from "@/components/ui/icons";
 
 interface AdminUser {
@@ -140,6 +141,15 @@ export default function AdminHeader({
                 >
                   <UserIcon className="h-4 w-4 text-stone-500" />
                   <span>Admin Settings</span>
+                </Link>
+
+                <Link
+                  href="/admin/change-password"
+                  onClick={() => setDropdownOpen(false)}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs text-stone-700 hover:bg-stone-50"
+                >
+                  <LockIcon className="h-4 w-4 text-stone-500" />
+                  <span>Change Password</span>
                 </Link>
 
                 <Link

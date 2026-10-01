@@ -57,7 +57,11 @@ function LoginForm() {
       }
 
       if (data.user.role === "admin") {
-        router.push(safeRedirect || "/admin");
+        if (data.user.mustChangePassword) {
+          router.push("/admin/change-password");
+        } else {
+          router.push(safeRedirect || "/admin");
+        }
       } else {
         router.push(safeRedirect || "/account");
       }

@@ -54,6 +54,7 @@ export async function GET() {
         email: user.email,
         phone: user.phone,
         role: user.role,
+        mustChangePassword: user.mustChangePassword ?? false,
         profileImage: user.profileImage || "",
       },
     });

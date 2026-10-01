@@ -80,6 +80,7 @@ export async function POST(request: Request) {
           email: user.email,
           phone: user.phone,
           role: user.role,
+          mustChangePassword: user.mustChangePassword ?? false,
         },
       },
       { status: 200 }

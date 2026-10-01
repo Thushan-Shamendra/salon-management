@@ -84,6 +84,7 @@ export async function POST(request: Request) {
       phone: phone.trim(),
       password: hashedPassword,
       role: "customer",
+      mustChangePassword: false,
     });
 
     return NextResponse.json(

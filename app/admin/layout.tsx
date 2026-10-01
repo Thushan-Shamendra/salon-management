@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { getCurrentUser } from "@/lib/auth";
 import AdminLayoutClient from "@/components/admin/AdminLayoutClient";
 
@@ -25,13 +26,23 @@ export default async function AdminLayout({
     redirect("/");
   }
 
-  // 3. Logged in admin -> render Admin Portal layout
+  // 3. Admin with mustChangePassword flag MUST change temporary password first
+  const headersList = await headers();
+  const rawPath = headersList.get("x-pathname") || "";
+  const currentPath = rawPath.replace(/\/$/, "");
+
+  if (user.mustChangePassword && currentPath !== "/admin/change-password") {
+    redirect("/admin/change-password");
+  }
+
+  // 4. Render Admin Portal layout
   return (
     <AdminLayoutClient
       user={{
         name: user.name,
         email: user.email,
         role: user.role,
+        mustChangePassword: user.mustChangePassword ?? false,
       }}
     >
       {children}

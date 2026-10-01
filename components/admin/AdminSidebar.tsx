@@ -14,11 +14,13 @@ import {
   ExternalLinkIcon,
   LogOutIcon,
   XIcon,
+  LockIcon,
 } from "@/components/ui/icons";
 
 interface AdminSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  mustChangePassword?: boolean;
 }
 
 export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
@@ -73,6 +75,11 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       name: "Website Settings",
       href: "/admin/settings",
       icon: SettingsIcon,
+    },
+    {
+      name: "Change Password",
+      href: "/admin/change-password",
+      icon: LockIcon,
     },
   ];
 

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import AdminSidebar from "./AdminSidebar";
 import AdminHeader from "./AdminHeader";
 
@@ -8,6 +9,7 @@ interface AdminUser {
   name?: string;
   email?: string;
   role?: string;
+  mustChangePassword?: boolean;
 }
 
 interface AdminLayoutClientProps {
@@ -20,6 +22,15 @@ export default function AdminLayoutClient({
   children,
 }: AdminLayoutClientProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Client-side guard for seeded admin with mustChangePassword: true
+  useEffect(() => {
+    if (user.mustChangePassword && pathname !== "/admin/change-password") {
+      router.replace("/admin/change-password");
+    }
+  }, [user.mustChangePassword, pathname, router]);
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#1C1917] flex">
@@ -27,6 +38,7 @@ export default function AdminLayoutClient({
       <AdminSidebar
         isOpen={mobileNavOpen}
         onClose={() => setMobileNavOpen(false)}
+        mustChangePassword={user.mustChangePassword}
       />
 
       {/* Main Viewport Content Area */}
