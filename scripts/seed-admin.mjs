@@ -3,25 +3,27 @@ import path from "path";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-// 1. Ensure environment variables from .env.local are loaded if not already present
-const envPath = path.resolve(process.cwd(), ".env.local");
-if (fs.existsSync(envPath)) {
-  const envContent = fs.readFileSync(envPath, "utf-8");
-  for (const line of envContent.split(/\r?\n/)) {
-    const trimmed = line.trim();
-    if (trimmed && !trimmed.startsWith("#")) {
-      const eqIndex = trimmed.indexOf("=");
-      if (eqIndex !== -1) {
-        const key = trimmed.slice(0, eqIndex).trim();
-        let value = trimmed.slice(eqIndex + 1).trim();
-        if (
-          (value.startsWith('"') && value.endsWith('"')) ||
-          (value.startsWith("'") && value.endsWith("'"))
-        ) {
-          value = value.slice(1, -1);
-        }
-        if (key && !process.env[key]) {
-          process.env[key] = value;
+// 1. Ensure environment variables from .env.local or .env are loaded if not already present
+for (const file of [".env.local", ".env"]) {
+  const envPath = path.resolve(process.cwd(), file);
+  if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, "utf-8");
+    for (const line of envContent.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith("#")) {
+        const eqIndex = trimmed.indexOf("=");
+        if (eqIndex !== -1) {
+          const key = trimmed.slice(0, eqIndex).trim();
+          let value = trimmed.slice(eqIndex + 1).trim();
+          if (
+            (value.startsWith('"') && value.endsWith('"')) ||
+            (value.startsWith("'") && value.endsWith("'"))
+          ) {
+            value = value.slice(1, -1);
+          }
+          if (key && !process.env[key]) {
+            process.env[key] = value;
+          }
         }
       }
     }

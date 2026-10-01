@@ -161,14 +161,13 @@ export default function AdminDashboardPage() {
             isUnavailable={true}
           />
 
-          {/* Community Posts (Unimplemented module: clear placeholder) */}
+          {/* Community Posts */}
           <StatCard
             title="Community Posts"
-            value={null}
-            description="Member transformation feed is currently in configuration"
+            value={loading ? "..." : stats?.totalCommunityPosts}
+            description="Submitted member posts and transformations"
             icon={MessageCircleIcon}
             href="/admin/community"
-            isUnavailable={true}
           />
 
           {/* Operational Status Card */}

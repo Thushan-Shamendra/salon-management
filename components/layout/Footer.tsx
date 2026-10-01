@@ -11,8 +11,10 @@ import {
   TikTokIcon,
   WhatsAppIcon,
 } from "@/components/ui/icons";
+import { formatSalonTime, getSalonSettings } from "@/lib/salon-settings";
 
-export default function Footer() {
+export default async function Footer() {
+  const settings = await getSalonSettings();
   const currentYear = new Date().getFullYear();
 
   const quickLinks = [
@@ -69,7 +71,7 @@ export default function Footer() {
               </div>
               <div className="flex flex-col">
                 <span className="font-serif text-xl font-bold tracking-wider text-white">
-                  LUMINA
+                  {settings.salonName}
                 </span>
                 <span className="text-[10px] uppercase tracking-[0.25em] text-[#C5A46D] font-medium -mt-1">
                   Luxury Salon
@@ -89,7 +91,7 @@ export default function Footer() {
               </p>
               <div className="flex items-center gap-3">
                 <a
-                  href="https://instagram.com"
+                  href={settings.socialMedia.instagram || "https://instagram.com"}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Follow Lumina Salon on Instagram"
@@ -98,7 +100,7 @@ export default function Footer() {
                   <InstagramIcon className="h-4 w-4" />
                 </a>
                 <a
-                  href="https://facebook.com"
+                  href={settings.socialMedia.facebook || "https://facebook.com"}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Follow Lumina Salon on Facebook"
@@ -107,7 +109,7 @@ export default function Footer() {
                   <FacebookIcon className="h-4 w-4" />
                 </a>
                 <a
-                  href="https://tiktok.com"
+                  href={settings.socialMedia.tiktok || "https://tiktok.com"}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Follow Lumina Salon on TikTok"
@@ -116,7 +118,7 @@ export default function Footer() {
                   <TikTokIcon className="h-4 w-4" />
                 </a>
                 <a
-                  href="https://whatsapp.com"
+                  href={settings.socialMedia.whatsapp || "https://wa.me"}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Chat with Lumina Salon on WhatsApp"
@@ -176,36 +178,35 @@ export default function Footer() {
             <div className="space-y-3 text-sm text-stone-400">
               <div className="flex items-start gap-2.5">
                 <MapPinIcon className="h-5 w-5 text-[#C5A46D] shrink-0 mt-0.5" />
-                <span>124 Flower Road, Colombo 07, Sri Lanka</span>
+                <span>{settings.address}</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <PhoneIcon className="h-4 w-4 text-[#C5A46D] shrink-0" />
-                <a href="tel:+94112345678" className="hover:text-white transition-colors">
-                  +94 11 234 5678
+                <a href={`tel:${settings.phone.replace(/[^+\d]/g, "")}`} className="hover:text-white transition-colors">
+                  {settings.phone}
                 </a>
               </div>
               <div className="flex items-center gap-2.5">
                 <WhatsAppIcon className="h-4 w-4 text-[#C5A46D] shrink-0" />
                 <a
-                  href="https://wa.me/94771234567"
+                  href={settings.socialMedia.whatsapp || `https://wa.me/${settings.whatsapp.replace(/\D/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"
                 >
-                  +94 77 123 4567 (WhatsApp)
+                  {settings.whatsapp} (WhatsApp)
                 </a>
               </div>
               <div className="flex items-center gap-2.5">
                 <MailIcon className="h-4 w-4 text-[#C5A46D] shrink-0" />
-                <a href="mailto:hello@luminasalon.lk" className="hover:text-white transition-colors">
-                  hello@luminasalon.lk
+                <a href={`mailto:${settings.email}`} className="hover:text-white transition-colors">
+                  {settings.email}
                 </a>
               </div>
               <div className="flex items-start gap-2.5 pt-1">
                 <ClockIcon className="h-4 w-4 text-[#C5A46D] shrink-0 mt-0.5" />
                 <div className="text-xs leading-relaxed">
-                  <p className="text-stone-300 font-medium">Mon - Sat: 9:00 AM - 7:00 PM</p>
-                  <p>Sun: 10:00 AM - 5:00 PM</p>
+                  {settings.openingHours.map((hour) => <p key={hour.day} className={hour.isClosed ? "" : "text-stone-300 font-medium"}>{hour.day.slice(0, 3)}: {hour.isClosed ? "Closed" : `${formatSalonTime(hour.open)} - ${formatSalonTime(hour.close)}`}</p>)}
                 </div>
               </div>
             </div>
@@ -215,7 +216,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-stone-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
           <p>
-            © {currentYear} Lumina Salon. All rights reserved.
+            © {currentYear} {settings.salonName}. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <Link href="/about" className="hover:text-stone-300 transition-colors">

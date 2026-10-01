@@ -4,6 +4,7 @@ import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
 import Service from "@/models/Service";
 import Review from "@/models/Review";
+import CommunityPost from "@/models/CommunityPost";
 
 // GET /api/admin/dashboard - ADMIN ONLY
 export async function GET() {
@@ -27,7 +28,7 @@ export async function GET() {
     await connectDB();
 
     // Query REAL database statistics for implemented models
-    const [totalCustomers, activeCustomers, totalServices, activeServices, totalReviews, pendingReviews, allReviews] =
+    const [totalCustomers, activeCustomers, totalServices, activeServices, totalReviews, pendingReviews, allReviews, totalCommunityPosts] =
       await Promise.all([
         User.countDocuments({ role: "customer" }),
         User.countDocuments({ role: "customer", isActive: true }),
@@ -35,7 +36,8 @@ export async function GET() {
         Service.countDocuments({ isActive: true }),
         Review.countDocuments(),
         Review.countDocuments({ status: "pending" }),
-        Review.find({}, "rating").lean(),
+        Review.find({ status: "approved" }, "rating").lean(),
+        CommunityPost.countDocuments(),
       ]);
 
     const averageRating =
@@ -58,10 +60,10 @@ export async function GET() {
         totalReviews,
         pendingReviews,
         averageRating,
-        // Unimplemented modules explicitly marked as null / unavailable
+        // Appointment management is not implemented yet.
         totalAppointments: null,
         todayAppointments: null,
-        totalCommunityPosts: null,
+        totalCommunityPosts,
       },
     });
   } catch (error) {
