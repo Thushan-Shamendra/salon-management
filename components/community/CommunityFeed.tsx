@@ -32,6 +32,8 @@ export default function CommunityFeed({ userId, userName }: { userId: string | n
     }
   }, []);
 
+  // Data is loaded after mount from the API; this one-time state update is required for the client feed.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { void loadPosts(); }, [loadPosts]);
 
   const submitPost = async (event: FormEvent) => {

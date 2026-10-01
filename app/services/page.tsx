@@ -1,6 +1,9 @@
 import Link from "next/link";
+
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { connectDB } from "@/lib/mongodb";
+import ServiceModel from "@/models/Service";
 
 type Service = {
   _id: string;
@@ -14,20 +17,19 @@ type Service = {
 
 async function getServices(): Promise<Service[]> {
   try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
+    await connectDB();
 
-    const response = await fetch(`${baseUrl}/api/services`, {
-      cache: "no-store",
-    });
+    const services = await ServiceModel.find({ isActive: true }).sort({ createdAt: -1 }).lean();
 
-    if (!response.ok) {
-      return [];
-    }
-
-    const data = await response.json();
-
-    return data.services || [];
+    return services.map((service) => ({
+      _id: String(service._id),
+      name: service.name,
+      description: service.description,
+      price: Number(service.price),
+      duration: Number(service.duration),
+      image: service.image || "",
+      isActive: Boolean(service.isActive),
+    }));
   } catch (error) {
     console.error("Failed to load services:", error);
     return [];

@@ -28,7 +28,7 @@ export default function AdminCommunityPage() {
   }, [search, filter]);
   useEffect(() => { const timer = setTimeout(() => void load(), 200); return () => clearTimeout(timer); }, [load]);
 
-  const updatePost = async (post: AdminPost, changes: { status?: string; featured?: boolean; commentId?: string }) => {
+  const updatePost = async (post: AdminPost, changes: { status?: AdminPost["status"]; featured?: boolean; commentId?: string }) => {
     setBusy(post.id); setNotice("");
     try {
       const response = await fetch("/api/admin/community", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: post.id, ...changes }) });

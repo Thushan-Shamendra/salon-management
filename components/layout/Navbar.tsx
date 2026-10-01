@@ -19,10 +19,16 @@ interface UserProfile {
   role: string;
 }
 
+interface SalonBranding {
+  salonName: string;
+  logo: string;
+}
+
 export default function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [branding, setBranding] = useState<SalonBranding>({ salonName: "LUMINA Luxury Salon", logo: "" });
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Check auth session
@@ -45,6 +51,17 @@ export default function Navbar() {
     return () => {
       isMounted = false;
     };
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.success && data.settings) {
+          setBranding({ salonName: data.settings.salonName || "LUMINA Luxury Salon", logo: data.settings.logo || "" });
+        }
+      })
+      .catch(() => undefined);
   }, []);
 
   // Handle scroll effect for navbar elevation
@@ -94,12 +111,16 @@ export default function Navbar() {
           href="/"
           className="group flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] rounded-lg"
         >
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-900 text-[#C5A46D] shadow-sm transition-transform duration-300 group-hover:scale-105 border border-[#B7925A]/40">
-            <ScissorsIcon className="h-5 w-5" />
-          </div>
+          {branding.logo ? (
+            <img src={branding.logo} alt={`${branding.salonName} logo`} className="h-11 w-11 rounded-full border border-[#B7925A]/40 bg-white object-contain p-1 shadow-sm" />
+          ) : (
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-900 text-[#C5A46D] shadow-sm transition-transform duration-300 group-hover:scale-105 border border-[#B7925A]/40">
+              <ScissorsIcon className="h-5 w-5" />
+            </div>
+          )}
           <div className="flex flex-col">
             <span className="font-serif text-xl sm:text-2xl font-bold tracking-wider text-stone-900 group-hover:text-[#B7925A] transition-colors">
-              LUMINA
+              {branding.salonName.split(" ")[0]}
             </span>
             <span className="text-[10px] uppercase tracking-[0.25em] text-stone-500 font-medium -mt-1">
               Luxury Salon

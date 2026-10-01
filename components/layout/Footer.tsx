@@ -66,9 +66,13 @@ export default async function Footer() {
           {/* Col 1: Brand & Bio */}
           <div className="space-y-4">
             <Link href="/" className="inline-flex items-center gap-3 group">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-800 text-[#C5A46D] border border-[#B7925A]/40 group-hover:scale-105 transition-transform">
-                <ScissorsIcon className="h-5 w-5" />
-              </div>
+              {settings.logo ? (
+                <img src={settings.logo} alt={`${settings.salonName} logo`} className="h-10 w-10 rounded-full border border-[#B7925A]/40 bg-white object-contain p-1" />
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-800 text-[#C5A46D] border border-[#B7925A]/40 group-hover:scale-105 transition-transform">
+                  <ScissorsIcon className="h-5 w-5" />
+                </div>
+              )}
               <div className="flex flex-col">
                 <span className="font-serif text-xl font-bold tracking-wider text-white">
                   {settings.salonName}
