@@ -2,7 +2,12 @@ import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
-type Service = {
+import { connectDB } from "@/lib/mongodb";
+import Service from "@/models/Service";
+
+export const dynamic = "force-dynamic";
+
+type ServiceItemType = {
   _id: string;
   name: string;
   description: string;
@@ -12,22 +17,22 @@ type Service = {
   isActive: boolean;
 };
 
-async function getServices(): Promise<Service[]> {
+async function getServices(): Promise<ServiceItemType[]> {
   try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
+    await connectDB();
+    const services = await Service.find({ isActive: true })
+      .sort({ createdAt: -1 })
+      .lean();
 
-    const response = await fetch(`${baseUrl}/api/services`, {
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const data = await response.json();
-
-    return data.services || [];
+    return services.map((s) => ({
+      _id: s._id.toString(),
+      name: s.name,
+      description: s.description,
+      price: s.price,
+      duration: s.duration,
+      image: s.image || "",
+      isActive: s.isActive ?? true,
+    }));
   } catch (error) {
     console.error("Failed to load services:", error);
     return [];
