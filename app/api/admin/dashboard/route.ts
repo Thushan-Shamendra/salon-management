@@ -4,6 +4,8 @@ import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
 import Service from "@/models/Service";
 import Review from "@/models/Review";
+import Appointment from "@/models/Appointment";
+import { getSriLankaNow, normalizeAppointmentDate } from "@/lib/appointments";
 
 // GET /api/admin/dashboard - ADMIN ONLY
 export async function GET() {
@@ -26,17 +28,45 @@ export async function GET() {
 
     await connectDB();
 
-    // Query REAL database statistics for implemented models
-    const [totalCustomers, activeCustomers, totalServices, activeServices, totalReviews, pendingReviews, allReviews] =
-      await Promise.all([
-        User.countDocuments({ role: "customer" }),
-        User.countDocuments({ role: "customer", isActive: true }),
-        Service.countDocuments(),
-        Service.countDocuments({ isActive: true }),
-        Review.countDocuments(),
-        Review.countDocuments({ status: "pending" }),
-        Review.find({}, "rating").lean(),
-      ]);
+    const { dateStr: todayStr } = getSriLankaNow();
+    const todayDate = normalizeAppointmentDate(todayStr);
+
+    // Query REAL database statistics for all implemented models
+    const [
+      totalCustomers,
+      activeCustomers,
+      totalServices,
+      activeServices,
+      totalReviews,
+      pendingReviews,
+      allReviews,
+      totalAppointments,
+      todayAppointments,
+      pendingAppointments,
+      confirmedAppointments,
+      completedAppointments,
+      cancelledAppointments,
+      todaySchedule,
+    ] = await Promise.all([
+      User.countDocuments({ role: "customer" }),
+      User.countDocuments({ role: "customer", isActive: true }),
+      Service.countDocuments(),
+      Service.countDocuments({ isActive: true }),
+      Review.countDocuments(),
+      Review.countDocuments({ status: "pending" }),
+      Review.find({}, "rating").lean(),
+      Appointment.countDocuments(),
+      Appointment.countDocuments({ appointmentDate: todayDate }),
+      Appointment.countDocuments({ status: "pending" }),
+      Appointment.countDocuments({ status: "confirmed" }),
+      Appointment.countDocuments({ status: "completed" }),
+      Appointment.countDocuments({ status: "cancelled" }),
+      Appointment.find({ appointmentDate: todayDate })
+        .populate("service", "name duration price")
+        .populate("customer", "name phone email")
+        .sort({ startTime: 1 })
+        .lean(),
+    ]);
 
     const averageRating =
       allReviews.length > 0
@@ -58,11 +88,18 @@ export async function GET() {
         totalReviews,
         pendingReviews,
         averageRating,
-        // Unimplemented modules explicitly marked as null / unavailable
-        totalAppointments: null,
-        todayAppointments: null,
+        // Real Appointment statistics
+        totalAppointments,
+        todayAppointments,
+        pendingAppointments,
+        confirmedAppointments,
+        completedAppointments,
+        cancelledAppointments,
+        todayDate: todayStr,
+        // Unimplemented modules explicitly marked as null
         totalCommunityPosts: null,
       },
+      todaySchedule,
     });
   } catch (error) {
     console.error("Admin dashboard stats error:", error);

@@ -5,6 +5,8 @@ import Link from "next/link";
 import StatCard from "@/components/admin/StatCard";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import EmptyState from "@/components/admin/EmptyState";
+import StatusBadge from "@/components/admin/StatusBadge";
+import { formatTime12Hour } from "@/lib/appointments";
 import {
   ScissorsIcon,
   UserIcon,
@@ -17,6 +19,23 @@ import {
   ArrowRightIcon,
 } from "@/components/ui/icons";
 
+interface AppointmentRow {
+  _id: string;
+  startTime: string;
+  endTime: string;
+  customerName: string;
+  customerPhone?: string;
+  service?: {
+    _id: string;
+    name: string;
+    duration: number;
+    price: number;
+  };
+  duration: number;
+  price: number;
+  status: string;
+}
+
 interface DashboardStats {
   totalCustomers: number;
   activeCustomers: number;
@@ -27,11 +46,17 @@ interface DashboardStats {
   averageRating: number;
   totalAppointments: number | null;
   todayAppointments: number | null;
+  pendingAppointments: number;
+  confirmedAppointments: number;
+  completedAppointments: number;
+  cancelledAppointments: number;
+  todayDate?: string;
   totalCommunityPosts: number | null;
 }
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [todaySchedule, setTodaySchedule] = useState<AppointmentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,6 +70,7 @@ export default function AdminDashboardPage() {
 
         if (res.ok && data.success && isMounted) {
           setStats(data.stats);
+          setTodaySchedule(data.todaySchedule || []);
         } else if (isMounted) {
           setError(data.message || "Failed to load dashboard metrics");
         }
@@ -71,6 +97,12 @@ export default function AdminDashboardPage() {
       highlight: true,
     },
     {
+      title: "Manage Appointments",
+      description: "Review bookings, confirm requests, and manage salon calendar",
+      href: "/admin/appointments",
+      icon: CalendarIcon,
+    },
+    {
       title: "Manage Customers",
       description: "Inspect customer accounts, membership status, and permissions",
       href: "/admin/customers",
@@ -89,12 +121,6 @@ export default function AdminDashboardPage() {
       icon: MessageCircleIcon,
     },
     {
-      title: "Appointment Management",
-      description: "Real-time calendar reservations and client appointment slots",
-      href: "/admin/appointments",
-      icon: CalendarIcon,
-    },
-    {
       title: "Website Settings",
       description: "Update salon contact info, opening hours, and social media handles",
       href: "/admin/settings",
@@ -107,7 +133,7 @@ export default function AdminDashboardPage() {
       {/* 1. Page Header */}
       <AdminPageHeader
         title="Dashboard"
-        description="Welcome to your operational salon sanctuary. Monitor real customer registrations, live services, and client testimonials."
+        description="Welcome to your operational salon sanctuary. Monitor real customer registrations, live services, and client bookings."
       />
 
       {/* Error banner if dashboard API failed */}
@@ -138,6 +164,15 @@ export default function AdminDashboardPage() {
             href="/admin/customers"
           />
 
+          {/* Appointments Metric (Real) */}
+          <StatCard
+            title="Total Appointments"
+            value={loading ? "..." : stats?.totalAppointments ?? 0}
+            description={`${stats?.todayAppointments ?? 0} today (${stats?.pendingAppointments ?? 0} pending, ${stats?.confirmedAppointments ?? 0} confirmed)`}
+            icon={CalendarIcon}
+            href="/admin/appointments"
+          />
+
           {/* Total Reviews & Rating (Real) */}
           <StatCard
             title="Guest Reviews"
@@ -151,17 +186,7 @@ export default function AdminDashboardPage() {
             href="/admin/reviews"
           />
 
-          {/* Appointments (Unimplemented module: clear placeholder) */}
-          <StatCard
-            title="Appointments"
-            value={null}
-            description="Appointment scheduling engine is currently in configuration"
-            icon={CalendarIcon}
-            href="/admin/appointments"
-            isUnavailable={true}
-          />
-
-          {/* Community Posts (Unimplemented module: clear placeholder) */}
+          {/* Community Posts */}
           <StatCard
             title="Community Posts"
             value={null}
@@ -190,7 +215,7 @@ export default function AdminDashboardPage() {
               </div>
 
               <p className="mt-2 text-xs text-stone-500 leading-relaxed">
-                MongoDB database connected with authenticated JWT sessions.
+                MongoDB database connected with live booking engine &amp; JWT sessions.
               </p>
             </div>
 
@@ -210,7 +235,7 @@ export default function AdminDashboardPage() {
               Today&apos;s Appointments
             </h2>
             <p className="text-xs text-stone-500 mt-0.5">
-              Scheduled client appointments and treatments for today
+              Scheduled client appointments and treatments for today ({stats?.todayDate || "Today"})
             </p>
           </div>
 
@@ -222,14 +247,72 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
 
-        {/* Empty state per requirements - No fake data! */}
-        <EmptyState
-          icon={ClockIcon}
-          title="Appointment management has not been configured yet"
-          description="The real-time appointment booking engine is under development. Once enabled, today's schedule with client names, services, and statuses will appear here."
-          actionText="Visit Appointments Module"
-          actionHref="/admin/appointments"
-        />
+        {loading ? (
+          <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center text-xs text-stone-500">
+            Loading today&apos;s schedule...
+          </div>
+        ) : todaySchedule.length === 0 ? (
+          <EmptyState
+            icon={ClockIcon}
+            title="No appointments scheduled for today"
+            description="There are currently no customer bookings scheduled for today. New bookings made by customers will automatically appear here."
+            actionText="View All Appointments"
+            actionHref="/admin/appointments"
+          />
+        ) : (
+          <div className="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-xs">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs sm:text-sm">
+                <thead className="bg-[#FAF7F2] text-stone-600 uppercase text-[11px] tracking-wider border-b border-stone-200">
+                  <tr>
+                    <th scope="col" className="px-5 py-3.5 font-semibold">Time</th>
+                    <th scope="col" className="px-5 py-3.5 font-semibold">Customer</th>
+                    <th scope="col" className="px-5 py-3.5 font-semibold">Service</th>
+                    <th scope="col" className="px-5 py-3.5 font-semibold">Status</th>
+                    <th scope="col" className="px-5 py-3.5 font-semibold text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100">
+                  {todaySchedule.map((appt) => (
+                    <tr key={appt._id} className="hover:bg-[#FAF7F2]/40 transition-colors">
+                      <td className="px-5 py-4 font-medium text-stone-900 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5 font-mono text-xs font-semibold">
+                          <ClockIcon className="h-3.5 w-3.5 text-[#B7925A]" />
+                          <span>{formatTime12Hour(appt.startTime)} - {formatTime12Hour(appt.endTime)}</span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        <div className="font-semibold text-stone-900">{appt.customerName}</div>
+                        {appt.customerPhone && (
+                          <div className="text-[11px] text-stone-500">{appt.customerPhone}</div>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        <div className="font-medium text-stone-900">
+                          {appt.service?.name || "Service"}
+                        </div>
+                        <div className="text-[11px] text-stone-500">
+                          {appt.duration} min • LKR {appt.price.toLocaleString()}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        <StatusBadge status={appt.status} />
+                      </td>
+                      <td className="px-5 py-4 whitespace-nowrap text-right">
+                        <Link
+                          href="/admin/appointments"
+                          className="text-xs font-medium text-[#B7925A] hover:underline"
+                        >
+                          Manage &rarr;
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* 4. Quick Actions Section */}

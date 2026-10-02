@@ -1,7 +1,11 @@
 import React from "react";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
+import { connectDB } from "@/lib/mongodb";
+import Appointment from "@/models/Appointment";
 import ProfileHeader from "@/components/account/ProfileHeader";
+import StatusBadge from "@/components/admin/StatusBadge";
+import { formatTime12Hour, formatReadableDate, getSriLankaNow, normalizeAppointmentDate } from "@/lib/appointments";
 import {
   CalendarIcon,
   SparklesIcon,
@@ -11,10 +15,37 @@ import {
   PhoneIcon,
   WhatsAppIcon,
   ArrowRightIcon,
+  ClockIcon,
 } from "@/components/ui/icons";
+import "@/models/Service";
 
 export default async function AccountPage() {
   const user = await getCurrentUser();
+
+  await connectDB();
+
+  const { dateStr: todayStr } = getSriLankaNow();
+  const todayDate = normalizeAppointmentDate(todayStr);
+
+  // Load customer's next upcoming appointment
+  const nextAppointment = user
+    ? await Appointment.findOne({
+        customer: user._id,
+        status: { $in: ["pending", "confirmed"] },
+        appointmentDate: { $gte: todayDate },
+      })
+        .sort({ appointmentDate: 1, startTime: 1 })
+        .populate("service", "name duration price image")
+        .lean()
+    : null;
+
+  const upcomingCount = user
+    ? await Appointment.countDocuments({
+        customer: user._id,
+        status: { $in: ["pending", "confirmed"] },
+        appointmentDate: { $gte: todayDate },
+      })
+    : 0;
 
   const userProfile = {
     id: user?._id?.toString() || "",
@@ -46,10 +77,10 @@ export default async function AccountPage() {
     },
     {
       title: "My Appointments",
-      description: "View and manage your scheduled salon visits and booking history.",
+      description: `${upcomingCount} upcoming booking${upcomingCount === 1 ? "" : "s"} scheduled.`,
       href: "/account/appointments",
       icon: ScissorsIcon,
-      badge: "Appointments Portal",
+      badge: `${upcomingCount} Upcoming`,
       color: "hover:border-[#B7925A]",
     },
     {
@@ -121,7 +152,55 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      {/* 3. Quick Actions Grid */}
+      {/* 3. Next Upcoming Appointment (Section 19) */}
+      {nextAppointment && (
+        <div className="rounded-2xl border border-[#B7925A]/40 bg-gradient-to-br from-white via-white to-[#FAF7F2] p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-900 text-[#C5A46D] shrink-0 border border-[#B7925A]/30">
+              <CalendarIcon className="h-6 w-6" />
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#B7925A]">
+                  Next Appointment
+                </span>
+                <StatusBadge status={nextAppointment.status} />
+              </div>
+
+              <h3 className="font-serif text-lg font-semibold text-stone-900">
+                {/* @ts-expect-error populated name */}
+                {nextAppointment.service?.name || "Salon Treatment"}
+              </h3>
+
+              <div className="flex flex-wrap items-center gap-3 text-xs text-stone-600">
+                <span className="font-medium text-stone-800">
+                  {formatReadableDate(nextAppointment.appointmentDate)}
+                </span>
+                <span>•</span>
+                <span className="font-mono text-stone-700 flex items-center gap-1">
+                  <ClockIcon className="h-3.5 w-3.5 text-[#B7925A]" />
+                  <span>
+                    {formatTime12Hour(nextAppointment.startTime)} – {formatTime12Hour(nextAppointment.endTime)}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="shrink-0 flex items-center gap-3">
+            <Link
+              href="/account/appointments"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-stone-900 px-4 py-2.5 text-xs font-semibold text-white hover:bg-stone-800 transition-colors border border-[#B7925A]/30 shadow-xs"
+            >
+              <span>Manage Booking</span>
+              <ArrowRightIcon className="h-3.5 w-3.5 text-[#C5A46D]" />
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Quick Actions Grid */}
       <div>
         <div className="mb-4">
           <h3 className="font-serif text-lg sm:text-xl font-normal text-stone-900">
@@ -169,7 +248,7 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      {/* 4. Salon Concierge Assistance Card */}
+      {/* 5. Salon Concierge Assistance Card */}
       <div className="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
           <span className="text-[11px] font-semibold uppercase tracking-wider text-[#B7925A]">
