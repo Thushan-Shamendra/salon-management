@@ -6,6 +6,7 @@ export interface IService extends Document {
   price: number;
   duration: number;
   image: string;
+  imagePublicId?: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -40,6 +41,13 @@ const ServiceSchema = new Schema<IService>(
     image: {
       type: String,
       default: "",
+      trim: true,
+    },
+
+    imagePublicId: {
+      type: String,
+      default: "",
+      trim: true,
     },
 
     isActive: {

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { getCurrentUser } from "@/lib/auth";
 import Service from "@/models/Service";
+import { deleteCloudinaryImage } from "@/lib/cloudinary";
 
 type RouteContext = {
   params: Promise<{
@@ -92,6 +93,19 @@ export async function PATCH(
 
     const body = await request.json();
 
+    const existingService = await Service.findById(id);
+    if (!existingService) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Service not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    const oldPublicId = existingService.imagePublicId;
+
     const service = await Service.findByIdAndUpdate(
       id,
       {
@@ -111,6 +125,19 @@ export async function PATCH(
         },
         { status: 404 }
       );
+    }
+
+    // After database update succeeds, delete old Cloudinary image if it was replaced
+    if (
+      oldPublicId &&
+      body.imagePublicId &&
+      body.imagePublicId !== oldPublicId
+    ) {
+      try {
+        await deleteCloudinaryImage(oldPublicId);
+      } catch (cldErr) {
+        console.error("Failed to delete previous service image from Cloudinary:", cldErr);
+      }
     }
 
     return NextResponse.json({
@@ -172,6 +199,15 @@ export async function DELETE(
         },
         { status: 404 }
       );
+    }
+
+    // Clean up Cloudinary asset if service had an associated image
+    if (service.imagePublicId) {
+      try {
+        await deleteCloudinaryImage(service.imagePublicId);
+      } catch (cldErr) {
+        console.error("Failed to delete removed service image from Cloudinary:", cldErr);
+      }
     }
 
     return NextResponse.json({

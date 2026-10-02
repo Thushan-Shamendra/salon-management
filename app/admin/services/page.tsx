@@ -2,6 +2,9 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import ImageUpload from "@/components/ui/ImageUpload";
+import { CLOUDINARY_FOLDERS } from "@/lib/cloudinary-constants";
+import { ImageIcon } from "@/components/ui/icons";
 
 type Service = {
   _id: string;
@@ -10,6 +13,7 @@ type Service = {
   price: number;
   duration: number;
   image: string;
+  imagePublicId?: string;
   isActive: boolean;
 };
 
@@ -19,6 +23,7 @@ const emptyForm = {
   price: "",
   duration: "",
   image: "",
+  imagePublicId: "",
   isActive: true,
 };
 
@@ -95,6 +100,7 @@ export default function AdminServicesPage() {
           price: Number(form.price),
           duration: Number(form.duration),
           image: form.image,
+          imagePublicId: form.imagePublicId,
           isActive: form.isActive,
         }),
       });
@@ -132,6 +138,7 @@ export default function AdminServicesPage() {
       price: service.price.toString(),
       duration: service.duration.toString(),
       image: service.image || "",
+      imagePublicId: service.imagePublicId || "",
       isActive: service.isActive,
     });
 
@@ -270,16 +277,27 @@ export default function AdminServicesPage() {
               />
             </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium">
-                Image URL
-              </label>
-
-              <input
-                name="image"
+            <div className="md:col-span-2">
+              <ImageUpload
+                folder={CLOUDINARY_FOLDERS.SERVICES}
                 value={form.image}
-                onChange={handleChange}
-                className="w-full rounded-lg border px-4 py-3"
+                publicId={form.imagePublicId}
+                label="Service Image"
+                description="Upload a high-quality photo representing this service (JPG, PNG, WEBP up to 5MB)"
+                onChange={({ url, publicId }) => {
+                  setForm((prev) => ({
+                    ...prev,
+                    image: url,
+                    imagePublicId: publicId,
+                  }));
+                }}
+                onRemove={() => {
+                  setForm((prev) => ({
+                    ...prev,
+                    image: "",
+                    imagePublicId: "",
+                  }));
+                }}
               />
             </div>
 
@@ -357,11 +375,26 @@ export default function AdminServicesPage() {
                   className="border-b last:border-none"
                 >
                   <td className="p-4">
-                    <p className="font-medium">{service.name}</p>
-
-                    <p className="mt-1 max-w-sm text-sm text-stone-500">
-                      {service.description}
-                    </p>
+                    <div className="flex items-center gap-3">
+                      {service.image ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={service.image}
+                          alt={service.name}
+                          className="h-12 w-12 rounded-xl object-cover border border-stone-200 shrink-0 shadow-xs"
+                        />
+                      ) : (
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 border border-stone-200 text-stone-400 shrink-0">
+                          <ImageIcon className="h-5 w-5 text-stone-400" />
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-medium text-stone-900">{service.name}</p>
+                        <p className="mt-0.5 max-w-xs text-xs text-stone-500 line-clamp-1">
+                          {service.description}
+                        </p>
+                      </div>
+                    </div>
                   </td>
 
                   <td className="p-4">

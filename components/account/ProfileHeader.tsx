@@ -20,7 +20,7 @@ export default function ProfileHeader({
   user,
   showEditButton = false,
 }: ProfileHeaderProps) {
-  const [imageError, setImageError] = useState(false);
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
 
   // Helper to extract clean initials from name
   const getInitials = (name: string) => {
@@ -44,10 +44,11 @@ export default function ProfileHeader({
     }
   };
 
-  const hasValidImage =
+  const hasValidImage = Boolean(
     user.profileImage &&
     user.profileImage.trim().length > 0 &&
-    !imageError;
+    failedImageUrl !== user.profileImage
+  );
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-8 shadow-sm">
@@ -67,7 +68,7 @@ export default function ProfileHeader({
               <img
                 src={user.profileImage}
                 alt={user.name}
-                onError={() => setImageError(true)}
+                onError={() => setFailedImageUrl(user.profileImage || "")}
                 className="h-full w-full rounded-full object-cover"
               />
             ) : (

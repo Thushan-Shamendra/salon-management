@@ -2,11 +2,12 @@
 
 import React, { useState, FormEvent } from "react";
 import { UserProfile } from "@/types/account";
+import ImageUpload from "@/components/ui/ImageUpload";
+import { CLOUDINARY_FOLDERS } from "@/lib/cloudinary-constants";
 import {
   UserIcon,
   MailIcon,
   PhoneIcon,
-  CameraIcon,
   CheckIcon,
   AlertCircleIcon,
 } from "@/components/ui/icons";
@@ -25,6 +26,7 @@ export default function ProfileForm({
     email: initialUser.email || "",
     phone: initialUser.phone || "",
     profileImage: initialUser.profileImage || "",
+    profileImagePublicId: initialUser.profileImagePublicId || "",
   });
 
   const [initialState, setInitialState] = useState({
@@ -32,26 +34,22 @@ export default function ProfileForm({
     email: initialUser.email || "",
     phone: initialUser.phone || "",
     profileImage: initialUser.profileImage || "",
+    profileImagePublicId: initialUser.profileImagePublicId || "",
   });
 
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [previewError, setPreviewError] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (name === "profileImage") {
-      setPreviewError(false);
-    }
   };
 
   const handleReset = () => {
     setFormData(initialState);
     setSuccessMessage("");
     setErrorMessage("");
-    setPreviewError(false);
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -88,6 +86,7 @@ export default function ProfileForm({
           email: formData.email.trim(),
           phone: formData.phone.trim(),
           profileImage: formData.profileImage.trim(),
+          profileImagePublicId: formData.profileImagePublicId.trim(),
         }),
       });
 
@@ -105,6 +104,7 @@ export default function ProfileForm({
           email: data.user.email,
           phone: data.user.phone,
           profileImage: data.user.profileImage || "",
+          profileImagePublicId: data.user.profileImagePublicId || "",
         });
         if (onProfileUpdated) {
           onProfileUpdated(data.user);
@@ -118,16 +118,12 @@ export default function ProfileForm({
     }
   };
 
-  const hasImagePreview =
-    formData.profileImage &&
-    formData.profileImage.trim().length > 0 &&
-    !previewError;
-
   const isFormDirty =
     formData.name !== initialState.name ||
     formData.email !== initialState.email ||
     formData.phone !== initialState.phone ||
-    formData.profileImage !== initialState.profileImage;
+    formData.profileImage !== initialState.profileImage ||
+    formData.profileImagePublicId !== initialState.profileImagePublicId;
 
   return (
     <div className="rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-8 shadow-sm">
@@ -167,45 +163,31 @@ export default function ProfileForm({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Profile Picture Field with Live Preview */}
+        {/* Profile Picture Upload with Circular Preview */}
         <div>
-          <label className="block text-xs sm:text-sm font-semibold uppercase tracking-wider text-stone-700 mb-2">
-            Profile Picture
-          </label>
-
-          <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-            {/* Live Avatar Preview Container */}
-            <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-full border-2 border-[#B7925A]/40 bg-[#FAF7F2] p-0.5 shrink-0 overflow-hidden">
-              {hasImagePreview ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={formData.profileImage}
-                  alt="Avatar preview"
-                  onError={() => setPreviewError(true)}
-                  className="h-full w-full rounded-full object-cover"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center rounded-full bg-stone-100 text-stone-400">
-                  <CameraIcon className="h-6 w-6" />
-                </div>
-              )}
-            </div>
-
-            {/* Image URL Input */}
-            <div className="flex-1 space-y-1">
-              <input
-                type="url"
-                name="profileImage"
-                value={formData.profileImage}
-                onChange={handleChange}
-                placeholder="https://example.com/my-photo.jpg"
-                className="w-full rounded-xl border border-stone-300 bg-[#FAF7F2]/40 px-4 py-2.5 text-xs sm:text-sm text-stone-900 outline-none transition-all placeholder:text-stone-400 focus:border-[#B7925A] focus:bg-white focus:ring-2 focus:ring-[#B7925A]/20"
-              />
-              <p className="text-[11px] text-[#78716C]">
-                Paste a direct image URL (HTTPS). Cloudinary upload integration will be added soon.
-              </p>
-            </div>
-          </div>
+          <ImageUpload
+            folder={CLOUDINARY_FOLDERS.PROFILES}
+            value={formData.profileImage}
+            publicId={formData.profileImagePublicId}
+            label="Profile Photo"
+            description="Upload a photo for your profile (JPG, JPEG, PNG, WEBP up to 5MB)"
+            circular={true}
+            disabled={saving}
+            onChange={({ url, publicId }) => {
+              setFormData((prev) => ({
+                ...prev,
+                profileImage: url,
+                profileImagePublicId: publicId,
+              }));
+            }}
+            onRemove={() => {
+              setFormData((prev) => ({
+                ...prev,
+                profileImage: "",
+                profileImagePublicId: "",
+              }));
+            }}
+          />
         </div>
 
         {/* Full Name & Email Row */}

@@ -4,6 +4,7 @@ export interface UserProfile {
   email: string;
   phone: string;
   profileImage?: string;
+  profileImagePublicId?: string;
   role: "customer" | "admin";
   isActive: boolean;
   createdAt?: string | Date;

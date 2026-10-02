@@ -9,6 +9,7 @@ export interface IUser extends Document {
   isActive: boolean;
   mustChangePassword: boolean;
   profileImage?: string;
+  profileImagePublicId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -58,6 +59,12 @@ const UserSchema = new Schema<IUser>(
     },
 
     profileImage: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    profileImagePublicId: {
       type: String,
       default: "",
       trim: true,

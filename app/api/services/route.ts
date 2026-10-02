@@ -65,6 +65,7 @@ export async function POST(request: Request) {
       price,
       duration,
       image,
+      imagePublicId,
       isActive,
     } = body;
 
@@ -105,6 +106,7 @@ export async function POST(request: Request) {
       price: Number(price),
       duration: Number(duration),
       image: image?.trim() || "",
+      imagePublicId: imagePublicId?.trim() || undefined,
       isActive: isActive ?? true,
     });
 

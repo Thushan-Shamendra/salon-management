@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import User from "@/models/User";
 import { connectDB } from "@/lib/mongodb";
+import { deleteCloudinaryImage } from "@/lib/cloudinary";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[0-9+\s\-().]{7,25}$/;
@@ -29,6 +30,7 @@ export async function GET() {
         email: user.email,
         phone: user.phone,
         profileImage: user.profileImage || "",
+        profileImagePublicId: user.profileImagePublicId || "",
         role: user.role,
         isActive: user.isActive,
         createdAt: user.createdAt,
@@ -62,7 +64,7 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { name, email, phone, profileImage } = body;
+    const { name, email, phone, profileImage, profileImagePublicId } = body;
 
     // 1. Name validation
     if (!name || typeof name !== "string" || name.trim().length < 2) {
@@ -102,6 +104,8 @@ export async function PUT(request: Request) {
     const trimmedPhone = phone.trim();
     const trimmedImage =
       typeof profileImage === "string" ? profileImage.trim() : "";
+    const trimmedPublicId =
+      typeof profileImagePublicId === "string" ? profileImagePublicId.trim() : "";
 
     await connectDB();
 
@@ -123,13 +127,25 @@ export async function PUT(request: Request) {
       }
     }
 
+    const oldPublicId = user.profileImagePublicId;
+
     // 5. Update only permitted fields (strictly exclude role, isActive, password, _id)
     user.name = trimmedName;
     user.email = normalizedEmail;
     user.phone = trimmedPhone;
     user.profileImage = trimmedImage;
+    user.profileImagePublicId = trimmedPublicId || undefined;
 
     await user.save();
+
+    // After DB save succeeds, delete previous Cloudinary profile photo if replaced or removed
+    if (oldPublicId && oldPublicId !== trimmedPublicId) {
+      try {
+        await deleteCloudinaryImage(oldPublicId);
+      } catch (cldErr) {
+        console.error("Failed to delete previous customer profile image from Cloudinary:", cldErr);
+      }
+    }
 
     return NextResponse.json({
       success: true,
@@ -140,6 +156,7 @@ export async function PUT(request: Request) {
         email: user.email,
         phone: user.phone,
         profileImage: user.profileImage || "",
+        profileImagePublicId: user.profileImagePublicId || "",
         role: user.role,
         isActive: user.isActive,
         createdAt: user.createdAt,

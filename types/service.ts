@@ -5,6 +5,7 @@ export interface ServiceItem {
   price: number;
   duration: number;
   image?: string;
+  imagePublicId?: string;
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
