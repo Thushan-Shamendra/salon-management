@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import SalonSettings from "@/models/SalonSettings";
+import { deleteCloudinaryImage, CLOUDINARY_FOLDERS } from "@/lib/cloudinary";
 
 // Helper to ensure singleton settings exist
 async function getOrCreateSettings() {
@@ -70,6 +71,7 @@ export async function PUT(request: Request) {
     const {
       salonName,
       logo,
+      logoPublicId,
       aboutDescription,
       phone,
       phoneSecondary,
@@ -80,11 +82,75 @@ export async function PUT(request: Request) {
       socialMedia,
     } = body;
 
+    // Validate logo URL if provided
+    if (logo !== undefined && logo !== null && typeof logo === "string" && logo.trim() !== "") {
+      const trimmedLogo = logo.trim();
+      const isHttps = trimmedLogo.startsWith("https://");
+      const isLocal = trimmedLogo.startsWith("/") && !trimmedLogo.startsWith("//");
+      if (!isHttps && !isLocal) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Please enter a valid image URL (must begin with https:// or /)",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate logoPublicId if provided
+    if (
+      logoPublicId !== undefined &&
+      logoPublicId !== null &&
+      typeof logoPublicId === "string" &&
+      logoPublicId.trim() !== ""
+    ) {
+      const trimmedPublicId = logoPublicId.trim();
+      if (!trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.SALON)) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: `Logo must belong to ${CLOUDINARY_FOLDERS.SALON}`,
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     await connectDB();
     const settings = await getOrCreateSettings();
 
+    const oldPublicId = settings.logoPublicId ? settings.logoPublicId.trim() : "";
+    let shouldDeleteOldCloudinary = false;
+
     if (salonName !== undefined) settings.salonName = salonName.trim();
-    if (logo !== undefined) settings.logo = logo.trim();
+
+    // Update logo and logoPublicId
+    if (logo !== undefined) {
+      const newLogo = typeof logo === "string" ? logo.trim() : "";
+      settings.logo = newLogo;
+    }
+
+    if (logoPublicId !== undefined) {
+      const newPublicId = typeof logoPublicId === "string" ? logoPublicId.trim() : "";
+      settings.logoPublicId = newPublicId;
+
+      // If previous image was on Cloudinary and was replaced, removed, or switched to URL
+      if (
+        oldPublicId &&
+        oldPublicId.startsWith(CLOUDINARY_FOLDERS.SALON) &&
+        oldPublicId !== newPublicId
+      ) {
+        shouldDeleteOldCloudinary = true;
+      }
+    } else if (logo !== undefined && !logo) {
+      // If logo was cleared and logoPublicId wasn't explicitly passed
+      if (oldPublicId && oldPublicId.startsWith(CLOUDINARY_FOLDERS.SALON)) {
+        settings.logoPublicId = "";
+        shouldDeleteOldCloudinary = true;
+      }
+    }
+
     if (aboutDescription !== undefined) settings.aboutDescription = aboutDescription.trim();
     if (phone !== undefined) settings.phone = phone.trim();
     if (phoneSecondary !== undefined) settings.phoneSecondary = phoneSecondary.trim();
@@ -101,7 +167,17 @@ export async function PUT(request: Request) {
       };
     }
 
+    // 1. Save to MongoDB successfully first
     await settings.save();
+
+    // 2. ONLY AFTER successful DB save, delete old Cloudinary image
+    if (shouldDeleteOldCloudinary && oldPublicId) {
+      try {
+        await deleteCloudinaryImage(oldPublicId);
+      } catch (cldErr) {
+        console.error("Failed to delete previous salon logo from Cloudinary:", cldErr);
+      }
+    }
 
     return NextResponse.json({
       success: true,

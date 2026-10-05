@@ -7,7 +7,14 @@ import {
   ClockIcon,
   SparklesIcon,
   CheckIcon,
+  ImageIcon,
+  UploadCloudIcon,
+  ExternalLinkIcon,
+  TrashIcon,
+  AlertCircleIcon,
 } from "@/components/ui/icons";
+import ImageUpload, { UploadResult } from "@/components/ui/ImageUpload";
+import { CLOUDINARY_FOLDERS } from "@/lib/cloudinary-constants";
 
 interface OpeningHour {
   day: string;
@@ -19,6 +26,7 @@ interface OpeningHour {
 interface SalonSettingsData {
   salonName: string;
   logo: string;
+  logoPublicId?: string;
   aboutDescription: string;
   phone: string;
   phoneSecondary: string;
@@ -76,6 +84,12 @@ export default function AdminSettingsPage() {
     text: string;
   } | null>(null);
 
+  // Logo state
+  const [logoTab, setLogoTab] = useState<"upload" | "url">("upload");
+  const [urlInput, setUrlInput] = useState<string>("");
+  const [urlError, setUrlError] = useState<string | null>(null);
+  const [previewError, setPreviewError] = useState<boolean>(false);
+
   // Fetch real settings on mount
   useEffect(() => {
     let isMounted = true;
@@ -86,9 +100,28 @@ export default function AdminSettingsPage() {
         const data = await res.json();
 
         if (res.ok && data.success && data.settings && isMounted) {
+          const hasPublicId = Boolean(
+            data.settings.logoPublicId && data.settings.logoPublicId.trim()
+          );
+          const hasLogo = Boolean(
+            data.settings.logo && data.settings.logo.trim()
+          );
+
+          if (hasPublicId) {
+            setLogoTab("upload");
+            setUrlInput("");
+          } else if (hasLogo) {
+            setLogoTab("url");
+            setUrlInput(data.settings.logo);
+          } else {
+            setLogoTab("upload");
+            setUrlInput("");
+          }
+
           setFormData({
             salonName: data.settings.salonName || "LUMINA Luxury Salon",
             logo: data.settings.logo || "",
+            logoPublicId: data.settings.logoPublicId || "",
             aboutDescription: data.settings.aboutDescription || "",
             phone: data.settings.phone || "",
             phoneSecondary: data.settings.phoneSecondary || "",
@@ -126,6 +159,51 @@ export default function AdminSettingsPage() {
     };
   }, []);
 
+  const validateUrl = (val: string): boolean => {
+    if (!val.trim()) return true;
+    const trimmed = val.trim();
+    if (trimmed.startsWith("https://")) return true;
+    if (trimmed.startsWith("/") && !trimmed.startsWith("//")) return true;
+    return false;
+  };
+
+  const handleUrlChange = (val: string) => {
+    setUrlInput(val);
+    setPreviewError(false);
+    if (val.trim() && !validateUrl(val)) {
+      setUrlError("Please enter a valid image URL (must begin with https:// or /)");
+    } else {
+      setUrlError(null);
+      setFormData((prev) => ({
+        ...prev,
+        logo: val.trim(),
+        logoPublicId: "",
+      }));
+    }
+  };
+
+  const handleLogoUpload = (result: UploadResult) => {
+    setFormData((prev) => ({
+      ...prev,
+      logo: result.url,
+      logoPublicId: result.publicId,
+    }));
+    setUrlInput("");
+    setUrlError(null);
+    setPreviewError(false);
+  };
+
+  const handleRemoveLogo = () => {
+    setFormData((prev) => ({
+      ...prev,
+      logo: "",
+      logoPublicId: "",
+    }));
+    setUrlInput("");
+    setUrlError(null);
+    setPreviewError(false);
+  };
+
   const handleHourChange = (
     index: number,
     field: "open" | "close" | "isClosed",
@@ -143,14 +221,44 @@ export default function AdminSettingsPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setSaving(true);
     setStatusMessage(null);
 
+    // Validate URL if in URL tab
+    let finalLogo = formData.logo;
+    let finalLogoPublicId = formData.logoPublicId || "";
+
+    if (logoTab === "url") {
+      const trimmedUrl = urlInput.trim();
+      if (trimmedUrl) {
+        if (!validateUrl(trimmedUrl)) {
+          setUrlError("Please enter a valid image URL (must begin with https:// or /)");
+          setStatusMessage({
+            type: "error",
+            text: "Please enter a valid image URL.",
+          });
+          return;
+        }
+        finalLogo = trimmedUrl;
+        finalLogoPublicId = "";
+      } else {
+        finalLogo = "";
+        finalLogoPublicId = "";
+      }
+    }
+
+    setSaving(true);
+
     try {
+      const payload = {
+        ...formData,
+        logo: finalLogo,
+        logoPublicId: finalLogoPublicId,
+      };
+
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -160,6 +268,18 @@ export default function AdminSettingsPage() {
           type: "success",
           text: "Website settings saved successfully to MongoDB!",
         });
+        setFormData((prev) => ({
+          ...prev,
+          logo: data.settings.logo || "",
+          logoPublicId: data.settings.logoPublicId || "",
+        }));
+        if (data.settings.logoPublicId) {
+          setLogoTab("upload");
+          setUrlInput("");
+        } else if (data.settings.logo) {
+          setLogoTab("url");
+          setUrlInput(data.settings.logo);
+        }
       } else {
         setStatusMessage({
           type: "error",
@@ -224,36 +344,206 @@ export default function AdminSettingsPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Salon Brand Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.salonName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, salonName: e.target.value })
-                  }
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
+            {/* Salon Brand Name */}
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                Salon Brand Name
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.salonName}
+                onChange={(e) =>
+                  setFormData({ ...formData, salonName: e.target.value })
+                }
+                className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
+              />
+            </div>
+
+            {/* Dedicated Professional SALON LOGO Section */}
+            <div className="rounded-2xl border border-stone-200 bg-[#FAF7F2]/60 p-5 sm:p-6 space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-stone-200/80 pb-3">
+                <div>
+                  <h3 className="font-serif text-base font-bold text-stone-900 flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4 text-[#B7925A]" />
+                    <span>SALON LOGO</span>
+                  </h3>
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    Choose how you want to add the salon logo.
+                  </p>
+                </div>
+
+                {formData.logo && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveLogo}
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 transition self-start sm:self-auto"
+                  >
+                    <TrashIcon className="h-3.5 w-3.5" />
+                    <span>Remove Logo</span>
+                  </button>
+                )}
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Logo URL (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={formData.logo}
-                  onChange={(e) =>
-                    setFormData({ ...formData, logo: e.target.value })
-                  }
-                  placeholder="/images/logo.svg"
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
+              {/* Selectable Options / Tabs */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-1 rounded-xl bg-stone-200/70 w-full sm:w-fit">
+                <button
+                  type="button"
+                  onClick={() => setLogoTab("upload")}
+                  className={`inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition ${
+                    logoTab === "upload"
+                      ? "bg-[#1C1917] text-white shadow-xs"
+                      : "text-stone-700 hover:text-stone-950 hover:bg-stone-100"
+                  }`}
+                >
+                  <UploadCloudIcon className="h-4 w-4 text-[#B7925A]" />
+                  <span>Upload Logo</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLogoTab("url");
+                    if (!urlInput && formData.logo && !formData.logoPublicId) {
+                      setUrlInput(formData.logo);
+                    }
+                  }}
+                  className={`inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition ${
+                    logoTab === "url"
+                      ? "bg-[#1C1917] text-white shadow-xs"
+                      : "text-stone-700 hover:text-stone-950 hover:bg-stone-100"
+                  }`}
+                >
+                  <ExternalLinkIcon className="h-4 w-4 text-[#B7925A]" />
+                  <span>Use Image URL</span>
+                </button>
               </div>
+
+              {/* 1. Upload Logo Option */}
+              {logoTab === "upload" && (
+                <div className="space-y-4">
+                  {/* Logo Live Preview */}
+                  <div className="space-y-1.5">
+                    <span className="block text-xs font-semibold uppercase tracking-wider text-stone-700">
+                      Logo Preview
+                    </span>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                      <div className="relative h-24 w-44 shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-white p-2.5 shadow-xs flex items-center justify-center">
+                        {formData.logo && !previewError ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={formData.logo}
+                            alt="Salon Logo Preview"
+                            onError={() => setPreviewError(true)}
+                            className="max-h-full max-w-full object-contain"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-stone-400 p-2 text-center">
+                            <ImageIcon className="h-6 w-6 text-stone-300 mb-1" />
+                            <span className="text-[10px] uppercase tracking-wider font-medium text-stone-400">
+                              {previewError ? "Failed to load logo" : "No Logo Set"}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-xs text-stone-500 space-y-1">
+                        <p className="font-medium text-stone-700">
+                          {formData.logo
+                            ? "Active Logo"
+                            : "No logo uploaded yet."}
+                        </p>
+                        <p className="text-[11px] text-stone-400 max-w-sm">
+                          Rendered using object-contain in a white frame to ensure your salon emblem is never cropped.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Cloudinary ImageUpload component */}
+                  <div className="pt-1">
+                    <ImageUpload
+                      folder={CLOUDINARY_FOLDERS.SALON}
+                      value={formData.logoPublicId ? formData.logo : ""}
+                      publicId={formData.logoPublicId}
+                      onChange={handleLogoUpload}
+                      onRemove={handleRemoveLogo}
+                      label="Upload or Replace Logo Image"
+                      description="Supports PNG, JPG, JPEG, WEBP up to 5MB (transparent PNG recommended)"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* 2. Use Image URL Option */}
+              {logoTab === "url" && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                      Logo Image URL
+                    </label>
+                    <input
+                      type="text"
+                      value={urlInput}
+                      onChange={(e) => handleUrlChange(e.target.value)}
+                      placeholder="https://example.com/logo.png"
+                      className={`w-full rounded-xl border px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A] bg-white ${
+                        urlError ? "border-red-300 bg-red-50/40" : "border-stone-300"
+                      }`}
+                    />
+                    {urlError ? (
+                      <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                        <AlertCircleIcon className="h-3.5 w-3.5 shrink-0" />
+                        <span>{urlError}</span>
+                      </p>
+                    ) : (
+                      <p className="mt-1 text-[11px] text-stone-400">
+                        Supports secure external HTTPS URLs or existing local paths beginning with / (e.g. /images/about-salon.svg).
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Live Preview for URL */}
+                  <div className="space-y-1.5 pt-1">
+                    <span className="block text-xs font-semibold uppercase tracking-wider text-stone-700">
+                      Logo Preview
+                    </span>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                      <div className="relative h-24 w-44 shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-white p-2.5 shadow-xs flex items-center justify-center">
+                        {urlInput.trim() && !previewError && !urlError ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={urlInput.trim()}
+                            alt="Logo preview"
+                            onError={() => setPreviewError(true)}
+                            className="max-h-full max-w-full object-contain"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-stone-400 p-2 text-center">
+                            <ImageIcon className="h-6 w-6 text-stone-300 mb-1" />
+                            <span className="text-[10px] uppercase tracking-wider font-medium text-stone-400">
+                              {previewError ? "Failed to load URL" : "Preview will appear here"}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-xs text-stone-500 space-y-1">
+                        {previewError ? (
+                          <p className="text-red-600 font-medium text-xs">
+                            Please enter a valid image URL.
+                          </p>
+                        ) : (
+                          <p className="text-[11px] text-stone-400 max-w-sm">
+                            Logo preview updates in real time. Remember to click &quot;Save Settings&quot; below to persist changes.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">

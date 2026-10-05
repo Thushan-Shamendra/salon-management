@@ -1,5 +1,7 @@
 import React from "react";
 import Link from "next/link";
+import { connectDB } from "@/lib/mongodb";
+import SalonSettings from "@/models/SalonSettings";
 import {
   ScissorsIcon,
   PhoneIcon,
@@ -12,8 +14,22 @@ import {
   WhatsAppIcon,
 } from "@/components/ui/icons";
 
-export default function Footer() {
+export default async function Footer() {
   const currentYear = new Date().getFullYear();
+
+  let salonName = "LUMINA";
+  let logo = "";
+
+  try {
+    await connectDB();
+    const settings = await SalonSettings.findOne().lean();
+    if (settings) {
+      if (settings.salonName) salonName = settings.salonName;
+      if (settings.logo) logo = settings.logo;
+    }
+  } catch {
+    // Graceful fallback
+  }
 
   const quickLinks = [
     { name: "Home", href: "/" },
@@ -65,12 +81,23 @@ export default function Footer() {
           {/* Col 1: Brand & Bio */}
           <div className="space-y-4">
             <Link href="/" className="inline-flex items-center gap-3 group">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-800 text-[#C5A46D] border border-[#B7925A]/40 group-hover:scale-105 transition-transform">
-                <ScissorsIcon className="h-5 w-5" />
-              </div>
+              {logo ? (
+                <div className="relative h-10 max-w-[140px] flex items-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={logo}
+                    alt={salonName}
+                    className="max-h-10 w-auto object-contain"
+                  />
+                </div>
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-800 text-[#C5A46D] border border-[#B7925A]/40 group-hover:scale-105 transition-transform">
+                  <ScissorsIcon className="h-5 w-5" />
+                </div>
+              )}
               <div className="flex flex-col">
                 <span className="font-serif text-xl font-bold tracking-wider text-white">
-                  LUMINA
+                  {salonName.toUpperCase()}
                 </span>
                 <span className="text-[10px] uppercase tracking-[0.25em] text-[#C5A46D] font-medium -mt-1">
                   Luxury Salon
@@ -216,7 +243,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-stone-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
           <p>
-            © {currentYear} Lumina Salon. All rights reserved.
+            © {currentYear} {salonName}. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <Link href="/about" className="hover:text-stone-300 transition-colors">

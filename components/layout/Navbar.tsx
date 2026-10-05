@@ -24,6 +24,25 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [salonLogo, setSalonLogo] = useState<string>("");
+  const [salonName, setSalonName] = useState<string>("LUMINA");
+
+  // Load public salon settings (logo & brand name)
+  useEffect(() => {
+    let isMounted = true;
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (isMounted && data?.success && data?.settings) {
+          if (data.settings.logo) setSalonLogo(data.settings.logo);
+          if (data.settings.salonName) setSalonName(data.settings.salonName);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Check auth session
   useEffect(() => {
@@ -94,12 +113,24 @@ export default function Navbar() {
           href="/"
           className="group flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] rounded-lg"
         >
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-900 text-[#C5A46D] shadow-sm transition-transform duration-300 group-hover:scale-105 border border-[#B7925A]/40">
-            <ScissorsIcon className="h-5 w-5" />
-          </div>
+          {salonLogo ? (
+            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-white shadow-sm border border-[#B7925A]/40 p-1 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={salonLogo}
+                alt={salonName || "Salon Logo"}
+                onError={() => setSalonLogo("")}
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
+          ) : (
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-900 text-[#C5A46D] shadow-sm transition-transform duration-300 group-hover:scale-105 border border-[#B7925A]/40">
+              <ScissorsIcon className="h-5 w-5" />
+            </div>
+          )}
           <div className="flex flex-col">
             <span className="font-serif text-xl sm:text-2xl font-bold tracking-wider text-stone-900 group-hover:text-[#B7925A] transition-colors">
-              LUMINA
+              {salonName.replace(/\s*luxury\s*salon/i, "").trim() || salonName}
             </span>
             <span className="text-[10px] uppercase tracking-[0.25em] text-stone-500 font-medium -mt-1">
               Luxury Salon

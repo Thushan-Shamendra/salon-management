@@ -10,6 +10,7 @@ export interface IOpeningHour {
 export interface ISalonSettings extends Document {
   salonName: string;
   logo: string;
+  logoPublicId?: string;
   aboutDescription: string;
   phone: string;
   phoneSecondary: string;
@@ -45,6 +46,11 @@ const SalonSettingsSchema = new Schema<ISalonSettings>(
       trim: true,
     },
     logo: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    logoPublicId: {
       type: String,
       default: "",
       trim: true,

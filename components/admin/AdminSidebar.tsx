@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -27,6 +27,24 @@ interface AdminSidebarProps {
 export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [salonLogo, setSalonLogo] = useState<string>("");
+  const [salonName, setSalonName] = useState<string>("LUMINA");
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (isMounted && data?.success && data?.settings) {
+          if (data.settings.logo) setSalonLogo(data.settings.logo);
+          if (data.settings.salonName) setSalonName(data.settings.salonName);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -99,12 +117,23 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
             onClick={onClose}
             className="flex items-center gap-3 focus:outline-none"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-800 text-[#C5A46D] border border-stone-700/80 shadow-xs">
-              <ScissorsIcon className="h-5 w-5" />
-            </div>
+            {salonLogo ? (
+              <div className="relative h-10 max-w-[120px] flex items-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={salonLogo}
+                  alt={salonName}
+                  className="max-h-10 w-auto object-contain"
+                />
+              </div>
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-800 text-[#C5A46D] border border-stone-700/80 shadow-xs">
+                <ScissorsIcon className="h-5 w-5" />
+              </div>
+            )}
             <div className="flex flex-col">
               <span className="font-serif text-lg font-bold tracking-wider text-white">
-                LUMINA
+                {salonName.toUpperCase()}
               </span>
               <span className="text-[10px] uppercase tracking-[0.25em] text-[#C5A46D] font-medium -mt-0.5">
                 Admin Portal
