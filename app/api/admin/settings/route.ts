@@ -167,6 +167,53 @@ export async function PUT(request: Request) {
       };
     }
 
+    if (body.googleReviews && typeof body.googleReviews === "object") {
+      const { enabled, placeId, businessUrl, maxReviews } = body.googleReviews;
+
+      if (businessUrl && typeof businessUrl === "string" && businessUrl.trim() !== "") {
+        const trimmedUrl = businessUrl.trim();
+        if (!trimmedUrl.startsWith("https://")) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: "Google Maps Business URL must be a valid https link (e.g., https://maps.google.com/...)",
+            },
+            { status: 400 }
+          );
+        }
+      }
+
+      if (maxReviews !== undefined && maxReviews !== null && maxReviews !== "") {
+        const num = Number(maxReviews);
+        if (isNaN(num) || num < 1 || num > 5) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: "Maximum reviews to display must be between 1 and 5",
+            },
+            { status: 400 }
+          );
+        }
+      }
+
+      const currentGr = settings.googleReviews || {
+        enabled: false,
+        placeId: "",
+        businessUrl: "",
+        maxReviews: 5,
+      };
+
+      settings.googleReviews = {
+        enabled: enabled !== undefined ? Boolean(enabled) : currentGr.enabled,
+        placeId: typeof placeId === "string" ? placeId.trim() : currentGr.placeId,
+        businessUrl: typeof businessUrl === "string" ? businessUrl.trim() : currentGr.businessUrl,
+        maxReviews:
+          maxReviews !== undefined && !isNaN(Number(maxReviews))
+            ? Math.min(5, Math.max(1, Number(maxReviews)))
+            : currentGr.maxReviews || 5,
+      };
+    }
+
     // 1. Save to MongoDB successfully first
     await settings.save();
 

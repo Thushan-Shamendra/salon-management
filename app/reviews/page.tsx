@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ReviewForm from "@/components/reviews/ReviewForm";
+import GoogleReviewsSection from "@/components/reviews/GoogleReviewsSection";
 import {
   StarIcon,
   CheckIcon,
@@ -97,6 +98,9 @@ export default async function ReviewsPage() {
               </div>
             </div>
           </div>
+
+          {/* Google Reviews Section (Display-Only from Google Places API) */}
+          <GoogleReviewsSection />
 
           {/* Write a Review Section */}
           <div className="mb-14">

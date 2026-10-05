@@ -7,6 +7,13 @@ export interface IOpeningHour {
   isClosed: boolean;
 }
 
+export interface IGoogleReviewsSettings {
+  enabled: boolean;
+  placeId: string;
+  businessUrl: string;
+  maxReviews: number;
+}
+
 export interface ISalonSettings extends Document {
   salonName: string;
   logo: string;
@@ -24,6 +31,7 @@ export interface ISalonSettings extends Document {
     tiktok: string;
     whatsapp: string;
   };
+  googleReviews?: IGoogleReviewsSettings;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -102,6 +110,28 @@ const SalonSettingsSchema = new Schema<ISalonSettings>(
       instagram: { type: String, default: "https://instagram.com/luminasalon" },
       tiktok: { type: String, default: "https://tiktok.com/@luminasalon" },
       whatsapp: { type: String, default: "https://wa.me/94771234567" },
+    },
+    googleReviews: {
+      enabled: {
+        type: Boolean,
+        default: false,
+      },
+      placeId: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      businessUrl: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      maxReviews: {
+        type: Number,
+        default: 5,
+        min: [1, "Minimum reviews to display is 1"],
+        max: [5, "Maximum reviews to display is 5"],
+      },
     },
   },
   {

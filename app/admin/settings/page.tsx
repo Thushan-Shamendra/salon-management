@@ -12,6 +12,7 @@ import {
   ExternalLinkIcon,
   TrashIcon,
   AlertCircleIcon,
+  StarIcon,
 } from "@/components/ui/icons";
 import ImageUpload, { UploadResult } from "@/components/ui/ImageUpload";
 import { CLOUDINARY_FOLDERS } from "@/lib/cloudinary-constants";
@@ -21,6 +22,13 @@ interface OpeningHour {
   open: string;
   close: string;
   isClosed: boolean;
+}
+
+interface GoogleReviewsData {
+  enabled: boolean;
+  placeId: string;
+  businessUrl: string;
+  maxReviews: number;
 }
 
 interface SalonSettingsData {
@@ -40,6 +48,7 @@ interface SalonSettingsData {
     tiktok: string;
     whatsapp: string;
   };
+  googleReviews?: GoogleReviewsData;
 }
 
 const DEFAULT_DAYS = [
@@ -74,6 +83,12 @@ export default function AdminSettingsPage() {
       instagram: "https://instagram.com/luminasalon",
       tiktok: "https://tiktok.com/@luminasalon",
       whatsapp: "https://wa.me/94771234567",
+    },
+    googleReviews: {
+      enabled: false,
+      placeId: "",
+      businessUrl: "",
+      maxReviews: 5,
     },
   });
 
@@ -143,6 +158,12 @@ export default function AdminSettingsPage() {
               instagram: data.settings.socialMedia?.instagram || "",
               tiktok: data.settings.socialMedia?.tiktok || "",
               whatsapp: data.settings.socialMedia?.whatsapp || "",
+            },
+            googleReviews: {
+              enabled: Boolean(data.settings.googleReviews?.enabled),
+              placeId: data.settings.googleReviews?.placeId || "",
+              businessUrl: data.settings.googleReviews?.businessUrl || "",
+              maxReviews: data.settings.googleReviews?.maxReviews || 5,
             },
           });
         }
@@ -272,6 +293,14 @@ export default function AdminSettingsPage() {
           ...prev,
           logo: data.settings.logo || "",
           logoPublicId: data.settings.logoPublicId || "",
+          googleReviews: data.settings.googleReviews
+            ? {
+                enabled: Boolean(data.settings.googleReviews.enabled),
+                placeId: data.settings.googleReviews.placeId || "",
+                businessUrl: data.settings.googleReviews.businessUrl || "",
+                maxReviews: data.settings.googleReviews.maxReviews || 5,
+              }
+            : prev.googleReviews,
         }));
         if (data.settings.logoPublicId) {
           setLogoTab("upload");
@@ -790,6 +819,143 @@ export default function AdminSettingsPage() {
                   }
                   className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Google Reviews */}
+          <div className="rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-8 shadow-xs space-y-6">
+            <div className="border-b border-stone-100 pb-4">
+              <h2 className="font-serif text-lg font-semibold text-stone-900 flex items-center gap-2">
+                <StarIcon className="h-5 w-5 text-[#B7925A]" />
+                <span>GOOGLE REVIEWS</span>
+              </h2>
+              <p className="text-xs text-stone-500 mt-0.5">
+                Display reviews from your salon&apos;s Google Business Profile.
+              </p>
+            </div>
+
+            {/* Incomplete Configuration Alert */}
+            {formData.googleReviews?.enabled && !formData.googleReviews?.placeId?.trim() && (
+              <div className="flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-xs text-amber-800">
+                <AlertCircleIcon className="h-4 w-4 shrink-0 text-amber-600" />
+                <span>
+                  <strong>Configuration Incomplete:</strong> Google Reviews is enabled, but a Google Place ID is missing. Public reviews will remain hidden until a valid Place ID is configured.
+                </span>
+              </div>
+            )}
+
+            {/* Enable/Disable Toggle */}
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.googleReviews?.enabled || false}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      googleReviews: {
+                        enabled: e.target.checked,
+                        placeId: prev.googleReviews?.placeId || "",
+                        businessUrl: prev.googleReviews?.businessUrl || "",
+                        maxReviews: prev.googleReviews?.maxReviews || 5,
+                      },
+                    }))
+                  }
+                  className="h-4 w-4 rounded-sm text-[#B7925A] focus:ring-[#B7925A]"
+                />
+                <div>
+                  <span className="text-xs font-semibold text-stone-800">
+                    Display Google Reviews
+                  </span>
+                  <p className="text-[11px] text-stone-500">
+                    Show verified Google reviews on the public Reviews page.
+                  </p>
+                </div>
+              </label>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              {/* Google Place ID */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                  Google Place ID
+                </label>
+                <input
+                  type="text"
+                  value={formData.googleReviews?.placeId || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      googleReviews: {
+                        enabled: prev.googleReviews?.enabled || false,
+                        placeId: e.target.value,
+                        businessUrl: prev.googleReviews?.businessUrl || "",
+                        maxReviews: prev.googleReviews?.maxReviews || 5,
+                      },
+                    }))
+                  }
+                  placeholder="e.g. ChIJN1t_tDeuEmsRUsoyG83frY4"
+                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
+                />
+                <p className="mt-1 text-[11px] text-stone-400">
+                  Find your Place ID via Google&apos;s Place ID Finder tool.
+                </p>
+              </div>
+
+              {/* Reviews to Display */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                  Reviews to Display (1–5)
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={5}
+                  value={formData.googleReviews?.maxReviews ?? 5}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      googleReviews: {
+                        enabled: prev.googleReviews?.enabled || false,
+                        placeId: prev.googleReviews?.placeId || "",
+                        businessUrl: prev.googleReviews?.businessUrl || "",
+                        maxReviews: Math.min(5, Math.max(1, Number(e.target.value) || 5)),
+                      },
+                    }))
+                  }
+                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
+                />
+                <p className="mt-1 text-[11px] text-stone-400">
+                  Google Places API returns up to 5 top reviews per request.
+                </p>
+              </div>
+
+              {/* Google Maps Business URL */}
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                  Google Maps Business URL (Optional)
+                </label>
+                <input
+                  type="url"
+                  value={formData.googleReviews?.businessUrl || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      googleReviews: {
+                        enabled: prev.googleReviews?.enabled || false,
+                        placeId: prev.googleReviews?.placeId || "",
+                        businessUrl: e.target.value,
+                        maxReviews: prev.googleReviews?.maxReviews || 5,
+                      },
+                    }))
+                  }
+                  placeholder="https://maps.google.com/..."
+                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
+                />
+                <p className="mt-1 text-[11px] text-stone-400">
+                  Direct link opened when visitors click &ldquo;View All Reviews on Google&rdquo;.
+                </p>
               </div>
             </div>
           </div>
