@@ -42,16 +42,17 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Role check: Service and salon images require admin role
+    // Role check: Service, salon, and gallery images require admin role
     if (
       (trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.SERVICES) ||
-        trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.SALON)) &&
+        trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.SALON) ||
+        trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.GALLERY)) &&
       user.role !== "admin"
     ) {
       return NextResponse.json(
         {
           success: false,
-          message: "Admin role required to delete service or salon media",
+          message: "Admin role required to delete service, salon, or gallery media",
         },
         { status: 403 }
       );

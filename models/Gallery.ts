@@ -1,0 +1,81 @@
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export interface IGallery extends Document {
+  title: string;
+  description?: string;
+  category: string;
+  image: string;
+  imagePublicId: string;
+  altText?: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  displayOrder: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const GallerySchema = new Schema<IGallery>(
+  {
+    title: {
+      type: String,
+      required: [true, "Title is required"],
+      trim: true,
+      maxlength: [120, "Title cannot exceed 120 characters"],
+    },
+    description: {
+      type: String,
+      trim: true,
+      maxlength: [500, "Description cannot exceed 500 characters"],
+      default: "",
+    },
+    category: {
+      type: String,
+      required: [true, "Category is required"],
+      trim: true,
+    },
+    image: {
+      type: String,
+      required: [true, "Image URL is required"],
+      trim: true,
+    },
+    imagePublicId: {
+      type: String,
+      required: [true, "Image public ID is required"],
+      trim: true,
+    },
+    altText: {
+      type: String,
+      trim: true,
+      maxlength: [160, "Alt text cannot exceed 160 characters"],
+      default: "",
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    displayOrder: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// Compound indexes for public filtering and ordering
+GallerySchema.index({ isActive: 1, displayOrder: 1, createdAt: -1 });
+GallerySchema.index({ category: 1, isActive: 1 });
+
+const Gallery: Model<IGallery> =
+  mongoose.models.Gallery ||
+  mongoose.model<IGallery>("Gallery", GallerySchema);
+
+export default Gallery;

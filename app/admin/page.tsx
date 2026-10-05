@@ -17,6 +17,7 @@ import {
   SettingsIcon,
   ClockIcon,
   ArrowRightIcon,
+  ImageIcon,
 } from "@/components/ui/icons";
 
 interface AppointmentRow {
@@ -51,6 +52,8 @@ interface DashboardStats {
   completedAppointments: number;
   cancelledAppointments: number;
   todayDate?: string;
+  totalGalleryPhotos?: number;
+  activeGalleryPhotos?: number;
   totalCommunityPosts: number | null;
 }
 
@@ -121,6 +124,12 @@ export default function AdminDashboardPage() {
       icon: MessageCircleIcon,
     },
     {
+      title: "Manage Gallery",
+      description: "Upload and organize photos displayed on the public salon portfolio",
+      href: "/admin/gallery",
+      icon: ImageIcon,
+    },
+    {
       title: "Website Settings",
       description: "Update salon contact info, opening hours, and social media handles",
       href: "/admin/settings",
@@ -184,6 +193,16 @@ export default function AdminDashboardPage() {
             }
             icon={StarIcon}
             href="/admin/reviews"
+          />
+
+          {/* Gallery Photos (Real) */}
+          <StatCard
+            title="Gallery Photos"
+            value={loading ? "..." : stats?.totalGalleryPhotos ?? 0}
+            description={`${stats?.activeGalleryPhotos ?? 0} active portfolio photos published`}
+            icon={ImageIcon}
+            href="/admin/gallery"
+            badge="Live"
           />
 
           {/* Community Posts */}

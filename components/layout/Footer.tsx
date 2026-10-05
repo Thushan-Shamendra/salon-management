@@ -19,6 +19,7 @@ export default function Footer() {
     { name: "Home", href: "/" },
     { name: "About Us", href: "/about" },
     { name: "Services", href: "/services" },
+    { name: "Gallery", href: "/gallery" },
     { name: "Community Hub", href: "/community" },
     { name: "Reviews", href: "/reviews" },
     { name: "Contact", href: "/contact" },
@@ -223,6 +224,9 @@ export default function Footer() {
             </Link>
             <Link href="/services" className="hover:text-stone-300 transition-colors">
               Services
+            </Link>
+            <Link href="/gallery" className="hover:text-stone-300 transition-colors">
+              Gallery
             </Link>
             <Link href="/contact" className="hover:text-stone-300 transition-colors">
               Contact

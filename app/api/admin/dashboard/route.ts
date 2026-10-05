@@ -5,6 +5,7 @@ import User from "@/models/User";
 import Service from "@/models/Service";
 import Review from "@/models/Review";
 import Appointment from "@/models/Appointment";
+import Gallery from "@/models/Gallery";
 import { getSriLankaNow, normalizeAppointmentDate } from "@/lib/appointments";
 
 // GET /api/admin/dashboard - ADMIN ONLY
@@ -46,6 +47,8 @@ export async function GET() {
       confirmedAppointments,
       completedAppointments,
       cancelledAppointments,
+      totalGalleryPhotos,
+      activeGalleryPhotos,
       todaySchedule,
     ] = await Promise.all([
       User.countDocuments({ role: "customer" }),
@@ -61,6 +64,8 @@ export async function GET() {
       Appointment.countDocuments({ status: "confirmed" }),
       Appointment.countDocuments({ status: "completed" }),
       Appointment.countDocuments({ status: "cancelled" }),
+      Gallery.countDocuments(),
+      Gallery.countDocuments({ isActive: true }),
       Appointment.find({ appointmentDate: todayDate })
         .populate("service", "name duration price")
         .populate("customer", "name phone email")
@@ -88,6 +93,9 @@ export async function GET() {
         totalReviews,
         pendingReviews,
         averageRating,
+        // Real Gallery statistics
+        totalGalleryPhotos,
+        activeGalleryPhotos,
         // Real Appointment statistics
         totalAppointments,
         todayAppointments,
