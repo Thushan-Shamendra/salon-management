@@ -4,6 +4,7 @@ export const CLOUDINARY_FOLDERS = {
   COMMUNITY: "salon-management/community",
   SALON: "salon-management/salon",
   GALLERY: "salon-management/gallery",
+  BEAUTICIANS: "salon-management/beauticians",
 } as const;
 
 export type CloudinaryFolder =

@@ -42,11 +42,12 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Role check: Service, salon, and gallery images require admin role
+    // Role check: Service, salon, gallery, and beautician images require admin role
     if (
       (trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.SERVICES) ||
         trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.SALON) ||
-        trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.GALLERY)) &&
+        trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.GALLERY) ||
+        trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.BEAUTICIANS)) &&
       user.role !== "admin"
     ) {
       return NextResponse.json(

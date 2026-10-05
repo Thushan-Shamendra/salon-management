@@ -16,6 +16,7 @@ import {
   XIcon,
   LockIcon,
   ImageIcon,
+  UsersIcon,
 } from "@/components/ui/icons";
 
 interface AdminSidebarProps {
@@ -79,6 +80,11 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       name: "Customers",
       href: "/admin/customers",
       icon: UserIcon,
+    },
+    {
+      name: "Beauticians",
+      href: "/admin/beauticians",
+      icon: UsersIcon,
     },
     {
       name: "Gallery",

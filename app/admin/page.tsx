@@ -18,6 +18,7 @@ import {
   ClockIcon,
   ArrowRightIcon,
   ImageIcon,
+  UsersIcon,
 } from "@/components/ui/icons";
 
 interface AppointmentRow {
@@ -54,6 +55,8 @@ interface DashboardStats {
   todayDate?: string;
   totalGalleryPhotos?: number;
   activeGalleryPhotos?: number;
+  totalBeauticians?: number;
+  activeBeauticians?: number;
   totalCommunityPosts: number | null;
 }
 
@@ -130,6 +133,12 @@ export default function AdminDashboardPage() {
       icon: ImageIcon,
     },
     {
+      title: "Manage Beauticians",
+      description: "Update team profiles, bios, and specialties for the About page",
+      href: "/admin/beauticians",
+      icon: UsersIcon,
+    },
+    {
       title: "Website Settings",
       description: "Update salon contact info, opening hours, and social media handles",
       href: "/admin/settings",
@@ -202,6 +211,16 @@ export default function AdminDashboardPage() {
             description={`${stats?.activeGalleryPhotos ?? 0} active portfolio photos published`}
             icon={ImageIcon}
             href="/admin/gallery"
+            badge="Live"
+          />
+
+          {/* Active Beauticians (Real) */}
+          <StatCard
+            title="Active Beauticians"
+            value={loading ? "..." : stats?.activeBeauticians ?? 0}
+            description={`${stats?.totalBeauticians ?? 0} total team profiles configured`}
+            icon={UsersIcon}
+            href="/admin/beauticians"
             badge="Live"
           />
 
