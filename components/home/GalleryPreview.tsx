@@ -11,6 +11,11 @@ interface GalleryItem {
   category?: string;
   image: string;
   altText?: string;
+  cropSettings?: {
+    home: { x: number; y: number; zoom: number };
+    gallery: { x: number; y: number; zoom: number };
+    featured: { x: number; y: number; zoom: number };
+  };
   cropPosition?: {
     x: number;
     y: number;
@@ -49,19 +54,17 @@ export default function GalleryPreview() {
   }, []);
 
   const renderItemImage = (item: GalleryItem, sizes: string) => {
-    const cropX = item.cropPosition?.x ?? 50;
-    const cropY = item.cropPosition?.y ?? 50;
-    const cropZoom = item.cropPosition?.zoom ?? 1;
+    const crop = item.cropSettings?.home || item.cropPosition || { x: 50, y: 50, zoom: 1 };
+    const cropX = crop.x ?? 50;
+    const cropY = crop.y ?? 50;
+    const cropZoom = crop.zoom ?? 1;
 
     return (
-      <div
-        className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
-        style={{ transformOrigin: `${cropX}% ${cropY}%` }}
-      >
+      <div className="absolute inset-0 overflow-hidden transition-transform duration-500 group-hover:scale-[1.03]">
         <div
           className="w-full h-full relative"
           style={{
-            transform: cropZoom > 1 ? `scale(${cropZoom})` : undefined,
+            transform: `scale(${cropZoom})`,
             transformOrigin: `${cropX}% ${cropY}%`,
           }}
         >

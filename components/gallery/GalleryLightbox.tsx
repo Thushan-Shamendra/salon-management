@@ -8,6 +8,18 @@ import {
   XIcon,
 } from "@/components/ui/icons";
 
+export interface CropTarget {
+  x: number;
+  y: number;
+  zoom: number;
+}
+
+export interface CropSettings {
+  home: CropTarget;
+  gallery: CropTarget;
+  featured: CropTarget;
+}
+
 export interface GalleryPhotoItem {
   _id: string;
   title: string;
@@ -19,11 +31,8 @@ export interface GalleryPhotoItem {
   isActive: boolean;
   isFeatured: boolean;
   displayOrder: number;
-  cropPosition?: {
-    x: number;
-    y: number;
-    zoom: number;
-  };
+  cropSettings?: CropSettings;
+  cropPosition?: CropTarget;
 }
 
 interface GalleryLightboxProps {

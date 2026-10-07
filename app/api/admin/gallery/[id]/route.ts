@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
-import Gallery from "@/models/Gallery";
+import Gallery, { normalizeCropSettings, normalizeCropTarget } from "@/models/Gallery";
 import { deleteCloudinaryImage, CLOUDINARY_FOLDERS } from "@/lib/cloudinary";
 
 type RouteContext = {
@@ -161,13 +161,35 @@ export async function PATCH(request: Request, context: RouteContext) {
       updateData.displayOrder = isNaN(order) ? 0 : order;
     }
 
-    if (body.cropPosition !== undefined) {
-      const cp = body.cropPosition;
-      updateData.cropPosition = {
-        x: typeof cp?.x === "number" ? Math.max(0, Math.min(100, cp.x)) : 50,
-        y: typeof cp?.y === "number" ? Math.max(0, Math.min(100, cp.y)) : 50,
-        zoom: typeof cp?.zoom === "number" ? Math.max(1, Math.min(3, cp.zoom)) : 1,
+    if (body.cropSettings !== undefined) {
+      const normalizeCrop = (
+        crop: Partial<{ x: number; y: number; zoom: number }> | null | undefined,
+        fallback: { x: number; y: number; zoom: number }
+      ) => ({
+        x: Math.max(0, Math.min(100, typeof crop?.x === "number" ? Math.round(crop.x) : fallback.x)),
+        y: Math.max(0, Math.min(100, typeof crop?.y === "number" ? Math.round(crop.y) : fallback.y)),
+        zoom: Math.max(1, Math.min(3, typeof crop?.zoom === "number" ? Number(crop.zoom.toFixed(2)) : fallback.zoom)),
+      });
+
+      const existingCrop = existingPhoto.cropSettings
+        ? JSON.parse(JSON.stringify(existingPhoto.cropSettings))
+        : {};
+      const fallbackTarget = existingPhoto.cropPosition || { x: 50, y: 50, zoom: 1 };
+
+      const sanitizedCropSettings = {
+        home: normalizeCrop(body.cropSettings?.home, existingCrop.home || fallbackTarget),
+        gallery: normalizeCrop(body.cropSettings?.gallery, existingCrop.gallery || fallbackTarget),
+        featured: normalizeCrop(body.cropSettings?.featured, existingCrop.featured || fallbackTarget),
       };
+
+      updateData.cropSettings = sanitizedCropSettings;
+      updateData.cropPosition = sanitizedCropSettings.gallery;
+    } else if (body.cropPosition !== undefined) {
+      const cp = normalizeCropTarget(body.cropPosition);
+      updateData.cropPosition = cp;
+      updateData.cropSettings = normalizeCropSettings({
+        cropPosition: cp,
+      });
     }
 
     // Handle Image Replacement

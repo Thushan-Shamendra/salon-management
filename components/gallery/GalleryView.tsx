@@ -207,7 +207,8 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
                         {renderGalleryCard(
                           primary,
                           primaryIdx,
-                          "aspect-[4/5] min-h-[380px] h-full"
+                          "aspect-[4/5] min-h-[380px] h-full",
+                          true
                         )}
                       </div>
 
@@ -269,11 +270,16 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
   function renderGalleryCard(
     photo: GalleryPhotoItem,
     index: number,
-    aspectClass: string
+    aspectClass: string,
+    isFeaturedCard = false
   ) {
-    const cropX = photo.cropPosition?.x ?? 50;
-    const cropY = photo.cropPosition?.y ?? 50;
-    const cropZoom = photo.cropPosition?.zoom ?? 1;
+    const crop = isFeaturedCard
+      ? photo.cropSettings?.featured || { x: 50, y: 50, zoom: 1 }
+      : photo.cropSettings?.gallery || photo.cropPosition || { x: 50, y: 50, zoom: 1 };
+
+    const cropX = crop.x ?? 50;
+    const cropY = crop.y ?? 50;
+    const cropZoom = crop.zoom ?? 1;
 
     return (
       <div
@@ -282,16 +288,11 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
         className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-stone-100 shadow-xs transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer ${aspectClass}`}
       >
         {/* Gallery Image with Crop and Zoom */}
-        <div
-          className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
-          style={{
-            transformOrigin: `${cropX}% ${cropY}%`,
-          }}
-        >
+        <div className="absolute inset-0 overflow-hidden transition-transform duration-500 group-hover:scale-[1.03]">
           <div
             className="w-full h-full relative"
             style={{
-              transform: cropZoom > 1 ? `scale(${cropZoom})` : undefined,
+              transform: `scale(${cropZoom})`,
               transformOrigin: `${cropX}% ${cropY}%`,
             }}
           >

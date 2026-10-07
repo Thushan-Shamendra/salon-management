@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import Gallery from "@/models/Gallery";
+import Gallery, { normalizeCropSettings } from "@/models/Gallery";
 
 // GET /api/gallery - Public access to active gallery photos
 export async function GET(request: Request) {
@@ -20,16 +20,21 @@ export async function GET(request: Request) {
 
     // Sort displayOrder ascending, then newest first
     const galleryItems = await Gallery.find(query)
-      .select("_id title description category image imagePublicId altText isFeatured displayOrder cropPosition createdAt")
+      .select("_id title description category image imagePublicId altText isFeatured displayOrder cropSettings cropPosition createdAt")
       .sort({ displayOrder: 1, createdAt: -1 })
       .lean();
+
+    const formattedGallery = galleryItems.map((item) => ({
+      ...item,
+      cropSettings: normalizeCropSettings(item),
+    }));
 
     // Also get all distinct categories of active photos for convenient client filtering
     const activeCategories = await Gallery.distinct("category", { isActive: true });
 
     return NextResponse.json({
       success: true,
-      gallery: galleryItems,
+      gallery: formattedGallery,
       categories: activeCategories.filter(Boolean),
     });
   } catch (error) {

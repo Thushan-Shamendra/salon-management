@@ -5,7 +5,12 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import EmptyState from "@/components/admin/EmptyState";
 import ImageUpload from "@/components/ui/ImageUpload";
-import ImageCropAdjuster, { CropPosition } from "@/components/admin/ImageCropAdjuster";
+import ImageCropAdjuster, {
+  CropSettings,
+  DEFAULT_CROP_SETTINGS,
+} from "@/components/admin/ImageCropAdjuster";
+import CropEditorModal from "@/components/admin/CropEditorModal";
+import { normalizeCropSettings } from "@/lib/crop";
 import { CLOUDINARY_FOLDERS } from "@/lib/cloudinary-constants";
 import {
   ImageIcon,
@@ -19,6 +24,7 @@ import {
   XIcon,
   CheckCircleIcon,
   AlertCircleIcon,
+  CropIcon,
 } from "@/components/ui/icons";
 
 interface GalleryPhoto {
@@ -32,7 +38,8 @@ interface GalleryPhoto {
   isActive: boolean;
   isFeatured: boolean;
   displayOrder: number;
-  cropPosition?: CropPosition;
+  cropSettings?: CropSettings;
+  cropPosition?: { x: number; y: number; zoom: number };
   createdAt?: string;
   updatedAt?: string;
 }
@@ -47,7 +54,7 @@ interface GalleryFormState {
   isActive: boolean;
   isFeatured: boolean;
   displayOrder: string;
-  cropPosition: CropPosition;
+  cropSettings: CropSettings;
 }
 
 const PRESET_CATEGORIES = [
@@ -72,11 +79,7 @@ const emptyForm: GalleryFormState = {
   isActive: true,
   isFeatured: false,
   displayOrder: "0",
-  cropPosition: {
-    x: 50,
-    y: 50,
-    zoom: 1,
-  },
+  cropSettings: DEFAULT_CROP_SETTINGS,
 };
 
 export default function AdminGalleryPage() {
@@ -110,6 +113,9 @@ export default function AdminGalleryPage() {
 
   // Image Preview Lightbox modal state
   const [previewPhoto, setPreviewPhoto] = useState<GalleryPhoto | null>(null);
+
+  // Dedicated Crop Editor Modal state
+  const [cropModalPhoto, setCropModalPhoto] = useState<GalleryPhoto | null>(null);
 
   const showNotification = (type: "success" | "error", message: string) => {
     setNotification({ type, message });
@@ -259,13 +265,7 @@ export default function AdminGalleryPage() {
       isActive: photo.isActive,
       isFeatured: photo.isFeatured,
       displayOrder: String(photo.displayOrder ?? 0),
-      cropPosition: photo.cropPosition
-        ? {
-            x: typeof photo.cropPosition.x === "number" ? photo.cropPosition.x : 50,
-            y: typeof photo.cropPosition.y === "number" ? photo.cropPosition.y : 50,
-            zoom: typeof photo.cropPosition.zoom === "number" ? photo.cropPosition.zoom : 1,
-          }
-        : { x: 50, y: 50, zoom: 1 },
+      cropSettings: normalizeCropSettings(photo),
     });
     setIsFormOpen(true);
   };
@@ -311,7 +311,7 @@ export default function AdminGalleryPage() {
         isActive: form.isActive,
         isFeatured: form.isFeatured,
         displayOrder: Number(form.displayOrder) || 0,
-        cropPosition: form.cropPosition,
+        cropSettings: form.cropSettings,
       };
 
       const res = await fetch(url, {
@@ -400,6 +400,68 @@ export default function AdminGalleryPage() {
       showNotification("error", "Network error updating featured state");
     } finally {
       setTogglingFeaturedId(null);
+    }
+  };
+
+  // Save Crop from CropEditorModal
+  const handleSaveCrop = async (
+    photoId: string,
+    cropSettings: CropSettings
+  ): Promise<boolean> => {
+    try {
+      const res = await fetch(`/api/admin/gallery/${photoId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cropSettings }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        showNotification(
+          "error",
+          data.message || "Failed to save image crop settings"
+        );
+        return false;
+      }
+
+      // Update local photo state using returned MongoDB record
+      const updatedPhoto = data.photo;
+      if (updatedPhoto) {
+        setPhotos((prev) =>
+          prev.map((item) =>
+            item._id === photoId
+              ? {
+                  ...item,
+                  ...updatedPhoto,
+                  cropSettings: updatedPhoto.cropSettings || cropSettings,
+                  cropPosition:
+                    updatedPhoto.cropPosition ||
+                    updatedPhoto.cropSettings?.gallery ||
+                    cropSettings.gallery,
+                }
+              : item
+          )
+        );
+      } else {
+        setPhotos((prev) =>
+          prev.map((item) =>
+            item._id === photoId
+              ? {
+                  ...item,
+                  cropSettings,
+                  cropPosition: cropSettings.gallery,
+                }
+              : item
+          )
+        );
+      }
+
+      showNotification("success", "Image crop updated successfully.");
+      return true;
+    } catch {
+      showNotification("error", "Network error saving image crop settings");
+      return false;
     }
   };
 
@@ -743,102 +805,130 @@ export default function AdminGalleryPage() {
                   : "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
               }`}
             >
-              {filteredPhotos.map((photo) => (
-                <div
-                  key={photo._id}
-                  className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-xs transition-all duration-200 hover:border-purple-200 hover:shadow-md"
-                >
-                  <div>
-                    {/* Card Photo Section */}
-                    <div
-                      onClick={() => setPreviewPhoto(photo)}
-                      className="relative h-44 sm:h-48 w-full overflow-hidden bg-stone-100 cursor-pointer"
-                      title="Click to preview full image"
-                    >
-                      {photo.image ? (
-                        <div
-                          className="w-full h-full relative overflow-hidden"
-                          style={{
-                            transform:
-                              (photo.cropPosition?.zoom ?? 1) > 1
-                                ? `scale(${photo.cropPosition?.zoom})`
-                                : undefined,
-                            transformOrigin: `${photo.cropPosition?.x ?? 50}% ${photo.cropPosition?.y ?? 50}%`,
-                          }}
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={photo.image}
-                            alt={photo.altText || photo.title}
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-103"
-                            style={{
-                              objectPosition: `${photo.cropPosition?.x ?? 50}% ${photo.cropPosition?.y ?? 50}%`,
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-stone-300">
-                          <ImageIcon className="h-12 w-12" />
-                        </div>
-                      )}
+              {filteredPhotos.map((photo) => {
+                const cardCrop =
+                  photo.cropSettings?.gallery ||
+                  photo.cropPosition || { x: 50, y: 50, zoom: 1 };
 
-                      {/* Floating Badges on top-right */}
-                      <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5 pointer-events-none">
-                        {/* Published / Hidden Status Pill */}
-                        <span
-                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold shadow-xs backdrop-blur-xs ${
-                            photo.isActive
-                              ? "bg-white/95 text-emerald-700 border border-emerald-200/80"
-                              : "bg-white/95 text-stone-600 border border-stone-200/80"
-                          }`}
-                        >
-                          <span
-                            className={`h-2 w-2 rounded-full ${
-                              photo.isActive ? "bg-emerald-500" : "bg-stone-400"
-                            }`}
-                          />
-                          <span>{photo.isActive ? "Published" : "Hidden"}</span>
-                        </span>
-
-                        {/* Featured Pill */}
-                        {photo.isFeatured && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-[#7C3AED] text-white px-2.5 py-0.5 text-[11px] font-semibold shadow-xs">
-                            <StarIcon className="h-3 w-3 fill-current" />
-                            <span>Featured</span>
-                          </span>
+                return (
+                  <div
+                    key={photo._id}
+                    className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-xs transition-all duration-200 hover:border-purple-200 hover:shadow-md"
+                  >
+                    <div>
+                      {/* Card Photo Section */}
+                      <div
+                        onClick={() => setPreviewPhoto(photo)}
+                        className="relative h-44 sm:h-48 w-full overflow-hidden bg-stone-100 cursor-pointer"
+                        title="Click to preview full image"
+                      >
+                        {photo.image ? (
+                          <div className="w-full h-full overflow-hidden transition-transform duration-500 group-hover:scale-[1.03]">
+                            <div
+                              className="w-full h-full relative"
+                              style={{
+                                transform: `scale(${cardCrop.zoom})`,
+                                transformOrigin: `${cardCrop.x}% ${cardCrop.y}%`,
+                              }}
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={photo.image}
+                                alt={photo.altText || photo.title}
+                                className="h-full w-full object-cover"
+                                style={{
+                                  objectPosition: `${cardCrop.x}% ${cardCrop.y}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-stone-300">
+                            <ImageIcon className="h-12 w-12" />
+                          </div>
                         )}
+
+                        {/* Quick Crop Shortcut Button on Photo */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCropModalPhoto(photo);
+                          }}
+                          className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 rounded-full bg-black/75 hover:bg-[#7C3AED] text-white px-2.5 py-1 text-[11px] font-semibold shadow-md backdrop-blur-xs transition cursor-pointer"
+                          title="Adjust Image Crop"
+                        >
+                          <CropIcon className="h-3 w-3" />
+                          <span>Crop</span>
+                        </button>
+
+                        {/* Floating Badges on top-right */}
+                        <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5 pointer-events-none">
+                          {/* Published / Hidden Status Pill */}
+                          <span
+                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold shadow-xs backdrop-blur-xs ${
+                              photo.isActive
+                                ? "bg-white/95 text-emerald-700 border border-emerald-200/80"
+                                : "bg-white/95 text-stone-600 border border-stone-200/80"
+                            }`}
+                          >
+                            <span
+                              className={`h-2 w-2 rounded-full ${
+                                photo.isActive ? "bg-emerald-500" : "bg-stone-400"
+                              }`}
+                            />
+                            <span>{photo.isActive ? "Published" : "Hidden"}</span>
+                          </span>
+
+                          {/* Featured Pill */}
+                          {photo.isFeatured && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-[#7C3AED] text-white px-2.5 py-0.5 text-[11px] font-semibold shadow-xs">
+                              <StarIcon className="h-3 w-3 fill-current" />
+                              <span>Featured</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Card Body */}
+                      <div className="p-4 sm:p-5 space-y-2.5">
+                        {/* Title and Display Order */}
+                        <div className="flex items-center justify-between gap-2">
+                          <h3 className="text-sm sm:text-base font-bold text-stone-900 tracking-tight line-clamp-1">
+                            {photo.title}
+                          </h3>
+                          <span className="rounded-md bg-stone-100 px-2 py-0.5 text-xs font-bold text-stone-600 shrink-0">
+                            #{photo.displayOrder ?? 0}
+                          </span>
+                        </div>
+
+                        {/* Category Pill (Soft Blue Badge matching Mockup) */}
+                        <div>
+                          <span className="inline-block rounded-md bg-blue-50 text-blue-700 border border-blue-200/60 px-2.5 py-0.5 text-xs font-medium">
+                            {photo.category}
+                          </span>
+                        </div>
+
+                        {/* Description Preview */}
+                        <p className="text-xs text-stone-500 line-clamp-2 leading-relaxed min-h-[32px]">
+                          {photo.description || "No description provided."}
+                        </p>
                       </div>
                     </div>
 
-                    {/* Card Body */}
-                    <div className="p-4 sm:p-5 space-y-2.5">
-                      {/* Title and Display Order */}
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="text-sm sm:text-base font-bold text-stone-900 tracking-tight line-clamp-1">
-                          {photo.title}
-                        </h3>
-                        <span className="rounded-md bg-stone-100 px-2 py-0.5 text-xs font-bold text-stone-600 shrink-0">
-                          #{photo.displayOrder ?? 0}
-                        </span>
-                      </div>
+                    {/* Card Actions (Adjust Crop, Edit, Hide/Publish, Feature/Unfeature, Delete) */}
+                    <div className="p-4 sm:p-5 pt-0">
+                      {/* Prominent Dedicated Adjust Crop Action Button */}
+                      <button
+                        type="button"
+                        onClick={() => setCropModalPhoto(photo)}
+                        className="w-full mb-2.5 inline-flex items-center justify-center gap-1.5 rounded-xl border border-purple-200 bg-purple-50/70 hover:bg-[#7C3AED] hover:text-white hover:border-[#7C3AED] py-2 px-3 text-xs font-bold text-[#7C3AED] shadow-2xs transition-all cursor-pointer group/crop"
+                      >
+                        <CropIcon className="h-3.5 w-3.5 transition-transform group-hover/crop:rotate-45" />
+                        <span>Adjust Crop</span>
+                      </button>
 
-                      {/* Category Pill (Soft Blue Badge matching Mockup) */}
-                      <div>
-                        <span className="inline-block rounded-md bg-blue-50 text-blue-700 border border-blue-200/60 px-2.5 py-0.5 text-xs font-medium">
-                          {photo.category}
-                        </span>
-                      </div>
-
-                      {/* Description Preview */}
-                      <p className="text-xs text-stone-500 line-clamp-2 leading-relaxed min-h-[32px]">
-                        {photo.description || "No description provided."}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Card Actions (Edit, Hide/Publish, Feature/Unfeature, Delete) */}
-                  <div className="p-4 sm:p-5 pt-0">
-                    <div className="grid grid-cols-4 gap-1.5 pt-3 border-t border-stone-100 text-xs font-semibold">
+                      <div className="grid grid-cols-4 gap-1.5 pt-2 border-t border-stone-100 text-xs font-semibold">
                       {/* Edit Button */}
                       <button
                         type="button"
@@ -896,7 +986,8 @@ export default function AdminGalleryPage() {
                     </div>
                   </div>
                 </div>
-              ))}
+              );
+            })}
             </div>
           )}
         </div>
@@ -951,7 +1042,7 @@ export default function AdminGalleryPage() {
                         ...prev,
                         image: "",
                         imagePublicId: "",
-                        cropPosition: { x: 50, y: 50, zoom: 1 },
+                        cropSettings: DEFAULT_CROP_SETTINGS,
                       }));
                     }}
                   />
@@ -962,13 +1053,13 @@ export default function AdminGalleryPage() {
                   <div>
                     <ImageCropAdjuster
                       imageUrl={form.image}
-                      cropPosition={form.cropPosition}
-                      onChange={(newCrop) =>
-                        setForm((prev) => ({ ...prev, cropPosition: newCrop }))
+                      cropSettings={form.cropSettings}
+                      onChange={(newSettings) =>
+                        setForm((prev) => ({ ...prev, cropSettings: newSettings }))
                       }
-                      isFeatured={form.isFeatured}
                       category={form.category}
                       title={form.title}
+                      isCompact={true}
                       onPreviewFull={() =>
                         setPreviewPhoto({
                           _id: editingId || "temp-preview",
@@ -980,7 +1071,8 @@ export default function AdminGalleryPage() {
                           isActive: form.isActive,
                           isFeatured: form.isFeatured,
                           displayOrder: Number(form.displayOrder) || 0,
-                          cropPosition: form.cropPosition,
+                          cropSettings: form.cropSettings,
+                          cropPosition: form.cropSettings.gallery,
                         })
                       }
                     />
@@ -1252,6 +1344,17 @@ export default function AdminGalleryPage() {
           </div>
         </div>
       )}
+
+      {/* ========================================================== */}
+      {/* 7. DEDICATED CROP EDITOR MODAL                             */}
+      {/* ========================================================== */}
+      <CropEditorModal
+        isOpen={!!cropModalPhoto}
+        photo={cropModalPhoto}
+        onClose={() => setCropModalPhoto(null)}
+        onSave={handleSaveCrop}
+        showNotification={showNotification}
+      />
     </div>
   );
 }

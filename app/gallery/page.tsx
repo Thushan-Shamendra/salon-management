@@ -6,7 +6,7 @@ import GalleryHero from "@/components/gallery/GalleryHero";
 import GalleryView from "@/components/gallery/GalleryView";
 import { GalleryPhotoItem } from "@/components/gallery/GalleryLightbox";
 import { connectDB } from "@/lib/mongodb";
-import Gallery from "@/models/Gallery";
+import Gallery, { normalizeCropSettings } from "@/models/Gallery";
 import SalonSettings from "@/models/SalonSettings";
 
 export const dynamic = "force-dynamic";
@@ -31,25 +31,23 @@ async function getGalleryData(): Promise<{
       SalonSettings.findOne().lean(),
     ]);
 
-    const photos: GalleryPhotoItem[] = rawPhotos.map((p) => ({
-      _id: String(p._id),
-      title: p.title,
-      description: p.description || "",
-      category: p.category || "Hair Styling",
-      image: p.image,
-      imagePublicId: p.imagePublicId,
-      altText: p.altText || "",
-      isActive: Boolean(p.isActive),
-      isFeatured: Boolean(p.isFeatured),
-      displayOrder: typeof p.displayOrder === "number" ? p.displayOrder : 0,
-      cropPosition: p.cropPosition
-        ? {
-            x: typeof p.cropPosition.x === "number" ? p.cropPosition.x : 50,
-            y: typeof p.cropPosition.y === "number" ? p.cropPosition.y : 50,
-            zoom: typeof p.cropPosition.zoom === "number" ? p.cropPosition.zoom : 1,
-          }
-        : { x: 50, y: 50, zoom: 1 },
-    }));
+    const photos: GalleryPhotoItem[] = rawPhotos.map((p) => {
+      const normalizedCrops = normalizeCropSettings(p);
+      return {
+        _id: String(p._id),
+        title: p.title,
+        description: p.description || "",
+        category: p.category || "Hair Styling",
+        image: p.image,
+        imagePublicId: p.imagePublicId,
+        altText: p.altText || "",
+        isActive: Boolean(p.isActive),
+        isFeatured: Boolean(p.isFeatured),
+        displayOrder: typeof p.displayOrder === "number" ? p.displayOrder : 0,
+        cropSettings: normalizedCrops,
+        cropPosition: normalizedCrops.gallery,
+      };
+    });
 
     const bookingUrl = settings?.externalSystem?.bookingUrl || "";
 

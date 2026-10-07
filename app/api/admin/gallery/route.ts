@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
-import Gallery from "@/models/Gallery";
+import Gallery, { normalizeCropSettings } from "@/models/Gallery";
 import { CLOUDINARY_FOLDERS } from "@/lib/cloudinary-constants";
 
 // GET /api/admin/gallery - ADMIN ONLY: list all gallery photos and real statistics
@@ -34,9 +34,18 @@ export async function GET() {
         Gallery.countDocuments({ isFeatured: true }),
       ]);
 
+    const formattedPhotos = photos.map((photo) => {
+      const normalizedCrops = normalizeCropSettings(photo);
+      return {
+        ...photo,
+        cropSettings: normalizedCrops,
+        cropPosition: normalizedCrops.gallery,
+      };
+    });
+
     return NextResponse.json({
       success: true,
-      photos,
+      photos: formattedPhotos,
       stats: {
         totalPhotos,
         activePhotos,
@@ -83,6 +92,7 @@ export async function POST(request: Request) {
       isActive,
       isFeatured,
       displayOrder,
+      cropSettings,
       cropPosition,
     } = body;
 
@@ -164,11 +174,8 @@ export async function POST(request: Request) {
       isActive: typeof isActive === "boolean" ? isActive : true,
       isFeatured: typeof isFeatured === "boolean" ? isFeatured : false,
       displayOrder: typeof displayOrder === "number" ? displayOrder : Number(displayOrder) || 0,
-      cropPosition: {
-        x: typeof cropPosition?.x === "number" ? Math.max(0, Math.min(100, cropPosition.x)) : 50,
-        y: typeof cropPosition?.y === "number" ? Math.max(0, Math.min(100, cropPosition.y)) : 50,
-        zoom: typeof cropPosition?.zoom === "number" ? Math.max(1, Math.min(3, cropPosition.zoom)) : 1,
-      },
+      cropSettings: normalizeCropSettings({ cropSettings, cropPosition }),
+      cropPosition: normalizeCropSettings({ cropSettings, cropPosition }).gallery,
     });
 
     return NextResponse.json(

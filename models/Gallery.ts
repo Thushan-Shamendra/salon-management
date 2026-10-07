@@ -1,10 +1,20 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
+import {
+  ICropTarget,
+  ICropSettings,
+  DEFAULT_CROP_TARGET,
+  DEFAULT_CROP_SETTINGS,
+  normalizeCropTarget,
+  normalizeCropSettings,
+} from "../lib/crop";
 
-export interface IGalleryCropPosition {
-  x: number;
-  y: number;
-  zoom: number;
-}
+export type { ICropTarget, ICropSettings };
+export {
+  DEFAULT_CROP_TARGET,
+  DEFAULT_CROP_SETTINGS,
+  normalizeCropTarget,
+  normalizeCropSettings,
+};
 
 export interface IGallery extends Document {
   title: string;
@@ -16,7 +26,8 @@ export interface IGallery extends Document {
   isActive: boolean;
   isFeatured: boolean;
   displayOrder: number;
-  cropPosition?: IGalleryCropPosition;
+  cropSettings?: ICropSettings;
+  cropPosition?: ICropTarget;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -71,6 +82,23 @@ const GallerySchema = new Schema<IGallery>(
       default: 0,
       index: true,
     },
+    cropSettings: {
+      home: {
+        x: { type: Number, default: 50 },
+        y: { type: Number, default: 50 },
+        zoom: { type: Number, default: 1 },
+      },
+      gallery: {
+        x: { type: Number, default: 50 },
+        y: { type: Number, default: 50 },
+        zoom: { type: Number, default: 1 },
+      },
+      featured: {
+        x: { type: Number, default: 50 },
+        y: { type: Number, default: 50 },
+        zoom: { type: Number, default: 1 },
+      },
+    },
     cropPosition: {
       x: {
         type: Number,
@@ -94,6 +122,10 @@ const GallerySchema = new Schema<IGallery>(
 // Compound indexes for public filtering and ordering
 GallerySchema.index({ isActive: 1, displayOrder: 1, createdAt: -1 });
 GallerySchema.index({ category: 1, isActive: 1 });
+
+if (process.env.NODE_ENV !== "production" && mongoose.models && mongoose.models.Gallery) {
+  delete mongoose.models.Gallery;
+}
 
 const Gallery: Model<IGallery> =
   mongoose.models.Gallery ||
