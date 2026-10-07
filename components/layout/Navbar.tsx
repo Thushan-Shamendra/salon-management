@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import InvoraLogo from "@/components/ui/InvoraLogo";
 import {
-  ScissorsIcon,
-  CalendarIcon,
   MenuIcon,
   XIcon,
-  ChevronRightIcon,
+  CalendarIcon,
+  ArrowRightIcon,
 } from "@/components/ui/icons";
 
 interface ExternalSystemLinks {
@@ -21,39 +21,34 @@ export default function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [salonLogo, setSalonLogo] = useState<string>("");
-  const [salonName, setSalonName] = useState<string>("LUMINA");
   const [externalSystem, setExternalSystem] = useState<ExternalSystemLinks>({
     loginUrl: "",
     registerUrl: "",
     bookingUrl: "",
   });
 
-  // Load public salon settings (logo, brand name, external links)
+  // Fetch external system links from Website Settings
   useEffect(() => {
     let isMounted = true;
     fetch("/api/settings")
       .then((res) => res.json())
       .then((data) => {
-        if (isMounted && data?.success && data?.settings) {
-          if (data.settings.logo) setSalonLogo(data.settings.logo);
-          if (data.settings.salonName) setSalonName(data.settings.salonName);
-          if (data.settings.externalSystem) {
-            setExternalSystem({
-              loginUrl: data.settings.externalSystem.loginUrl || "",
-              registerUrl: data.settings.externalSystem.registerUrl || "",
-              bookingUrl: data.settings.externalSystem.bookingUrl || "",
-            });
-          }
+        if (isMounted && data?.success && data?.settings?.externalSystem) {
+          setExternalSystem({
+            loginUrl: data.settings.externalSystem.loginUrl || "",
+            registerUrl: data.settings.externalSystem.registerUrl || "",
+            bookingUrl: data.settings.externalSystem.bookingUrl || "",
+          });
         }
       })
       .catch(() => {});
+
     return () => {
       isMounted = false;
     };
   }, []);
 
-  // Handle scroll effect for navbar elevation
+  // Handle subtle scroll styling
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -75,137 +70,114 @@ export default function Navbar() {
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-[#FAF7F2]/95 backdrop-blur-md shadow-sm shadow-stone-200/60 border-b border-[#B7925A]/20"
-          : "bg-[#FAF7F2] border-b border-[#B7925A]/15"
+          ? "bg-white/95 backdrop-blur-md shadow-xs border-b border-stone-200/70"
+          : "bg-white border-b border-stone-100"
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 h-20">
-        {/* Salon Logo */}
+        {/* INVORA Brand Logo */}
         <Link
           href="/"
-          className="group flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] rounded-lg"
+          className="group flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] rounded-lg transition-transform hover:opacity-90"
+          aria-label="Invora Home"
         >
-          {salonLogo ? (
-            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-white shadow-sm border border-[#B7925A]/40 p-1 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={salonLogo}
-                alt={salonName || "Salon Logo"}
-                onError={() => setSalonLogo("")}
-                className="max-h-full max-w-full object-contain"
-              />
-            </div>
-          ) : (
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-900 text-[#C5A46D] shadow-sm transition-transform duration-300 group-hover:scale-105 border border-[#B7925A]/40">
-              <ScissorsIcon className="h-5 w-5" />
-            </div>
-          )}
-          <div className="flex flex-col">
-            <span className="font-serif text-xl sm:text-2xl font-bold tracking-wider text-stone-900 group-hover:text-[#B7925A] transition-colors">
-              {salonName.replace(/\s*luxury\s*salon/i, "").trim() || salonName}
-            </span>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-stone-500 font-medium -mt-1">
-              Luxury Salon
-            </span>
-          </div>
+          <InvoraLogo theme="light" className="h-10 sm:h-11 w-auto" />
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav
-          aria-label="Main navigation"
-          className="hidden md:flex items-center space-x-1 lg:space-x-2"
-        >
+        {/* Desktop Navigation Links */}
+        <nav className="hidden lg:flex items-center gap-8">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
                 key={link.name}
                 href={link.href}
-                className={`relative px-3 py-2 text-sm font-medium transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] ${
+                className={`text-sm font-medium transition-colors hover:text-[#7C3AED] relative py-1 ${
                   isActive
-                    ? "text-[#B7925A] font-semibold"
-                    : "text-stone-700 hover:text-stone-950 hover:bg-[#B7925A]/5"
+                    ? "text-[#7C3AED] font-semibold"
+                    : "text-stone-700"
                 }`}
               >
                 {link.name}
                 {isActive && (
-                  <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-[#B7925A] rounded-full" />
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7C3AED] rounded-full" />
                 )}
               </Link>
             );
           })}
         </nav>
 
-        {/* Desktop Actions */}
-        <div className="hidden sm:flex items-center gap-2.5">
-          {/* External Customer Login */}
-          {externalSystem.loginUrl ? (
+        {/* Desktop External Actions (Login, Register, Book Appointment) */}
+        <div className="hidden lg:flex items-center gap-5">
+          {externalSystem.loginUrl && (
             <a
               href={externalSystem.loginUrl}
-              className="rounded-full px-3.5 py-2 text-xs lg:text-sm font-medium text-stone-700 hover:text-stone-950 transition-colors"
+              className="text-sm font-medium text-stone-700 hover:text-[#7C3AED] transition-colors px-2 py-1.5"
             >
               Login
             </a>
-          ) : null}
+          )}
 
-          {/* External Customer Register */}
-          {externalSystem.registerUrl ? (
+          {externalSystem.registerUrl && (
             <a
               href={externalSystem.registerUrl}
-              className="rounded-full border border-stone-300 bg-white px-3.5 py-2 text-xs lg:text-sm font-medium text-stone-800 hover:border-[#B7925A] hover:text-[#B7925A] transition-all shadow-xs"
+              className="text-sm font-medium text-stone-700 hover:text-[#7C3AED] transition-colors px-2 py-1.5"
             >
               Register
             </a>
-          ) : null}
+          )}
 
-          {/* External Book Appointment */}
           {externalSystem.bookingUrl ? (
             <a
               href={externalSystem.bookingUrl}
-              className="flex items-center gap-2 rounded-full bg-stone-900 px-4 py-2 text-xs lg:text-sm font-medium text-[#FAF7F2] transition-all hover:bg-stone-800 hover:shadow-md hover:shadow-stone-900/10 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] border border-[#B7925A]/30"
+              className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-[#6D28D9] hover:shadow-md hover:shadow-purple-500/20 active:scale-[0.98]"
             >
-              <CalendarIcon className="h-4 w-4 text-[#C5A46D]" />
               <span>Book Appointment</span>
+              <ArrowRightIcon className="h-4 w-4" />
             </a>
           ) : (
             <button
               type="button"
               disabled
               title="Online booking link not yet configured"
-              className="flex items-center gap-2 rounded-full bg-stone-900/60 px-4 py-2 text-xs lg:text-sm font-medium text-[#FAF7F2]/60 cursor-not-allowed border border-[#B7925A]/20"
+              className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED]/50 px-6 py-2.5 text-sm font-medium text-white/80 cursor-not-allowed shadow-none"
             >
-              <CalendarIcon className="h-4 w-4 text-[#C5A46D]/50" />
               <span>Book Appointment</span>
+              <ArrowRightIcon className="h-4 w-4" />
             </button>
           )}
         </div>
 
-        {/* Mobile menu trigger */}
-        <div className="flex items-center gap-2 md:hidden">
-          {externalSystem.bookingUrl ? (
+        {/* Mobile Menu Button */}
+        <div className="flex lg:hidden items-center gap-3">
+          {externalSystem.bookingUrl && (
             <a
               href={externalSystem.bookingUrl}
-              className="sm:hidden flex items-center justify-center rounded-full bg-stone-900 px-3 py-1.5 text-xs font-medium text-[#FAF7F2] border border-[#B7925A]/30"
+              className="rounded-full bg-[#7C3AED] px-4 py-2 text-xs font-medium text-white shadow-xs hover:bg-[#6D28D9]"
             >
-              <span>Book</span>
+              Book
             </a>
-          ) : null}
+          )}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-800 hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
+            aria-label="Toggle navigation menu"
             aria-expanded={mobileMenuOpen}
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-800 hover:text-stone-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A]"
           >
-            {mobileMenuOpen ? <XIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
+            {mobileMenuOpen ? (
+              <XIcon className="h-5 w-5" />
+            ) : (
+              <MenuIcon className="h-5 w-5" />
+            )}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Drawer Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-stone-200/80 bg-[#FAF7F2] px-4 pt-4 pb-6 shadow-xl transition-all animate-fadeIn">
-          <nav aria-label="Mobile navigation" className="space-y-1">
+        <div className="lg:hidden border-t border-stone-100 bg-white px-4 pt-4 pb-6 shadow-xl animate-in fade-in slide-in-from-top duration-200">
+          <nav className="flex flex-col space-y-1">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
@@ -213,26 +185,45 @@ export default function Navbar() {
                   key={link.name}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between rounded-xl px-4 py-3 text-base font-medium transition-colors ${
+                  className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-[#B7925A]/10 text-[#B7925A] font-semibold"
-                      : "text-stone-800 hover:bg-stone-100/80"
+                      ? "bg-purple-50 text-[#7C3AED] font-semibold"
+                      : "text-stone-800 hover:bg-stone-50 hover:text-[#7C3AED]"
                   }`}
                 >
                   <span>{link.name}</span>
-                  <ChevronRightIcon className="h-4 w-4 opacity-50" />
+                  <ArrowRightIcon className="h-3.5 w-3.5 opacity-60" />
                 </Link>
               );
             })}
           </nav>
 
-          <div className="mt-6 pt-5 border-t border-stone-200/80 space-y-2.5">
-            <div className="grid grid-cols-2 gap-2">
+          {/* Mobile External CTAs */}
+          <div className="mt-5 pt-5 border-t border-stone-100 space-y-3">
+            {externalSystem.bookingUrl ? (
+              <a
+                href={externalSystem.bookingUrl}
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-[#7C3AED] py-3 text-sm font-medium text-white shadow-sm hover:bg-[#6D28D9] transition-colors"
+              >
+                <CalendarIcon className="h-4 w-4" />
+                <span>Book Appointment</span>
+              </a>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-[#7C3AED]/50 py-3 text-sm font-medium text-white/80 cursor-not-allowed"
+              >
+                <CalendarIcon className="h-4 w-4" />
+                <span>Book Appointment</span>
+              </button>
+            )}
+
+            <div className="grid grid-cols-2 gap-3 pt-1">
               {externalSystem.loginUrl ? (
                 <a
                   href={externalSystem.loginUrl}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center rounded-xl border border-stone-300 bg-white py-2.5 text-sm font-medium text-stone-800 hover:bg-stone-50"
+                  className="flex items-center justify-center rounded-xl border border-stone-200 py-2.5 text-xs font-medium text-stone-700 hover:border-[#7C3AED] hover:text-[#7C3AED] transition-colors"
                 >
                   Login
                 </a>
@@ -241,40 +232,12 @@ export default function Navbar() {
               {externalSystem.registerUrl ? (
                 <a
                   href={externalSystem.registerUrl}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center rounded-xl border border-stone-300 bg-white py-2.5 text-sm font-medium text-stone-800 hover:bg-stone-50"
+                  className="flex items-center justify-center rounded-xl border border-stone-200 py-2.5 text-xs font-medium text-stone-700 hover:border-[#7C3AED] hover:text-[#7C3AED] transition-colors"
                 >
                   Register
                 </a>
               ) : null}
             </div>
-
-            {externalSystem.bookingUrl ? (
-              <a
-                href={externalSystem.bookingUrl}
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-stone-900 py-3 text-sm font-semibold text-[#FAF7F2] shadow-sm hover:bg-stone-800 border border-[#B7925A]/30"
-              >
-                <CalendarIcon className="h-4 w-4 text-[#C5A46D]" />
-                <span>Book Appointment</span>
-              </a>
-            ) : (
-              <button
-                type="button"
-                disabled
-                title="Online booking link not yet configured"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-stone-900/60 py-3 text-sm font-semibold text-[#FAF7F2]/60 cursor-not-allowed border border-[#B7925A]/20"
-              >
-                <CalendarIcon className="h-4 w-4 text-[#C5A46D]/50" />
-                <span>Book Appointment</span>
-              </button>
-            )}
-          </div>
-
-          <div className="mt-4 text-center">
-            <p className="text-xs text-stone-500">
-              Opening Hours: Mon–Sat 9AM–7PM | Sun 10AM–5PM
-            </p>
           </div>
         </div>
       )}

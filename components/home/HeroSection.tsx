@@ -1,163 +1,127 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  CalendarIcon,
-  SparklesIcon,
-  ScissorsIcon,
-  StarIcon,
-  ShieldCheckIcon,
-} from "@/components/ui/icons";
+import { ArrowRightIcon, StarIcon, SparklesIcon } from "@/components/ui/icons";
 
 interface HeroSectionProps {
   bookingUrl?: string;
+  serviceCount?: number;
+  googleRating?: number | null;
 }
 
-export default function HeroSection({ bookingUrl = "" }: HeroSectionProps) {
+export default function HeroSection({
+  bookingUrl = "",
+  serviceCount = 0,
+  googleRating = null,
+}: HeroSectionProps) {
+  const hasRealStats = (serviceCount && serviceCount > 0) || (googleRating && googleRating > 0);
+
   return (
-    <section className="relative overflow-hidden bg-[#FAF7F2] py-16 md:py-24 lg:py-28">
-      {/* Subtle Background Glow Accents */}
-      <div
-        className="pointer-events-none absolute -top-24 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-[#B7925A]/10 blur-3xl"
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute -bottom-32 right-0 h-96 w-96 rounded-full bg-[#EFE8DE] blur-3xl"
-        aria-hidden="true"
-      />
+    <section className="relative overflow-hidden bg-[#0C0A14] text-white py-16 sm:py-20 lg:py-24">
+      {/* Background Salon Image - Bright & Clearly Visible */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/hero-salon.jpg"
+          alt="Invora Salon professional styling and beauty care"
+          fill
+          priority
+          className="object-cover object-right-top opacity-90 sm:opacity-95 lg:opacity-100"
+        />
+        {/* Controlled Gradient Overlay: strong text contrast on left, bright salon image on right */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0C0A14] via-[#0C0A14]/75 lg:via-[#0C0A14]/45 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0C0A14]/90 via-transparent to-transparent/20" />
+      </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-8">
-          {/* Left Column: Text & Call to Actions */}
-          <div className="lg:col-span-6 space-y-6 text-center lg:text-left">
-            {/* Small Subtitle Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#B7925A]/30 bg-[#FAF7F2] px-4 py-1.5 shadow-xs">
-              <SparklesIcon className="h-4 w-4 text-[#B7925A]" />
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#B7925A]">
-                Beauty • Style • Confidence
-              </span>
-            </div>
-
-            {/* Main Heading */}
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-[#1C1917] leading-[1.15]">
-              Look Beautiful. <br />
-              <span className="italic font-light text-[#B7925A]">
-                Feel Confident.
-              </span>
-            </h1>
-
-            {/* Short Introduction */}
-            <p className="mx-auto lg:mx-0 max-w-xl text-base sm:text-lg leading-relaxed text-[#78716C]">
-              Experience professional beauty and hair care services designed to
-              help you look and feel your best. From trendsetting hair designs to
-              luxurious rejuvenation, discover your ultimate sanctuary.
-            </p>
-
-            {/* Call to Actions */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-              {/* Primary: Book Appointment */}
-              {bookingUrl ? (
-                <a
-                  href={bookingUrl}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-full bg-[#1C1917] px-8 py-3.5 text-sm font-medium text-white shadow-md shadow-stone-900/10 transition-all hover:bg-stone-800 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] border border-[#B7925A]/40"
-                >
-                  <CalendarIcon className="h-4 w-4 text-[#C5A46D]" />
-                  <span>Book Appointment</span>
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  disabled
-                  title="Online booking link not yet configured"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-full bg-[#1C1917]/60 px-8 py-3.5 text-sm font-medium text-white/60 cursor-not-allowed border border-[#B7925A]/20"
-                >
-                  <CalendarIcon className="h-4 w-4 text-[#C5A46D]/50" />
-                  <span>Book Appointment</span>
-                </button>
-              )}
-
-              {/* Secondary: Explore Services */}
-              <Link
-                href="/services"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-stone-300 bg-white/80 px-8 py-3.5 text-sm font-medium text-[#1C1917] shadow-xs backdrop-blur-xs transition-all hover:border-[#B7925A] hover:bg-white hover:text-[#B7925A] hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A]"
-              >
-                <span>Explore Services</span>
-              </Link>
-            </div>
-
-            {/* Trust Highlights */}
-            <div className="pt-6 border-t border-stone-200/80 grid grid-cols-3 gap-4 text-center lg:text-left">
-              <div>
-                <p className="font-serif text-2xl font-bold text-[#1C1917]">4.9★</p>
-                <p className="text-xs text-[#78716C] mt-0.5">350+ Verified Reviews</p>
-              </div>
-              <div>
-                <p className="font-serif text-2xl font-bold text-[#1C1917]">100%</p>
-                <p className="text-xs text-[#78716C] mt-0.5">Cruelty-Free Products</p>
-              </div>
-              <div>
-                <p className="font-serif text-2xl font-bold text-[#1C1917]">8+ Yrs</p>
-                <p className="text-xs text-[#78716C] mt-0.5">Master Artistry</p>
-              </div>
-            </div>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-2xl space-y-6">
+          {/* Label: Professional Beauty & Wellness */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-purple-400/30 bg-purple-950/50 px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#C4B5FD] backdrop-blur-md">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#8B5CF6] animate-pulse" />
+            <span>Professional Beauty & Wellness</span>
           </div>
 
-          {/* Right Column: Hero Salon Image Area */}
-          <div className="lg:col-span-6 relative flex justify-center">
-            <div className="relative w-full max-w-lg lg:max-w-none">
-              {/* Outer decorative ring */}
-              <div className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-[#B7925A]/20 via-transparent to-[#B7925A]/10 blur-sm" />
+          {/* Main Heading */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.12]">
+            Beauty<br />
+            Redefined<br />
+            <span className="text-[#8B5CF6]">For You</span>
+          </h1>
 
-              {/* Main Image Showcase Card */}
-              <div className="relative overflow-hidden rounded-3xl border border-[#B7925A]/30 bg-white shadow-xl shadow-stone-900/5">
-                {/* 
-                  Structured Salon Hero Image:
-                  Currently loads high-quality vector illustration /images/hero-salon.svg.
-                  Can easily be replaced with a real salon photography file (e.g. /images/hero-salon.jpg)
-                */}
-                <div className="relative aspect-[4/3] w-full overflow-hidden bg-stone-900">
-                  <Image
-                    src="/images/hero-salon.svg"
-                    alt="Lumina Salon luxury styling studio interior with warm lighting and comfortable styling chairs"
-                    width={800}
-                    height={600}
-                    priority
-                    className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/60 via-transparent to-transparent pointer-events-none" />
-                  
-                  {/* Inset Badge on Image */}
-                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white text-xs">
-                    <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
-                      <ScissorsIcon className="h-3.5 w-3.5 text-[#C5A46D]" />
-                      <span>Artisanal Salon Experience</span>
+          {/* Subtitle */}
+          <p className="text-base sm:text-lg text-stone-200 leading-relaxed max-w-xl font-normal drop-shadow-sm">
+            Experience professional care, modern treatments and a relaxing salon
+            environment at Invora.
+          </p>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap items-center gap-4 pt-2">
+            {bookingUrl ? (
+              <a
+                href={bookingUrl}
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-purple-600/30 transition-all hover:bg-[#6D28D9] hover:shadow-purple-600/50 hover:gap-3 active:scale-[0.98]"
+              >
+                <span>Book Appointment</span>
+                <ArrowRightIcon className="h-4 w-4" />
+              </a>
+            ) : (
+              <button
+                type="button"
+                disabled
+                title="Online booking link not yet configured"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED]/60 px-8 py-3.5 text-sm font-semibold text-white/80 cursor-not-allowed shadow-none"
+              >
+                <span>Book Appointment</span>
+                <ArrowRightIcon className="h-4 w-4" />
+              </button>
+            )}
+
+            <Link
+              href="/services"
+              className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/10 px-8 py-3.5 text-sm font-medium text-white backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/50 active:scale-[0.98]"
+            >
+              <span>View Services</span>
+            </Link>
+          </div>
+
+          {/* Real Trust Information Only (No Fake Data) */}
+          <div className="pt-6 border-t border-white/15 flex flex-wrap items-center justify-between gap-6">
+            {hasRealStats ? (
+              <div className="flex items-center gap-8 sm:gap-10">
+                {serviceCount > 0 && (
+                  <div>
+                    <p className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                      {serviceCount}+
+                    </p>
+                    <p className="text-xs text-stone-300 mt-0.5">Beauty Services</p>
+                  </div>
+                )}
+
+                {googleRating && googleRating > 0 && (
+                  <>
+                    <div className="h-8 w-px bg-white/15" />
+                    <div>
+                      <p className="text-2xl sm:text-3xl font-bold text-white tracking-tight flex items-center gap-1">
+                        <span>{googleRating.toFixed(1)}</span>
+                        <StarIcon className="h-5 w-5 text-amber-400 fill-amber-400" />
+                      </p>
+                      <p className="text-xs text-stone-300 mt-0.5">Google Rating</p>
                     </div>
-                    <span className="text-stone-300 hidden sm:inline-block">Colombo 07</span>
-                  </div>
-                </div>
+                  </>
+                )}
               </div>
+            ) : (
+              <div className="flex items-center gap-3 text-xs text-stone-300">
+                <SparklesIcon className="h-4 w-4 text-[#C4B5FD]" />
+                <span>Personalized Consultations • Modern Salon Care</span>
+              </div>
+            )}
 
-              {/* Floating Testimonial Pill */}
-              <div className="absolute -bottom-6 -left-4 sm:left-4 rounded-2xl border border-stone-200/90 bg-white p-3.5 shadow-lg shadow-stone-900/10 flex items-center gap-3 backdrop-blur-sm max-w-xs animate-fadeIn">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FAF7F2] text-[#B7925A] border border-[#B7925A]/30 shrink-0">
-                  <StarIcon className="h-5 w-5" />
-                </div>
-                <div className="text-xs">
-                  <div className="flex items-center gap-1 text-[#B7925A]">
-                    {[...Array(5)].map((_, i) => (
-                      <StarIcon key={i} className="h-3 w-3" />
-                    ))}
-                  </div>
-                  <p className="font-semibold text-[#1C1917] mt-0.5">Top-Rated Experience</p>
-                  <p className="text-[11px] text-[#78716C]">&quot;Best hair transformation in town&quot;</p>
-                </div>
+            {/* Subtle Scroll Down Indicator */}
+            <div className="hidden sm:flex items-center gap-2 text-stone-400 text-xs tracking-wider uppercase opacity-85">
+              <div className="h-7 w-4 rounded-full border border-stone-400/60 p-0.5 flex justify-center">
+                <div className="h-2 w-1 rounded-full bg-purple-400 animate-bounce" />
               </div>
-
-              {/* Floating Certified Badge */}
-              <div className="absolute -top-4 -right-2 sm:right-4 rounded-full border border-[#B7925A]/30 bg-white/95 px-3.5 py-1.5 shadow-md flex items-center gap-2 text-xs font-medium text-stone-800">
-                <ShieldCheckIcon className="h-4 w-4 text-[#B7925A]" />
-                <span>Certified Master Stylists</span>
-              </div>
+              <span>Scroll Down</span>
             </div>
           </div>
         </div>

@@ -1,128 +1,93 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  ScissorsIcon,
-  SparklesIcon,
-  HeartIcon,
-  ArrowRightIcon,
-  CheckIcon,
-} from "@/components/ui/icons";
+import { ArrowRightIcon, PlayIcon, SparklesIcon, HeartIcon } from "@/components/ui/icons";
 
 export default function AboutPreview() {
-  const benefits = [
-    {
-      title: "Professional Service",
-      description:
-        "Our certified master stylists and aesthetic therapists are trained in contemporary international trends and tailored consulting.",
-      icon: ScissorsIcon,
-    },
-    {
-      title: "Quality Products",
-      description:
-        "We curate exclusively dermatologically tested, organic, and cruelty-free professional formulas that nurture your hair and skin.",
-      icon: SparklesIcon,
-    },
-    {
-      title: "Relaxing Experience",
-      description:
-        "Step into a peaceful ambiance designed with private suites, calming aromatherapy, and attentive personalized hospitality.",
-      icon: HeartIcon,
-    },
-  ];
-
   return (
-    <section className="bg-white py-16 md:py-24 border-y border-stone-200/60">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-16">
-          {/* Visual Side Frame */}
-          <div className="lg:col-span-5 relative order-2 lg:order-1">
-            <div className="relative mx-auto max-w-md lg:max-w-none">
-              {/* Outer decorative card */}
-              <div className="overflow-hidden rounded-3xl border border-[#B7925A]/25 bg-[#FAF7F2] p-4 shadow-lg shadow-stone-200/50">
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-stone-100">
-                  <Image
-                    src="/images/about-salon.svg"
-                    alt="Lumina Salon holistic care and luxury beauty craftsmanship"
-                    width={600}
-                    height={500}
-                    className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-                  />
-                </div>
+    <section className="relative overflow-hidden bg-[#FAF8F5] py-16 sm:py-20 lg:py-24">
+      {/* Subtle Decorative Botanical Accent */}
+      <div
+        className="pointer-events-none absolute right-0 top-8 w-60 h-80 opacity-25 text-purple-200 hidden xl:block"
+        aria-hidden="true"
+      >
+        <svg viewBox="0 0 200 300" fill="none" stroke="currentColor" strokeWidth="1.2">
+          <path d="M180,20 C140,80 120,160 150,260" />
+          <path d="M140,70 C100,50 80,80 135,100" />
+          <path d="M125,120 C70,110 60,150 125,160" />
+          <path d="M135,180 C80,190 90,230 145,220" />
+        </svg>
+      </div>
 
-                {/* Bottom Highlight inside Frame */}
-                <div className="mt-4 flex items-center justify-between px-2 pt-2 border-t border-stone-200/70 text-xs">
-                  <div className="flex items-center gap-2 text-stone-700">
-                    <span className="flex h-2 w-2 rounded-full bg-[#B7925A]" />
-                    <span className="font-medium">Crafted with Attention to Detail</span>
-                  </div>
-                  <span className="font-semibold text-[#B7925A]">Est. 2018</span>
-                </div>
-              </div>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14">
+          {/* Left Column: Salon Interior Photo */}
+          <div className="lg:col-span-6 relative">
+            <div className="relative aspect-[16/11] w-full overflow-hidden rounded-3xl bg-stone-200 shadow-md shadow-stone-900/5 group">
+              <Image
+                src="/images/about-salon.jpg"
+                alt="Invora Salon modern interior and styling stations"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/15 transition-opacity group-hover:bg-black/25" />
 
-              {/* Decorative side accent badge */}
-              <div className="absolute -bottom-5 -right-3 rounded-2xl border border-stone-200 bg-[#FAF7F2] px-5 py-3 shadow-md flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#B7925A]/20 text-[#B7925A]">
-                  <CheckIcon className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-[#1C1917]">5,000+ Happy Guests</p>
-                  <p className="text-[11px] text-[#78716C]">Personalized Care</p>
+              {/* Centered Tour Badge Overlay */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 text-[#7C3AED] shadow-xl backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:bg-[#7C3AED] group-hover:text-white">
+                  <PlayIcon className="h-6 w-6 ml-0.5" />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Text & 3 Benefit Features */}
-          <div className="lg:col-span-7 order-1 lg:order-2 space-y-6">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#B7925A]">
-                Our Philosophy
-              </p>
-              <h2 className="mt-2 font-serif text-3xl sm:text-4xl font-normal text-[#1C1917] leading-tight">
-                Crafting Timeless Beauty & Refined Personal Style
-              </h2>
+          {/* Right Column: Balanced About Content */}
+          <div className="lg:col-span-6 space-y-5">
+            {/* Tag: About Invora */}
+            <div className="inline-flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+                ✦ About Invora
+              </span>
             </div>
 
-            <p className="text-base sm:text-lg leading-relaxed text-[#78716C]">
-              At Lumina Salon, beauty is an individual expression of grace and
-              well-being. We combine modern artistry with genuine hospitality to
-              deliver transformative hair and skincare experiences. Every appointment
-              begins with an individualized consultation to bring your distinct vision
-              to life.
+            {/* Heading */}
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-stone-900 leading-tight">
+              Where Beauty<br />
+              Meets Confidence
+            </h2>
+
+            {/* Introduction Paragraph */}
+            <p className="text-base sm:text-lg text-stone-600 leading-relaxed font-normal">
+              At Invora, we believe beauty is more than a look — it&apos;s a feeling.
+              Our professional team is dedicated to bringing out your natural beauty
+              with personalized care and modern techniques.
             </p>
 
-            {/* 3 Benefits Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-3">
-              {benefits.map((benefit) => {
-                const Icon = benefit.icon;
-                return (
-                  <div
-                    key={benefit.title}
-                    className="group rounded-2xl border border-stone-200/80 bg-[#FAF7F2] p-5 transition-all duration-300 hover:border-[#B7925A]/50 hover:bg-white hover:shadow-sm hover:-translate-y-1"
-                  >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#B7925A] shadow-xs border border-[#B7925A]/20 group-hover:bg-[#B7925A] group-hover:text-white transition-colors">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="mt-4 font-serif text-base font-semibold text-[#1C1917]">
-                      {benefit.title}
-                    </h3>
-                    <p className="mt-1.5 text-xs sm:text-sm text-[#78716C] leading-relaxed">
-                      {benefit.description}
-                    </p>
-                  </div>
-                );
-              })}
+            {/* Feature Highlights for perfect vertical balance */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div className="flex items-center gap-2.5 text-xs text-stone-700 font-medium">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100 text-[#7C3AED]">
+                  <SparklesIcon className="h-3.5 w-3.5" />
+                </div>
+                <span>Individualized Care</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs text-stone-700 font-medium">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100 text-[#7C3AED]">
+                  <HeartIcon className="h-3.5 w-3.5" />
+                </div>
+                <span>Relaxing Sanctuary</span>
+              </div>
             </div>
 
-            {/* Learn More Button */}
-            <div className="pt-2">
+            {/* CTA Button */}
+            <div className="pt-3">
               <Link
                 href="/about"
-                className="inline-flex items-center gap-2 rounded-full border border-[#1C1917] bg-[#1C1917] px-7 py-3 text-sm font-medium text-white transition-all hover:bg-stone-800 hover:shadow-md hover:gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A]"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-8 py-3.5 text-sm font-semibold text-white shadow-md shadow-purple-500/20 transition-all hover:bg-[#6D28D9] hover:shadow-purple-500/35 hover:gap-3 active:scale-[0.98]"
               >
-                <span>Learn More About Us</span>
-                <ArrowRightIcon className="h-4 w-4 text-[#C5A46D]" />
+                <span>Discover Our Story</span>
+                <ArrowRightIcon className="h-4 w-4" />
               </Link>
             </div>
           </div>

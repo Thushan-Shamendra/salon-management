@@ -4,17 +4,18 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ServiceItem } from "@/types/service";
-import {
-  ClockIcon,
-  SparklesIcon,
-  ArrowRightIcon,
-  ScissorsIcon,
-  CalendarIcon,
-} from "@/components/ui/icons";
+import { ArrowRightIcon, ScissorsIcon, ClockIcon } from "@/components/ui/icons";
 
 interface FeaturedServicesProps {
   bookingUrl?: string;
 }
+
+const FALLBACK_SERVICE_IMAGES = [
+  "https://images.unsplash.com/photo-1560869713-7d0a29430803?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?auto=format&fit=crop&w=800&q=80",
+];
 
 export default function FeaturedServices({ bookingUrl: propBookingUrl }: FeaturedServicesProps) {
   const [services, setServices] = useState<ServiceItem[]>([]);
@@ -56,9 +57,10 @@ export default function FeaturedServices({ bookingUrl: propBookingUrl }: Feature
       .then((data) => {
         if (!isMounted) return;
         if (data?.success && Array.isArray(data.services)) {
+          // Real active services only from MongoDB (up to 4)
           const activeServices = data.services
             .filter((s: ServiceItem) => s.isActive !== false)
-            .slice(0, 6);
+            .slice(0, 4);
           setServices(activeServices);
         } else {
           setServices([]);
@@ -84,49 +86,52 @@ export default function FeaturedServices({ bookingUrl: propBookingUrl }: Feature
     setFailedImageIds((prev) => ({ ...prev, [serviceId]: true }));
   };
 
+  // Adaptive layout based on service count
+  const getGridClass = (count: number) => {
+    if (count === 1) return "max-w-md mx-auto";
+    if (count === 2) return "max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8";
+    if (count === 3) return "grid grid-cols-1 md:grid-cols-3 gap-8";
+    return "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6";
+  };
+
   return (
-    <section className="bg-[#FAF7F2] py-16 md:py-24">
+    <section className="bg-white py-16 sm:py-20 lg:py-24 border-t border-stone-200/60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#B7925A] mb-2">
-              <SparklesIcon className="h-4 w-4" />
-              <span>Signature Treatments</span>
-            </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-normal text-[#1C1917] tracking-tight">
-              Featured Salon Services
+          <div>
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+              ✦ Our Services
+            </span>
+            <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+              Treatments Designed Around You
             </h2>
-            <p className="mt-3 text-sm sm:text-base text-[#78716C] leading-relaxed">
-              Explore our most requested beauty and styling treatments, tailored
-              with precision to enhance your natural grace.
-            </p>
           </div>
 
           <Link
             href="/services"
-            className="hidden md:inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-6 py-2.5 text-sm font-medium text-stone-900 transition-all hover:border-[#B7925A] hover:text-[#B7925A] hover:shadow-xs group self-start md:self-auto"
+            className="self-start md:self-auto inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-6 py-2.5 text-xs font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]"
           >
             <span>View All Services</span>
-            <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            <ArrowRightIcon className="h-3.5 w-3.5" />
           </Link>
         </div>
 
         {/* 1. Loading State */}
         {loading && (
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
             {[1, 2, 3].map((skeleton) => (
               <div
                 key={skeleton}
-                className="overflow-hidden rounded-2xl border border-stone-200/80 bg-white p-4 shadow-sm animate-pulse"
+                className="overflow-hidden rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xs animate-pulse"
               >
-                <div className="aspect-[16/10] w-full rounded-xl bg-stone-200" />
-                <div className="mt-5 space-y-3 px-2">
+                <div className="aspect-[16/11] w-full rounded-xl bg-stone-200" />
+                <div className="mt-5 space-y-3">
                   <div className="h-5 w-3/4 rounded bg-stone-200" />
-                  <div className="h-3 w-full rounded bg-stone-100" />
-                  <div className="h-3 w-5/6 rounded bg-stone-100" />
-                  <div className="pt-4 flex items-center justify-between">
-                    <div className="h-6 w-24 rounded bg-stone-200" />
+                  <div className="h-3.5 w-full rounded bg-stone-100" />
+                  <div className="h-3.5 w-5/6 rounded bg-stone-100" />
+                  <div className="pt-2 flex justify-between">
+                    <div className="h-5 w-24 rounded bg-stone-200" />
                     <div className="h-4 w-16 rounded bg-stone-100" />
                   </div>
                   <div className="h-10 w-full rounded-xl bg-stone-200 mt-2" />
@@ -138,27 +143,27 @@ export default function FeaturedServices({ bookingUrl: propBookingUrl }: Feature
 
         {/* 2. Error State */}
         {!loading && error && (
-          <div className="rounded-2xl border border-stone-300/80 bg-white p-10 text-center shadow-sm max-w-xl mx-auto">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-[#B7925A]">
+          <div className="rounded-2xl border border-stone-200 bg-white p-10 text-center shadow-xs max-w-xl mx-auto">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-purple-50 text-[#7C3AED]">
               <ScissorsIcon className="h-6 w-6" />
             </div>
-            <h3 className="mt-4 font-serif text-lg font-medium text-stone-900">
+            <h3 className="mt-4 text-base font-semibold text-stone-900">
               Services Temporarily Unavailable
             </h3>
-            <p className="mt-2 text-sm text-[#78716C]">{error}</p>
-            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <p className="mt-1 text-xs text-stone-500">{error}</p>
+            <div className="mt-6 flex items-center justify-center gap-3">
               <button
                 type="button"
                 onClick={retryFetch}
-                className="w-full sm:w-auto rounded-full bg-[#1C1917] px-6 py-2.5 text-xs font-medium text-white hover:bg-stone-800 transition-colors"
+                className="rounded-full bg-[#7C3AED] px-5 py-2 text-xs font-medium text-white hover:bg-[#6D28D9] transition-colors"
               >
                 Try Again
               </button>
               <Link
                 href="/services"
-                className="w-full sm:w-auto rounded-full border border-stone-300 bg-white px-6 py-2.5 text-xs font-medium text-stone-800 hover:border-[#B7925A]"
+                className="rounded-full border border-stone-200 bg-white px-5 py-2 text-xs font-medium text-stone-700 hover:border-[#7C3AED]"
               >
-                Go to Services Page
+                Browse Services
               </Link>
             </div>
           </div>
@@ -166,111 +171,91 @@ export default function FeaturedServices({ bookingUrl: propBookingUrl }: Feature
 
         {/* 3. Empty State */}
         {!loading && !error && services.length === 0 && (
-          <div className="rounded-2xl border border-stone-200 bg-white p-12 text-center shadow-sm max-w-lg mx-auto">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#FAF7F2] text-[#B7925A] border border-[#B7925A]/30">
-              <SparklesIcon className="h-6 w-6" />
-            </div>
-            <h3 className="mt-4 font-serif text-xl font-normal text-stone-900">
-              No Services Currently Available
-            </h3>
-            <p className="mt-2 text-sm text-[#78716C]">
-              We are currently updating our seasonal treatment menu. Please check
-              back soon or get in touch for custom bookings.
+          <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-12 text-center max-w-lg mx-auto">
+            <p className="text-sm text-stone-600">
+              No services currently listed. Please check back soon or visit our full catalog.
             </p>
-            <div className="mt-6">
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-2 rounded-full bg-[#1C1917] px-6 py-2.5 text-xs font-medium text-white hover:bg-stone-800 transition-colors"
-              >
-                <span>Contact Our Concierge</span>
-              </Link>
-            </div>
+            <Link
+              href="/services"
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2 text-xs font-medium text-white"
+            >
+              Explore Services
+            </Link>
           </div>
         )}
 
-        {/* 4. Dynamic Featured Services Grid */}
+        {/* 4. Adaptive Active Services Grid */}
         {!loading && !error && services.length > 0 && (
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((service) => {
-              const hasValidImage =
-                service.image &&
-                service.image.trim().length > 0 &&
-                !failedImageIds[service._id];
+          <div className={getGridClass(services.length)}>
+            {services.map((service, index) => {
+              const imageSrc =
+                failedImageIds[service._id] || !service.image
+                  ? FALLBACK_SERVICE_IMAGES[index % FALLBACK_SERVICE_IMAGES.length]
+                  : service.image;
 
               return (
                 <div
                   key={service._id}
-                  className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-4 shadow-sm transition-all duration-300 hover:border-[#B7925A]/60 hover:shadow-lg hover:shadow-stone-900/5 hover:-translate-y-1"
+                  className="group flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xs transition-all duration-300 hover:border-purple-300 hover:shadow-lg hover:-translate-y-1"
                 >
                   <div>
-                    {/* Service Image with Graceful Missing Image Fallback */}
-                    <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-stone-100">
-                      {hasValidImage ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={service.image}
-                          alt={service.name}
-                          onError={() => handleImageError(service._id)}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="relative flex h-full w-full items-center justify-center bg-stone-900 text-stone-400">
-                          <Image
-                            src="/images/placeholder-service.svg"
-                            alt={service.name}
-                            width={500}
-                            height={350}
-                            className="h-full w-full object-cover opacity-80"
-                          />
-                        </div>
-                      )}
-
-                      {/* Duration Tag overlay */}
-                      <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/70 px-2.5 py-1 text-[11px] font-medium text-[#FAF7F2] backdrop-blur-xs border border-white/10">
-                        <ClockIcon className="h-3 w-3 text-[#C5A46D]" />
-                        <span>{service.duration} mins</span>
-                      </div>
+                    {/* Prominent Service Image */}
+                    <div className="relative aspect-[16/11] w-full overflow-hidden rounded-xl bg-stone-100">
+                      <Image
+                        src={imageSrc}
+                        alt={service.name}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        onError={() => handleImageError(service._id)}
+                      />
                     </div>
 
-                    {/* Service Details */}
-                    <div className="mt-5 px-1">
-                      <h3 className="font-serif text-lg font-semibold text-stone-900 group-hover:text-[#B7925A] transition-colors">
+                    {/* Service Name & Description */}
+                    <div className="mt-4">
+                      <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#7C3AED] transition-colors truncate">
                         {service.name}
                       </h3>
-
-                      <p className="mt-2 text-xs sm:text-sm text-[#78716C] leading-relaxed line-clamp-2">
-                        {service.description}
+                      <p className="mt-1.5 text-xs sm:text-sm text-stone-500 line-clamp-2 leading-relaxed min-h-[36px]">
+                        {service.description || "Professional salon treatment tailored to your style and wellness."}
                       </p>
+                    </div>
+
+                    {/* Price & Duration Row */}
+                    <div className="mt-4 pt-3.5 border-t border-stone-100 flex items-center justify-between text-xs sm:text-sm">
+                      <div>
+                        <span className="text-stone-400">From </span>
+                        <span className="font-bold text-stone-900">
+                          LKR {service.price ? service.price.toLocaleString() : "Contact"}
+                        </span>
+                      </div>
+                      {service.duration && (
+                        <div className="flex items-center gap-1.5 text-stone-500 font-medium">
+                          <ClockIcon className="h-4 w-4 text-stone-400" />
+                          <span>{service.duration} mins</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {/* Pricing and Book Now Action */}
-                  <div className="mt-6 pt-4 border-t border-stone-100 px-1">
-                    <div className="flex items-baseline justify-between mb-4">
-                      <span className="text-xs text-[#78716C]">Investment</span>
-                      <span className="font-serif text-lg font-bold text-stone-900">
-                        LKR {service.price.toLocaleString()}
-                      </span>
-                    </div>
-
+                  {/* Prominent Book Appointment CTA */}
+                  <div className="mt-5">
                     {bookingUrl ? (
                       <a
                         href={bookingUrl}
-                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#1C1917] py-2.5 text-xs sm:text-sm font-medium text-white transition-all hover:bg-stone-800 hover:shadow-xs active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] border border-[#B7925A]/30"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-stone-900 py-3 text-xs sm:text-sm font-semibold text-white transition-all hover:bg-[#7C3AED] hover:shadow-md active:scale-[0.98]"
                       >
-                        <CalendarIcon className="h-3.5 w-3.5 text-[#C5A46D]" />
-                        <span>Book Now</span>
+                        <span>Book Appointment</span>
+                        <ArrowRightIcon className="h-4 w-4" />
                       </a>
                     ) : (
                       <button
                         type="button"
                         disabled
-                        title="Online booking link not yet configured"
-                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#1C1917]/60 py-2.5 text-xs sm:text-sm font-medium text-white/60 cursor-not-allowed border border-[#B7925A]/20"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-stone-300 py-3 text-xs sm:text-sm font-semibold text-stone-500 cursor-not-allowed"
                       >
-                        <CalendarIcon className="h-3.5 w-3.5 text-[#C5A46D]/50" />
-                        <span>Book Now</span>
+                        <span>Book Appointment</span>
+                        <ArrowRightIcon className="h-4 w-4" />
                       </button>
                     )}
                   </div>
@@ -279,17 +264,6 @@ export default function FeaturedServices({ bookingUrl: propBookingUrl }: Feature
             })}
           </div>
         )}
-
-        {/* Mobile View All Button */}
-        <div className="mt-10 text-center md:hidden">
-          <Link
-            href="/services"
-            className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-7 py-3 text-sm font-medium text-stone-900 hover:border-[#B7925A]"
-          >
-            <span>View All Services</span>
-            <ArrowRightIcon className="h-4 w-4" />
-          </Link>
-        </div>
       </div>
     </section>
   );
