@@ -4,9 +4,17 @@ import { ArrowRightIcon } from "@/components/ui/icons";
 
 interface BookingCTAProps {
   bookingUrl?: string;
+  tag?: string;
+  heading?: string;
+  description?: string;
 }
 
-export default function BookingCTA({ bookingUrl = "" }: BookingCTAProps) {
+export default function BookingCTA({
+  bookingUrl = "",
+  tag = "✦ Book Your Visit",
+  heading = "Ready for Your Next Look?",
+  description = "Let our professional team bring out the best version of you.",
+}: BookingCTAProps) {
   return (
     <section className="relative overflow-hidden bg-[#0C0A14] text-white py-20 sm:py-24 lg:py-28">
       {/* Background Salon Image - Enhanced Visibility */}
@@ -23,21 +31,21 @@ export default function BookingCTA({ bookingUrl = "" }: BookingCTAProps) {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-2xl space-y-5 text-left">
-          {/* Tag: Book Your Visit */}
+          {/* Tag */}
           <div className="inline-flex items-center gap-2">
             <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#C4B5FD]">
-              ✦ Book Your Visit
+              {tag}
             </span>
           </div>
 
           {/* Heading */}
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
-            Ready for Your Next Look?
+            {heading}
           </h2>
 
           {/* Description */}
           <p className="text-base sm:text-lg text-stone-200 leading-relaxed font-normal max-w-xl">
-            Let our professional team bring out the best version of you.
+            {description}
           </p>
 
           {/* Action Button */}

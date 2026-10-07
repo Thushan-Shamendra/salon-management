@@ -1,23 +1,31 @@
+import React from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-
+import ServicesHero from "@/components/services/ServicesHero";
+import ServicesIntro from "@/components/services/ServicesIntro";
+import ServicesGrid from "@/components/services/ServicesGrid";
+import WhyChooseUs, { FeatureItem } from "@/components/home/WhyChooseUs";
+import BookingCTA from "@/components/home/BookingCTA";
+import {
+  ScissorsIcon,
+  HeartIcon,
+  SparklesIcon,
+  ShieldCheckIcon,
+} from "@/components/ui/icons";
 import { connectDB } from "@/lib/mongodb";
 import Service from "@/models/Service";
 import SalonSettings from "@/models/SalonSettings";
+import { ServiceCardData } from "@/components/ui/ServiceCard";
 
 export const dynamic = "force-dynamic";
 
-type ServiceItemType = {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  duration: number;
-  image: string;
-  isActive: boolean;
+export const metadata = {
+  title: "Our Services | INVORA Salon",
+  description:
+    "Explore professional salon treatments created to help you look and feel your best at Invora.",
 };
 
-async function getServices(): Promise<ServiceItemType[]> {
+async function getServices(): Promise<ServiceCardData[]> {
   try {
     await connectDB();
     const services = await Service.find({ isActive: true })
@@ -27,14 +35,13 @@ async function getServices(): Promise<ServiceItemType[]> {
     return services.map((s) => ({
       _id: s._id.toString(),
       name: s.name,
-      description: s.description,
-      price: s.price,
-      duration: s.duration,
+      description: s.description || "",
+      price: s.price || 0,
+      duration: s.duration || 0,
       image: s.image || "",
-      isActive: s.isActive ?? true,
     }));
   } catch (error) {
-    console.error("Failed to load services:", error);
+    console.error("Failed to load services for public page:", error);
     return [];
   }
 }
@@ -45,114 +52,68 @@ export default async function ServicesPage() {
     getServices(),
     SalonSettings.findOne().lean(),
   ]);
+
   const bookingUrl = settings?.externalSystem?.bookingUrl || "";
 
+  const serviceBenefits: FeatureItem[] = [
+    {
+      title: "Professional Beauticians",
+      description:
+        "Skilled and experienced professionals dedicated to your beauty and confidence.",
+      icon: ScissorsIcon,
+    },
+    {
+      title: "Personalized Treatments",
+      description:
+        "Treatments tailored to your unique hair, skin and beauty needs.",
+      icon: HeartIcon,
+    },
+    {
+      title: "Quality Products",
+      description:
+        "High quality and trusted products for skin and lasting results.",
+      icon: SparklesIcon,
+    },
+    {
+      title: "Comfortable Salon Experience",
+      description:
+        "A clean, modern and relaxing environment designed for your comfort.",
+      icon: ShieldCheckIcon,
+    },
+  ];
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1C1917]">
+    <div className="min-h-screen flex flex-col bg-white text-stone-900 selection:bg-purple-100 selection:text-[#7C3AED]">
+      {/* 1. Navbar */}
       <Navbar />
-      <main className="flex-1 bg-stone-50">
-      {/* Hero */}
-      <section className="bg-stone-900 px-6 py-20 text-center text-white">
-        <div className="mx-auto max-w-4xl">
-          <p className="mb-3 text-sm uppercase tracking-[0.3em] text-amber-300">
-            Our Services
-          </p>
 
-          <h1 className="text-4xl font-semibold md:text-5xl">
-            Beauty & Salon Services
-          </h1>
+      <main className="flex-1">
+        {/* 2. Services Hero */}
+        <ServicesHero />
 
-          <p className="mx-auto mt-5 max-w-2xl text-stone-300">
-            Discover our professional salon services designed to help you
-            look and feel your best.
-          </p>
-        </div>
-      </section>
+        {/* 3. Services Introduction */}
+        <ServicesIntro />
 
-      {/* Services */}
-      <section className="px-6 py-16">
-        <div className="mx-auto max-w-7xl">
-          {services.length === 0 ? (
-            <div className="rounded-2xl bg-white p-12 text-center shadow-sm">
-              <h2 className="text-xl font-semibold text-stone-900">
-                No services available
-              </h2>
+        {/* 4. Adaptive Services Grid */}
+        <ServicesGrid services={services} bookingUrl={bookingUrl} />
 
-              <p className="mt-2 text-stone-500">
-                Please check again later.
-              </p>
-            </div>
-          ) : (
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {services.map((service) => (
-                <div
-                  key={service._id}
-                  className="overflow-hidden rounded-2xl bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-                >
-                  {service.image ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={service.image}
-                      alt={service.name}
-                      className="h-60 w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-60 items-center justify-center bg-stone-200 text-stone-500">
-                      No Image
-                    </div>
-                  )}
+        {/* 5. Why Choose Invora / Service Benefits */}
+        <WhyChooseUs
+          tag="✦ WHY CHOOSE INVORA"
+          heading="Why Choose Invora?"
+          features={serviceBenefits}
+        />
 
-                  <div className="p-6">
-                    <h2 className="text-xl font-semibold text-stone-900">
-                      {service.name}
-                    </h2>
-
-                    <p className="mt-3 line-clamp-3 text-sm leading-6 text-stone-600">
-                      {service.description}
-                    </p>
-
-                    <div className="mt-5 flex items-center justify-between">
-                      <div>
-                        <p className="text-xs text-stone-500">Price</p>
-
-                        <p className="font-semibold text-stone-900">
-                          LKR {service.price.toLocaleString()}
-                        </p>
-                      </div>
-
-                      <div className="text-right">
-                        <p className="text-xs text-stone-500">Duration</p>
-
-                        <p className="font-medium text-stone-900">
-                          {service.duration} min
-                        </p>
-                      </div>
-                    </div>
-
-                    {bookingUrl ? (
-                      <a
-                        href={bookingUrl}
-                        className="mt-6 block rounded-lg bg-stone-900 px-4 py-3 text-center font-medium text-white transition hover:bg-stone-800"
-                      >
-                        Book Appointment
-                      </a>
-                    ) : (
-                      <button
-                        type="button"
-                        disabled
-                        className="mt-6 block w-full rounded-lg bg-stone-900/60 px-4 py-3 text-center font-medium text-white/60 cursor-not-allowed"
-                      >
-                        Book Appointment
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+        {/* 6. Booking CTA */}
+        <BookingCTA
+          bookingUrl={bookingUrl}
+          tag="✦ READY TO BOOK"
+          heading="Ready to Book Your Treatment?"
+          description="Choose your preferred service and continue to our salon booking system."
+        />
       </main>
+
+      {/* 7. Footer */}
       <Footer />
     </div>
   );

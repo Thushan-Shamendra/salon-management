@@ -6,40 +6,56 @@ import {
   ShieldCheckIcon,
 } from "@/components/ui/icons";
 
-export default function WhyChooseUs() {
-  const features = [
-    {
-      title: "Experienced Beauticians",
-      description: "Skilled and passionate professionals committed to exceptional care.",
-      icon: ScissorsIcon,
-    },
-    {
-      title: "Quality Products",
-      description: "High quality and trusted brands that nurture your hair and skin.",
-      icon: SparklesIcon,
-    },
-    {
-      title: "Personalized Care",
-      description: "Treatments tailored to your distinct style, preferences, and needs.",
-      icon: HeartIcon,
-    },
-    {
-      title: "Relaxing Environment",
-      description: "A calm and comfortable salon sanctuary designed for total rejuvenation.",
-      icon: ShieldCheckIcon,
-    },
-  ];
+export interface FeatureItem {
+  title: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
 
+export interface WhyChooseUsProps {
+  tag?: string;
+  heading?: string;
+  features?: FeatureItem[];
+}
+
+const DEFAULT_FEATURES: FeatureItem[] = [
+  {
+    title: "Experienced Beauticians",
+    description: "Skilled and passionate professionals committed to exceptional care.",
+    icon: ScissorsIcon,
+  },
+  {
+    title: "Quality Products",
+    description: "High quality and trusted brands that nurture your hair and skin.",
+    icon: SparklesIcon,
+  },
+  {
+    title: "Personalized Care",
+    description: "Treatments tailored to your distinct style, preferences, and needs.",
+    icon: HeartIcon,
+  },
+  {
+    title: "Relaxing Environment",
+    description: "A calm and comfortable salon sanctuary designed for total rejuvenation.",
+    icon: ShieldCheckIcon,
+  },
+];
+
+export default function WhyChooseUs({
+  tag = "✦ The Invora Standard",
+  heading = "Why Choose Invora",
+  features = DEFAULT_FEATURES,
+}: WhyChooseUsProps = {}) {
   return (
     <section className="bg-[#FAF8F5] py-16 sm:py-20 lg:py-24 border-t border-stone-200/60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Centered Heading */}
         <div className="text-center max-w-xl mx-auto mb-14">
           <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
-            ✦ The Invora Standard
+            {tag}
           </span>
           <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
-            Why Choose Invora
+            {heading}
           </h2>
         </div>
 
