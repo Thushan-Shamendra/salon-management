@@ -1,18 +1,27 @@
 "use client";
 
-import React, { useState, useEffect, FormEvent } from "react";
+import React, { useState, useEffect, useMemo, FormEvent } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import {
   SettingsIcon,
+  StoreIcon,
   ClockIcon,
-  SparklesIcon,
-  CheckIcon,
-  ImageIcon,
-  UploadCloudIcon,
-  ExternalLinkIcon,
-  TrashIcon,
-  AlertCircleIcon,
   StarIcon,
+  LinkIcon,
+  PhoneIcon,
+  MailIcon,
+  MapPinIcon,
+  FacebookIcon,
+  InstagramIcon,
+  TikTokIcon,
+  WhatsAppIcon,
+  ExternalLinkIcon,
+  UploadCloudIcon,
+  TrashIcon,
+  CheckCircleIcon,
+  AlertCircleIcon,
+  XIcon,
+  SparklesIcon,
 } from "@/components/ui/icons";
 import ImageUpload, { UploadResult } from "@/components/ui/ImageUpload";
 import { CLOUDINARY_FOLDERS } from "@/lib/cloudinary-constants";
@@ -29,6 +38,12 @@ interface GoogleReviewsData {
   placeId: string;
   businessUrl: string;
   maxReviews: number;
+}
+
+interface ExternalSystemData {
+  loginUrl: string;
+  registerUrl: string;
+  bookingUrl: string;
 }
 
 interface SalonSettingsData {
@@ -49,11 +64,7 @@ interface SalonSettingsData {
     whatsapp: string;
   };
   googleReviews?: GoogleReviewsData;
-  externalSystem?: {
-    loginUrl: string;
-    registerUrl: string;
-    bookingUrl: string;
-  };
+  externalSystem?: ExternalSystemData;
 }
 
 const DEFAULT_DAYS = [
@@ -66,17 +77,25 @@ const DEFAULT_DAYS = [
   "Sunday",
 ];
 
+const SECTIONS = [
+  { id: "salon-profile", label: "Salon Profile", icon: StoreIcon },
+  { id: "opening-hours", label: "Opening Hours", icon: ClockIcon },
+  { id: "social-media", label: "Social Media", icon: ExternalLinkIcon },
+  { id: "google-reviews", label: "Google Reviews", icon: StarIcon },
+  { id: "external-system", label: "External System", icon: LinkIcon },
+];
+
 export default function AdminSettingsPage() {
   const [formData, setFormData] = useState<SalonSettingsData>({
-    salonName: "LUMINA Luxury Salon",
+    salonName: "",
     logo: "",
-    aboutDescription:
-      "Colombo's premier sanctuary for bespoke hair styling, aesthetic skin therapy, and luxury bridal services.",
-    phone: "+94 11 234 5678",
-    phoneSecondary: "+94 77 123 4567",
-    whatsapp: "+94 77 123 4567",
-    email: "concierge@luminasalon.lk",
-    address: "42 Horton Place, Cinnamon Gardens, Colombo 07, Sri Lanka",
+    logoPublicId: "",
+    aboutDescription: "",
+    phone: "",
+    phoneSecondary: "",
+    whatsapp: "",
+    email: "",
+    address: "",
     openingHours: DEFAULT_DAYS.map((day) => ({
       day,
       open: "09:00",
@@ -84,10 +103,10 @@ export default function AdminSettingsPage() {
       isClosed: false,
     })),
     socialMedia: {
-      facebook: "https://facebook.com/luminasalon",
-      instagram: "https://instagram.com/luminasalon",
-      tiktok: "https://tiktok.com/@luminasalon",
-      whatsapp: "https://wa.me/94771234567",
+      facebook: "",
+      instagram: "",
+      tiktok: "",
+      whatsapp: "",
     },
     googleReviews: {
       enabled: false,
@@ -102,61 +121,66 @@ export default function AdminSettingsPage() {
     },
   });
 
+  const [initialData, setInitialData] = useState<SalonSettingsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
+  const [activeSection, setActiveSection] = useState("salon-profile");
 
-  // Logo state
+  // Logo state: "upload" or "url"
   const [logoTab, setLogoTab] = useState<"upload" | "url">("upload");
   const [urlInput, setUrlInput] = useState<string>("");
   const [urlError, setUrlError] = useState<string | null>(null);
-  const [previewError, setPreviewError] = useState<boolean>(false);
+
+  // Toast feedback
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
+  const showNotification = (type: "success" | "error", message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => {
+      setNotification(null);
+    }, 4500);
+  };
 
   // Fetch real settings on mount
   useEffect(() => {
     let isMounted = true;
-    async function loadSettings() {
+    async function init() {
       try {
-        setLoading(true);
         const res = await fetch("/api/admin/settings");
         const data = await res.json();
 
-        if (res.ok && data.success && data.settings && isMounted) {
-          const hasPublicId = Boolean(
-            data.settings.logoPublicId && data.settings.logoPublicId.trim()
-          );
-          const hasLogo = Boolean(
-            data.settings.logo && data.settings.logo.trim()
-          );
+        if (isMounted && res.ok && data.success && data.settings) {
+          const s = data.settings;
+          const hasPublicId = Boolean(s.logoPublicId && s.logoPublicId.trim());
+          const hasLogo = Boolean(s.logo && s.logo.trim());
 
           if (hasPublicId) {
             setLogoTab("upload");
             setUrlInput("");
           } else if (hasLogo) {
             setLogoTab("url");
-            setUrlInput(data.settings.logo);
+            setUrlInput(s.logo);
           } else {
             setLogoTab("upload");
             setUrlInput("");
           }
 
-          setFormData({
-            salonName: data.settings.salonName || "LUMINA Luxury Salon",
-            logo: data.settings.logo || "",
-            logoPublicId: data.settings.logoPublicId || "",
-            aboutDescription: data.settings.aboutDescription || "",
-            phone: data.settings.phone || "",
-            phoneSecondary: data.settings.phoneSecondary || "",
-            whatsapp: data.settings.whatsapp || "",
-            email: data.settings.email || "",
-            address: data.settings.address || "",
+          const normalized: SalonSettingsData = {
+            salonName: s.salonName || "",
+            logo: s.logo || "",
+            logoPublicId: s.logoPublicId || "",
+            aboutDescription: s.aboutDescription || "",
+            phone: s.phone || "",
+            phoneSecondary: s.phoneSecondary || "",
+            whatsapp: s.whatsapp || "",
+            email: s.email || "",
+            address: s.address || "",
             openingHours:
-              Array.isArray(data.settings.openingHours) &&
-              data.settings.openingHours.length > 0
-                ? data.settings.openingHours
+              Array.isArray(s.openingHours) && s.openingHours.length > 0
+                ? s.openingHours
                 : DEFAULT_DAYS.map((day) => ({
                     day,
                     open: "09:00",
@@ -164,49 +188,149 @@ export default function AdminSettingsPage() {
                     isClosed: false,
                   })),
             socialMedia: {
-              facebook: data.settings.socialMedia?.facebook || "",
-              instagram: data.settings.socialMedia?.instagram || "",
-              tiktok: data.settings.socialMedia?.tiktok || "",
-              whatsapp: data.settings.socialMedia?.whatsapp || "",
+              facebook: s.socialMedia?.facebook || "",
+              instagram: s.socialMedia?.instagram || "",
+              tiktok: s.socialMedia?.tiktok || "",
+              whatsapp: s.socialMedia?.whatsapp || "",
             },
             googleReviews: {
-              enabled: Boolean(data.settings.googleReviews?.enabled),
-              placeId: data.settings.googleReviews?.placeId || "",
-              businessUrl: data.settings.googleReviews?.businessUrl || "",
-              maxReviews: data.settings.googleReviews?.maxReviews || 5,
+              enabled: Boolean(s.googleReviews?.enabled),
+              placeId: s.googleReviews?.placeId || "",
+              businessUrl: s.googleReviews?.businessUrl || "",
+              maxReviews: s.googleReviews?.maxReviews || 5,
             },
             externalSystem: {
-              loginUrl: data.settings.externalSystem?.loginUrl || "",
-              registerUrl: data.settings.externalSystem?.registerUrl || "",
-              bookingUrl: data.settings.externalSystem?.bookingUrl || "",
+              loginUrl: s.externalSystem?.loginUrl || "",
+              registerUrl: s.externalSystem?.registerUrl || "",
+              bookingUrl: s.externalSystem?.bookingUrl || "",
             },
-          });
+          };
+
+          setFormData(normalized);
+          setInitialData(JSON.parse(JSON.stringify(normalized)));
+        } else if (isMounted) {
+          showNotification("error", data.message || "Failed to load website settings");
         }
-      } catch (err) {
-        console.error("Load settings error:", err);
+      } catch {
+        if (isMounted) showNotification("error", "Network error loading website settings");
       } finally {
         if (isMounted) setLoading(false);
       }
     }
 
-    loadSettings();
+    init();
     return () => {
       isMounted = false;
     };
   }, []);
 
-  const validateUrl = (val: string): boolean => {
+  // Track unsaved changes
+  const hasUnsavedChanges = useMemo(() => {
+    if (!initialData) return false;
+    return JSON.stringify(formData) !== JSON.stringify(initialData);
+  }, [formData, initialData]);
+
+  // Warn before unload if there are unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  // Dynamic Website Setup Completeness
+  const completeness = useMemo(() => {
+    const checks = [
+      {
+        id: "profile",
+        label: "Salon Profile",
+        done: Boolean(formData.salonName?.trim() && formData.aboutDescription?.trim()),
+      },
+      {
+        id: "logo",
+        label: "Salon Logo",
+        done: Boolean(formData.logo?.trim()),
+      },
+      {
+        id: "contact",
+        label: "Contact Information",
+        done: Boolean(
+          formData.phone?.trim() && formData.email?.trim() && formData.address?.trim()
+        ),
+      },
+      {
+        id: "hours",
+        label: "Opening Hours",
+        done: Boolean(
+          formData.openingHours &&
+            formData.openingHours.length > 0 &&
+            formData.openingHours.some((d) => !d.isClosed)
+        ),
+      },
+      {
+        id: "social",
+        label: "Social Media",
+        done: Boolean(
+          formData.socialMedia?.facebook?.trim() ||
+            formData.socialMedia?.instagram?.trim() ||
+            formData.socialMedia?.tiktok?.trim() ||
+            formData.socialMedia?.whatsapp?.trim()
+        ),
+      },
+      {
+        id: "external",
+        label: "External System Links",
+        done: Boolean(
+          formData.externalSystem?.bookingUrl?.trim() ||
+            formData.externalSystem?.loginUrl?.trim()
+        ),
+      },
+      {
+        id: "google",
+        label: "Google Reviews",
+        done: Boolean(
+          formData.googleReviews?.enabled && formData.googleReviews?.placeId?.trim()
+        ),
+        optional: true,
+      },
+    ];
+
+    const coreChecks = checks.filter((c) => !c.optional);
+    const coreDone = coreChecks.filter((c) => c.done).length;
+    const percentage = Math.round((coreDone / coreChecks.length) * 100);
+
+    return {
+      checks,
+      percentage,
+      isFullyComplete: percentage === 100,
+    };
+  }, [formData]);
+
+  // Smooth scroll to section
+  const scrollToSection = (sectionId: string) => {
+    setActiveSection(sectionId);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const yOffset = -90;
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  };
+
+  // Logo handlers
+  const validateImageUrl = (val: string): boolean => {
     if (!val.trim()) return true;
     const trimmed = val.trim();
-    if (trimmed.startsWith("https://")) return true;
-    if (trimmed.startsWith("/") && !trimmed.startsWith("//")) return true;
-    return false;
+    return trimmed.startsWith("https://") || (trimmed.startsWith("/") && !trimmed.startsWith("//"));
   };
 
   const handleUrlChange = (val: string) => {
     setUrlInput(val);
-    setPreviewError(false);
-    if (val.trim() && !validateUrl(val)) {
+    if (val.trim() && !validateImageUrl(val)) {
       setUrlError("Please enter a valid image URL (must begin with https:// or /)");
     } else {
       setUrlError(null);
@@ -226,7 +350,6 @@ export default function AdminSettingsPage() {
     }));
     setUrlInput("");
     setUrlError(null);
-    setPreviewError(false);
   };
 
   const handleRemoveLogo = () => {
@@ -237,67 +360,111 @@ export default function AdminSettingsPage() {
     }));
     setUrlInput("");
     setUrlError(null);
-    setPreviewError(false);
   };
 
+  // Opening Hours handlers
   const handleHourChange = (
     index: number,
     field: "open" | "close" | "isClosed",
     value: string | boolean
   ) => {
     setFormData((prev) => {
-      const updatedHours = [...prev.openingHours];
-      updatedHours[index] = {
-        ...updatedHours[index],
+      const updated = [...prev.openingHours];
+      updated[index] = {
+        ...updated[index],
         [field]: value,
       };
-      return { ...prev, openingHours: updatedHours };
+      return { ...prev, openingHours: updated };
     });
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setStatusMessage(null);
-
-    // Validate URL if in URL tab
-    let finalLogo = formData.logo;
-    let finalLogoPublicId = formData.logoPublicId || "";
-
-    if (logoTab === "url") {
-      const trimmedUrl = urlInput.trim();
-      if (trimmedUrl) {
-        if (!validateUrl(trimmedUrl)) {
-          setUrlError("Please enter a valid image URL (must begin with https:// or /)");
-          setStatusMessage({
-            type: "error",
-            text: "Please enter a valid image URL.",
-          });
-          return;
+  const handleCopyMondayHours = () => {
+    const monday = formData.openingHours.find((h) => h.day === "Monday");
+    if (!monday) return;
+    setFormData((prev) => {
+      const updated = prev.openingHours.map((h) => {
+        if (["Tuesday", "Wednesday", "Thursday", "Friday"].includes(h.day)) {
+          return {
+            ...h,
+            open: monday.open,
+            close: monday.close,
+            isClosed: monday.isClosed,
+          };
         }
-        finalLogo = trimmedUrl;
-        finalLogoPublicId = "";
-      } else {
-        finalLogo = "";
-        finalLogoPublicId = "";
+        return h;
+      });
+      return { ...prev, openingHours: updated };
+    });
+    showNotification("success", "Copied Monday hours to Tuesday through Friday.");
+  };
+
+  // Reset Changes
+  const handleResetChanges = () => {
+    if (!initialData) return;
+    setFormData(JSON.parse(JSON.stringify(initialData)));
+    if (initialData.logoPublicId) {
+      setLogoTab("upload");
+      setUrlInput("");
+    } else if (initialData.logo) {
+      setLogoTab("url");
+      setUrlInput(initialData.logo);
+    }
+    setUrlError(null);
+    showNotification("success", "Restored last saved settings.");
+  };
+
+  // Save Settings
+  const handleSubmit = async (e?: FormEvent) => {
+    if (e) e.preventDefault();
+
+    // Validation
+    if (!formData.salonName.trim()) {
+      showNotification("error", "Salon Brand Name is required.");
+      return;
+    }
+
+    if (logoTab === "url" && urlInput.trim() && !validateImageUrl(urlInput)) {
+      showNotification("error", "Please provide a valid https:// image URL for the logo.");
+      return;
+    }
+
+    if (formData.email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email.trim())) {
+        showNotification("error", "Please provide a valid concierge email address.");
+        return;
       }
     }
 
-    if (formData.externalSystem) {
-      const { loginUrl, registerUrl, bookingUrl } = formData.externalSystem;
-      const urlChecks = [
-        { label: "Customer Login URL", val: loginUrl },
-        { label: "Customer Registration URL", val: registerUrl },
-        { label: "Book Appointment URL", val: bookingUrl },
-      ];
-      for (const check of urlChecks) {
-        if (check.val && check.val.trim() && !check.val.trim().startsWith("https://")) {
-          setStatusMessage({
-            type: "error",
-            text: `${check.label} must be a valid https link (e.g., https://...)`,
-          });
-          return;
-        }
+    // Validate social & external URLs
+    const urlFields = [
+      { label: "Facebook URL", val: formData.socialMedia.facebook },
+      { label: "Instagram URL", val: formData.socialMedia.instagram },
+      { label: "TikTok URL", val: formData.socialMedia.tiktok },
+      { label: "WhatsApp Direct URL", val: formData.socialMedia.whatsapp },
+      { label: "Google Maps URL", val: formData.googleReviews?.businessUrl },
+      { label: "Customer Login URL", val: formData.externalSystem?.loginUrl },
+      { label: "Customer Registration URL", val: formData.externalSystem?.registerUrl },
+      { label: "Book Appointment URL", val: formData.externalSystem?.bookingUrl },
+    ];
+
+    for (const item of urlFields) {
+      if (item.val && item.val.trim() && !item.val.trim().startsWith("https://")) {
+        showNotification(
+          "error",
+          `${item.label} must be a valid https link (e.g. https://...)`
+        );
+        return;
       }
+    }
+
+    // Validate Google Reviews max count
+    if (
+      formData.googleReviews?.maxReviews &&
+      (formData.googleReviews.maxReviews < 1 || formData.googleReviews.maxReviews > 5)
+    ) {
+      showNotification("error", "Reviews to Display must be between 1 and 5.");
+      return;
     }
 
     setSaving(true);
@@ -305,8 +472,13 @@ export default function AdminSettingsPage() {
     try {
       const payload = {
         ...formData,
-        logo: finalLogo,
-        logoPublicId: finalLogoPublicId,
+        salonName: formData.salonName.trim(),
+        aboutDescription: formData.aboutDescription.trim(),
+        phone: formData.phone.trim(),
+        phoneSecondary: formData.phoneSecondary.trim(),
+        whatsapp: formData.whatsapp.trim(),
+        email: formData.email.trim(),
+        address: formData.address.trim(),
       };
 
       const res = await fetch("/api/admin/settings", {
@@ -318,794 +490,1283 @@ export default function AdminSettingsPage() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setStatusMessage({
-          type: "success",
-          text: "Website settings saved successfully to MongoDB!",
-        });
-        setFormData((prev) => ({
-          ...prev,
-          logo: data.settings.logo || "",
-          logoPublicId: data.settings.logoPublicId || "",
-          googleReviews: data.settings.googleReviews
-            ? {
-                enabled: Boolean(data.settings.googleReviews.enabled),
-                placeId: data.settings.googleReviews.placeId || "",
-                businessUrl: data.settings.googleReviews.businessUrl || "",
-                maxReviews: data.settings.googleReviews.maxReviews || 5,
-              }
-            : prev.googleReviews,
-          externalSystem: data.settings.externalSystem
-            ? {
-                loginUrl: data.settings.externalSystem.loginUrl || "",
-                registerUrl: data.settings.externalSystem.registerUrl || "",
-                bookingUrl: data.settings.externalSystem.bookingUrl || "",
-              }
-            : prev.externalSystem,
-        }));
-        if (data.settings.logoPublicId) {
-          setLogoTab("upload");
-          setUrlInput("");
-        } else if (data.settings.logo) {
-          setLogoTab("url");
-          setUrlInput(data.settings.logo);
-        }
+        showNotification("success", "Website settings saved successfully.");
+        setInitialData(JSON.parse(JSON.stringify(formData)));
       } else {
-        setStatusMessage({
-          type: "error",
-          text: data.message || "Failed to update settings",
-        });
+        showNotification("error", data.message || "Failed to save website settings");
       }
-    } catch (err) {
-      console.error("Save settings error:", err);
-      setStatusMessage({
-        type: "error",
-        text: "Network error saving settings",
-      });
+    } catch {
+      showNotification("error", "Network error saving website settings");
     } finally {
       setSaving(false);
     }
   };
 
+  // Google Reviews status calculation
+  const googleStatus = useMemo(() => {
+    if (!formData.googleReviews?.enabled) return "disabled";
+    if (formData.googleReviews?.placeId?.trim()) return "configured";
+    return "incomplete";
+  }, [formData.googleReviews]);
+
   return (
-    <div className="space-y-8 animate-fadeIn">
-      {/* 1. Page Header */}
+    <div className="space-y-8 animate-fadeIn pb-24">
+      {/* ========================================================== */}
+      {/* 1. PAGE HEADER                                             */}
+      {/* ========================================================== */}
       <AdminPageHeader
         title="Website Settings"
-        description="Configure salon contact information, weekly opening hours, and official social media handles."
+        description="Manage the information and integrations displayed across the INVORA website."
         breadcrumbs={[{ label: "Website Settings" }]}
       />
 
-      {statusMessage && (
+      {/* Floating Notification */}
+      {notification && (
         <div
-          className={`rounded-xl border p-4 text-xs sm:text-sm flex items-center justify-between ${
-            statusMessage.type === "success"
+          role="status"
+          aria-live="polite"
+          className={`flex items-center gap-3 rounded-2xl border p-4 text-xs sm:text-sm font-medium shadow-md transition-all ${
+            notification.type === "success"
               ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-              : "border-red-200 bg-red-50 text-red-700"
+              : "border-rose-200 bg-rose-50 text-rose-800"
           }`}
         >
-          <span>{statusMessage.text}</span>
+          {notification.type === "success" ? (
+            <CheckCircleIcon className="h-5 w-5 text-emerald-600 shrink-0" />
+          ) : (
+            <AlertCircleIcon className="h-5 w-5 text-rose-600 shrink-0" />
+          )}
+          <span className="flex-1">{notification.message}</span>
           <button
             type="button"
-            onClick={() => setStatusMessage(null)}
-            className="text-stone-400 hover:text-stone-600 text-xs font-semibold"
+            onClick={() => setNotification(null)}
+            className="p-1 hover:opacity-70 transition-opacity cursor-pointer"
           >
-            Dismiss
+            <XIcon className="h-4 w-4" />
           </button>
         </div>
       )}
 
-      {loading ? (
-        <div className="rounded-2xl border border-stone-200 bg-white p-12 text-center text-xs sm:text-sm text-stone-500">
-          <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-stone-300 border-t-[#B7925A] mb-3" />
-          <p>Loading salon configuration...</p>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Section 1: Salon Information */}
-          <div className="rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="border-b border-stone-100 pb-4">
-              <h2 className="font-serif text-lg font-semibold text-stone-900 flex items-center gap-2">
-                <SparklesIcon className="h-5 w-5 text-[#B7925A]" />
-                <span>Salon Profile & Contact Details</span>
+      {/* ========================================================== */}
+      {/* 2. WEBSITE CONFIGURATION COMPLETENESS CARD (MATCHES MOCKUP)*/}
+      {/* ========================================================== */}
+      <div className="rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-xs">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          {/* Left: Icon & Title */}
+          <div className="lg:col-span-4 flex items-center gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-purple-50 text-[#7C3AED] border border-purple-100 shadow-2xs">
+              <SettingsIcon className="h-6 w-6" />
+            </div>
+            <div>
+              <h2 className="text-sm sm:text-base font-bold text-stone-900 tracking-tight">
+                Website Configuration
               </h2>
               <p className="text-xs text-stone-500 mt-0.5">
-                Public details displayed across the footer, navigation, and contact page.
+                Overview of your website setup status.
               </p>
             </div>
+          </div>
 
-            {/* Salon Brand Name */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                Salon Brand Name
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.salonName}
-                onChange={(e) =>
-                  setFormData({ ...formData, salonName: e.target.value })
-                }
-                className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-              />
+          {/* Center: Circular Progress & Percentage */}
+          <div className="lg:col-span-4 flex items-center justify-start lg:justify-center gap-4 border-y lg:border-y-0 lg:border-x border-stone-100 py-3 lg:py-0 px-0 lg:px-4">
+            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center">
+              <svg className="h-14 w-14 -rotate-90 transform" viewBox="0 0 36 36">
+                <path
+                  className="text-stone-100"
+                  strokeWidth="3.5"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <path
+                  className="text-emerald-500 transition-all duration-700 ease-out"
+                  strokeDasharray={`${completeness.percentage}, 100`}
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center font-extrabold text-xs text-stone-900">
+                {completeness.percentage}%
+              </div>
             </div>
 
-            {/* Dedicated Professional SALON LOGO Section */}
-            <div className="rounded-2xl border border-stone-200 bg-[#FAF7F2]/60 p-5 sm:p-6 space-y-5">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-stone-200/80 pb-3">
+            <div>
+              <p className="text-sm font-bold text-stone-900">
+                {completeness.percentage}% Complete
+              </p>
+              <p className="text-xs text-stone-500 mt-0.5">
+                {completeness.isFullyComplete
+                  ? "All core settings configured!"
+                  : "Almost there! Complete the remaining items."}
+              </p>
+            </div>
+          </div>
+
+          {/* Right: Checklist Columns */}
+          <div className="lg:col-span-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+            <div className="flex items-center gap-2">
+              <span
+                className={`flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
+                  completeness.checks.find((c) => c.id === "profile")?.done
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-stone-200 text-stone-500"
+                }`}
+              >
+                ✓
+              </span>
+              <span className="text-stone-700 font-medium">Salon Profile</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span
+                className={`flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
+                  completeness.checks.find((c) => c.id === "social")?.done
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-stone-200 text-stone-500"
+                }`}
+              >
+                ✓
+              </span>
+              <span className="text-stone-700 font-medium">Social Media</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span
+                className={`flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
+                  completeness.checks.find((c) => c.id === "contact")?.done
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-stone-200 text-stone-500"
+                }`}
+              >
+                ✓
+              </span>
+              <span className="text-stone-700 font-medium">Contact Details</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span
+                className={`flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
+                  completeness.checks.find((c) => c.id === "external")?.done
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-stone-200 text-stone-500"
+                }`}
+              >
+                ✓
+              </span>
+              <span className="text-stone-700 font-medium">External System</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span
+                className={`flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
+                  completeness.checks.find((c) => c.id === "hours")?.done
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-stone-200 text-stone-500"
+                }`}
+              >
+                ✓
+              </span>
+              <span className="text-stone-700 font-medium">Opening Hours</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span
+                className={`flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
+                  completeness.checks.find((c) => c.id === "google")?.done
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-stone-200 text-stone-500"
+                }`}
+              >
+                {completeness.checks.find((c) => c.id === "google")?.done ? "✓" : "–"}
+              </span>
+              <span className="text-stone-700 font-medium">Google Reviews</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================== */}
+      {/* 3. SETTINGS MAIN CONTENT WITH SECTION NAVIGATION           */}
+      {/* ========================================================== */}
+      {loading ? (
+        <div className="rounded-2xl border border-stone-200 bg-white p-16 text-center shadow-xs">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-3 border-stone-200 border-t-[#7C3AED] mb-3" />
+          <p className="text-sm font-semibold text-stone-600">Loading website configuration...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* ====================================================== */}
+          {/* LEFT: SECTION NAVIGATION (STICKY ON DESKTOP)          */}
+          {/* ====================================================== */}
+          <div className="lg:col-span-3 sticky top-24 z-20">
+            {/* Desktop Navigation */}
+            <div className="rounded-2xl border border-stone-200/90 bg-white p-3 shadow-xs space-y-1 hidden lg:block">
+              {SECTIONS.map((sec) => {
+                const Icon = sec.icon;
+                const isActive = activeSection === sec.id;
+                return (
+                  <button
+                    key={sec.id}
+                    type="button"
+                    onClick={() => scrollToSection(sec.id)}
+                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                      isActive
+                        ? "bg-purple-50 text-[#7C3AED] border border-purple-200/60 shadow-2xs"
+                        : "text-stone-600 hover:bg-stone-50 hover:text-stone-900"
+                    }`}
+                  >
+                    <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-[#7C3AED]" : "text-stone-400"}`} />
+                    <span>{sec.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Mobile / Tablet Horizontal Navigation */}
+            <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto p-1.5 bg-white border border-stone-200 rounded-xl shadow-xs scrollbar-none">
+              {SECTIONS.map((sec) => {
+                const Icon = sec.icon;
+                const isActive = activeSection === sec.id;
+                return (
+                  <button
+                    key={sec.id}
+                    type="button"
+                    onClick={() => scrollToSection(sec.id)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                      isActive
+                        ? "bg-[#7C3AED] text-white shadow-2xs"
+                        : "text-stone-600 hover:bg-stone-100"
+                    }`}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    <span>{sec.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ====================================================== */}
+          {/* RIGHT: SETTINGS SECTIONS CONTENT                       */}
+          {/* ====================================================== */}
+          <div className="lg:col-span-9 space-y-8">
+            {/* ---------------------------------------------------- */}
+            {/* CARD 1: SALON PROFILE & CONTACT DETAILS              */}
+            {/* ---------------------------------------------------- */}
+            <div
+              id="salon-profile"
+              className="rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-6"
+            >
+              {/* Card Header */}
+              <div className="flex items-start gap-3.5 border-b border-stone-100 pb-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100">
+                  <StoreIcon className="h-5 w-5" />
+                </div>
                 <div>
-                  <h3 className="font-serif text-base font-bold text-stone-900 flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4 text-[#B7925A]" />
-                    <span>SALON LOGO</span>
+                  <h3 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
+                    Salon Profile & Contact Details
                   </h3>
                   <p className="text-xs text-stone-500 mt-0.5">
-                    Choose how you want to add the salon logo.
+                    Public salon information displayed across the footer, navigation, and contact page.
                   </p>
                 </div>
-
-                {formData.logo && (
-                  <button
-                    type="button"
-                    onClick={handleRemoveLogo}
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 transition self-start sm:self-auto"
-                  >
-                    <TrashIcon className="h-3.5 w-3.5" />
-                    <span>Remove Logo</span>
-                  </button>
-                )}
               </div>
 
-              {/* Selectable Options / Tabs */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-1 rounded-xl bg-stone-200/70 w-full sm:w-fit">
-                <button
-                  type="button"
-                  onClick={() => setLogoTab("upload")}
-                  className={`inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition ${
-                    logoTab === "upload"
-                      ? "bg-[#1C1917] text-white shadow-xs"
-                      : "text-stone-700 hover:text-stone-950 hover:bg-stone-100"
-                  }`}
-                >
-                  <UploadCloudIcon className="h-4 w-4 text-[#B7925A]" />
-                  <span>Upload Logo</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLogoTab("url");
-                    if (!urlInput && formData.logo && !formData.logoPublicId) {
-                      setUrlInput(formData.logo);
-                    }
-                  }}
-                  className={`inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition ${
-                    logoTab === "url"
-                      ? "bg-[#1C1917] text-white shadow-xs"
-                      : "text-stone-700 hover:text-stone-950 hover:bg-stone-100"
-                  }`}
-                >
-                  <ExternalLinkIcon className="h-4 w-4 text-[#B7925A]" />
-                  <span>Use Image URL</span>
-                </button>
-              </div>
-
-              {/* 1. Upload Logo Option */}
-              {logoTab === "upload" && (
-                <div className="space-y-4">
-                  {/* Logo Live Preview */}
-                  <div className="space-y-1.5">
-                    <span className="block text-xs font-semibold uppercase tracking-wider text-stone-700">
-                      Logo Preview
-                    </span>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                      <div className="relative h-24 w-44 shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-white p-2.5 shadow-xs flex items-center justify-center">
-                        {formData.logo && !previewError ? (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img
-                            src={formData.logo}
-                            alt="Salon Logo Preview"
-                            onError={() => setPreviewError(true)}
-                            className="max-h-full max-w-full object-contain"
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center justify-center text-stone-400 p-2 text-center">
-                            <ImageIcon className="h-6 w-6 text-stone-300 mb-1" />
-                            <span className="text-[10px] uppercase tracking-wider font-medium text-stone-400">
-                              {previewError ? "Failed to load logo" : "No Logo Set"}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="text-xs text-stone-500 space-y-1">
-                        <p className="font-medium text-stone-700">
-                          {formData.logo
-                            ? "Active Logo"
-                            : "No logo uploaded yet."}
-                        </p>
-                        <p className="text-[11px] text-stone-400 max-w-sm">
-                          Rendered using object-contain in a white frame to ensure your salon emblem is never cropped.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Cloudinary ImageUpload component */}
-                  <div className="pt-1">
-                    <ImageUpload
-                      folder={CLOUDINARY_FOLDERS.SALON}
-                      value={formData.logoPublicId ? formData.logo : ""}
-                      publicId={formData.logoPublicId}
-                      onChange={handleLogoUpload}
-                      onRemove={handleRemoveLogo}
-                      label="Upload or Replace Logo Image"
-                      description="Supports PNG, JPG, JPEG, WEBP up to 5MB (transparent PNG recommended)"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* 2. Use Image URL Option */}
-              {logoTab === "url" && (
-                <div className="space-y-4">
+              {/* 2-Column Desktop Grid for Profile */}
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                {/* Left Column: Brand Name & Logo Management */}
+                <div className="xl:col-span-5 space-y-5">
+                  {/* Salon Brand Name */}
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                      Logo Image URL
+                    <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                      Salon Brand Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
-                      value={urlInput}
-                      onChange={(e) => handleUrlChange(e.target.value)}
-                      placeholder="https://example.com/logo.png"
-                      className={`w-full rounded-xl border px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A] bg-white ${
-                        urlError ? "border-red-300 bg-red-50/40" : "border-stone-300"
-                      }`}
+                      required
+                      value={formData.salonName}
+                      onChange={(e) =>
+                        setFormData({ ...formData, salonName: e.target.value })
+                      }
+                      placeholder="e.g. LUMINA Luxury Salon"
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
                     />
-                    {urlError ? (
-                      <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
-                        <AlertCircleIcon className="h-3.5 w-3.5 shrink-0" />
-                        <span>{urlError}</span>
-                      </p>
-                    ) : (
-                      <p className="mt-1 text-[11px] text-stone-400">
-                        Supports secure external HTTPS URLs or existing local paths beginning with / (e.g. /images/about-salon.svg).
-                      </p>
-                    )}
                   </div>
 
-                  {/* Live Preview for URL */}
-                  <div className="space-y-1.5 pt-1">
-                    <span className="block text-xs font-semibold uppercase tracking-wider text-stone-700">
-                      Logo Preview
-                    </span>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                      <div className="relative h-24 w-44 shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-white p-2.5 shadow-xs flex items-center justify-center">
-                        {urlInput.trim() && !previewError && !urlError ? (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img
-                            src={urlInput.trim()}
-                            alt="Logo preview"
-                            onError={() => setPreviewError(true)}
-                            className="max-h-full max-w-full object-contain"
+                  {/* Salon Logo Section */}
+                  <div className="rounded-xl border border-stone-200 bg-stone-50/40 p-4 space-y-4">
+                    <div>
+                      <h4 className="text-xs font-bold text-stone-800">Salon Logo</h4>
+                      <p className="text-[11px] text-stone-500 mt-0.5">
+                        Choose how you want to add the salon logo.
+                      </p>
+                    </div>
+
+                    {/* Mode Toggle Buttons */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setLogoTab("upload")}
+                        className={`inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                          logoTab === "upload"
+                            ? "bg-[#7C3AED] text-white shadow-xs"
+                            : "border border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
+                        }`}
+                      >
+                        <UploadCloudIcon className="h-3.5 w-3.5" />
+                        <span>Upload Logo</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setLogoTab("url")}
+                        className={`inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                          logoTab === "url"
+                            ? "bg-[#7C3AED] text-white shadow-xs"
+                            : "border border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
+                        }`}
+                      >
+                        <LinkIcon className="h-3.5 w-3.5" />
+                        <span>Use Image URL</span>
+                      </button>
+                    </div>
+
+                    {/* Mode 1: Upload Logo */}
+                    {logoTab === "upload" && (
+                      <div className="space-y-3">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-stone-500">
+                          Current Logo
+                        </p>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                          <div className="h-20 w-40 rounded-xl border border-stone-200 bg-white p-2 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+                            {formData.logo ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={formData.logo}
+                                alt="Current Salon Logo"
+                                className="max-h-full max-w-full object-contain"
+                              />
+                            ) : (
+                              <span className="text-xs text-stone-400 italic">No logo configured</span>
+                            )}
+                          </div>
+
+                          <div className="space-y-1.5">
+                            {formData.logo && (
+                              <button
+                                type="button"
+                                onClick={handleRemoveLogo}
+                                className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700 transition-colors cursor-pointer"
+                              >
+                                <TrashIcon className="h-3.5 w-3.5" />
+                                <span>Remove Logo</span>
+                              </button>
+                            )}
+
+                            <div>
+                              <ImageUpload
+                                folder={CLOUDINARY_FOLDERS.SALON}
+                                value={formData.logo}
+                                publicId={formData.logoPublicId}
+                                label=""
+                                description="Recommended size: 400 x 200px. PNG, JPG, or WebP (Max 5MB)"
+                                onChange={handleLogoUpload}
+                                onRemove={handleRemoveLogo}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Mode 2: Use Image URL */}
+                    {logoTab === "url" && (
+                      <div className="space-y-3">
+                        <label className="block text-xs font-semibold text-stone-700">
+                          Logo Image URL
+                        </label>
+                        <div className="relative">
+                          <LinkIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
+                          <input
+                            type="url"
+                            value={urlInput}
+                            onChange={(e) => handleUrlChange(e.target.value)}
+                            placeholder="https://example.com/logo.png"
+                            className="w-full rounded-xl border border-stone-200 bg-white pl-10 pr-3.5 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
                           />
-                        ) : (
-                          <div className="flex flex-col items-center justify-center text-stone-400 p-2 text-center">
-                            <ImageIcon className="h-6 w-6 text-stone-300 mb-1" />
-                            <span className="text-[10px] uppercase tracking-wider font-medium text-stone-400">
-                              {previewError ? "Failed to load URL" : "Preview will appear here"}
-                            </span>
+                        </div>
+
+                        {urlError && (
+                          <p className="text-xs text-rose-600 font-medium">{urlError}</p>
+                        )}
+
+                        {formData.logo && (
+                          <div className="mt-2 space-y-1.5">
+                            <p className="text-[11px] font-semibold text-stone-500">Live URL Preview</p>
+                            <div className="h-16 w-36 rounded-xl border border-stone-200 bg-white p-2 flex items-center justify-center overflow-hidden shadow-2xs">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={formData.logo}
+                                alt="Logo URL Preview"
+                                className="max-h-full max-w-full object-contain"
+                              />
+                            </div>
                           </div>
                         )}
                       </div>
-                      <div className="text-xs text-stone-500 space-y-1">
-                        {previewError ? (
-                          <p className="text-red-600 font-medium text-xs">
-                            Please enter a valid image URL.
-                          </p>
-                        ) : (
-                          <p className="text-[11px] text-stone-400 max-w-sm">
-                            Logo preview updates in real time. Remember to click &quot;Save Settings&quot; below to persist changes.
-                          </p>
-                        )}
+                    )}
+                  </div>
+                </div>
+
+                {/* Right Column: Contact Details, Address, About */}
+                <div className="xl:col-span-7 space-y-4">
+                  {/* Phone numbers in 2 columns */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                        Primary Phone <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <PhoneIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
+                        <input
+                          type="tel"
+                          required
+                          value={formData.phone}
+                          onChange={(e) =>
+                            setFormData({ ...formData, phone: e.target.value })
+                          }
+                          placeholder="+94 11 234 5678"
+                          className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                        Secondary / Mobile Phone
+                      </label>
+                      <div className="relative">
+                        <PhoneIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
+                        <input
+                          type="tel"
+                          value={formData.phoneSecondary}
+                          onChange={(e) =>
+                            setFormData({ ...formData, phoneSecondary: e.target.value })
+                          }
+                          placeholder="+94 77 123 4567"
+                          className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                        />
                       </div>
                     </div>
                   </div>
+
+                  {/* WhatsApp and Email in 2 columns */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                        WhatsApp Hotline
+                      </label>
+                      <div className="relative">
+                        <WhatsAppIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600 pointer-events-none" />
+                        <input
+                          type="tel"
+                          value={formData.whatsapp}
+                          onChange={(e) =>
+                            setFormData({ ...formData, whatsapp: e.target.value })
+                          }
+                          placeholder="+94 77 123 4567"
+                          className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                        Concierge Email <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <MailIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
+                        <input
+                          type="email"
+                          required
+                          value={formData.email}
+                          onChange={(e) =>
+                            setFormData({ ...formData, email: e.target.value })
+                          }
+                          placeholder="concierge@salon.lk"
+                          className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Physical Address */}
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                      Physical Salon Address <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <MapPinIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
+                      <input
+                        type="text"
+                        required
+                        value={formData.address}
+                        onChange={(e) =>
+                          setFormData({ ...formData, address: e.target.value })
+                        }
+                        placeholder="e.g. 42 Horton Place, Cinnamon Gardens, Colombo 07, Sri Lanka"
+                        className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                      />
+                    </div>
+                  </div>
+
+                  {/* About Description */}
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                      About Description
+                    </label>
+                    <textarea
+                      rows={3}
+                      maxLength={500}
+                      value={formData.aboutDescription}
+                      onChange={(e) =>
+                        setFormData({ ...formData, aboutDescription: e.target.value })
+                      }
+                      placeholder="Brief overview of salon sanctuary and philosophy..."
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20 resize-y"
+                    />
+                    <p className="mt-1 text-[11px] text-stone-400 text-right">
+                      {formData.aboutDescription.length} / 500 characters
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ---------------------------------------------------- */}
+            {/* CARD 2: SALON OPENING HOURS                          */}
+            {/* ---------------------------------------------------- */}
+            <div
+              id="opening-hours"
+              className="rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-6"
+            >
+              {/* Card Header & Copy Button */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100">
+                    <ClockIcon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
+                      Salon Opening Hours
+                    </h3>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      Define regular operational opening and closing hours for each day of the week.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleCopyMondayHours}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-purple-200 bg-purple-50/50 hover:bg-purple-100 px-3 py-1.5 text-xs font-semibold text-[#7C3AED] transition-colors cursor-pointer self-start sm:self-auto shrink-0"
+                >
+                  <SparklesIcon className="h-3.5 w-3.5" />
+                  <span>Copy Monday hours to weekdays</span>
+                </button>
+              </div>
+
+              {/* 2 Columns: Monday-Thursday (Left) and Friday-Sunday (Right) */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-8 gap-y-4">
+                {/* Column 1: Mon, Tue, Wed, Thu */}
+                <div className="space-y-3.5">
+                  {formData.openingHours.slice(0, 4).map((h, idx) => {
+                    return (
+                      <div
+                        key={h.day}
+                        className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl border transition-all ${
+                          h.isClosed
+                            ? "border-stone-200/70 bg-stone-50/50 opacity-70"
+                            : "border-stone-200 bg-white shadow-2xs"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 w-36">
+                          {/* Toggle switch */}
+                          <button
+                            type="button"
+                            role="switch"
+                            aria-checked={!h.isClosed}
+                            onClick={() => handleHourChange(idx, "isClosed", !h.isClosed)}
+                            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                              !h.isClosed ? "bg-[#7C3AED]" : "bg-stone-300"
+                            }`}
+                          >
+                            <span
+                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition duration-200 ease-in-out ${
+                                !h.isClosed ? "translate-x-4" : "translate-x-0"
+                              }`}
+                            />
+                          </button>
+                          <div>
+                            <p className="text-xs font-bold text-stone-900">{h.day}</p>
+                            <p className={`text-[11px] font-medium ${!h.isClosed ? "text-emerald-600" : "text-stone-400"}`}>
+                              {!h.isClosed ? "Open" : "Closed"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Time Inputs */}
+                        <div
+                          className={`flex items-center gap-2 text-xs font-semibold text-stone-500 ${
+                            h.isClosed ? "pointer-events-none opacity-40" : ""
+                          }`}
+                        >
+                          <input
+                            type="time"
+                            disabled={h.isClosed}
+                            value={h.open}
+                            onChange={(e) => handleHourChange(idx, "open", e.target.value)}
+                            className="rounded-lg border border-stone-200 bg-stone-50 px-2.5 py-1.5 text-xs text-stone-900 outline-none focus:border-[#7C3AED]"
+                          />
+                          <span>to</span>
+                          <input
+                            type="time"
+                            disabled={h.isClosed}
+                            value={h.close}
+                            onChange={(e) => handleHourChange(idx, "close", e.target.value)}
+                            className="rounded-lg border border-stone-200 bg-stone-50 px-2.5 py-1.5 text-xs text-stone-900 outline-none focus:border-[#7C3AED]"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Column 2: Fri, Sat, Sun */}
+                <div className="space-y-3.5">
+                  {formData.openingHours.slice(4).map((h, sliceIdx) => {
+                    const actualIdx = sliceIdx + 4;
+                    return (
+                      <div
+                        key={h.day}
+                        className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl border transition-all ${
+                          h.isClosed
+                            ? "border-stone-200/70 bg-stone-50/50 opacity-70"
+                            : "border-stone-200 bg-white shadow-2xs"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 w-36">
+                          {/* Toggle switch */}
+                          <button
+                            type="button"
+                            role="switch"
+                            aria-checked={!h.isClosed}
+                            onClick={() => handleHourChange(actualIdx, "isClosed", !h.isClosed)}
+                            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                              !h.isClosed ? "bg-[#7C3AED]" : "bg-stone-300"
+                            }`}
+                          >
+                            <span
+                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition duration-200 ease-in-out ${
+                                !h.isClosed ? "translate-x-4" : "translate-x-0"
+                              }`}
+                            />
+                          </button>
+                          <div>
+                            <p className="text-xs font-bold text-stone-900">{h.day}</p>
+                            <p className={`text-[11px] font-medium ${!h.isClosed ? "text-emerald-600" : "text-stone-400"}`}>
+                              {!h.isClosed ? "Open" : "Closed"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Time Inputs */}
+                        <div
+                          className={`flex items-center gap-2 text-xs font-semibold text-stone-500 ${
+                            h.isClosed ? "pointer-events-none opacity-40" : ""
+                          }`}
+                        >
+                          <input
+                            type="time"
+                            disabled={h.isClosed}
+                            value={h.open}
+                            onChange={(e) => handleHourChange(actualIdx, "open", e.target.value)}
+                            className="rounded-lg border border-stone-200 bg-stone-50 px-2.5 py-1.5 text-xs text-stone-900 outline-none focus:border-[#7C3AED]"
+                          />
+                          <span>to</span>
+                          <input
+                            type="time"
+                            disabled={h.isClosed}
+                            value={h.close}
+                            onChange={(e) => handleHourChange(actualIdx, "close", e.target.value)}
+                            className="rounded-lg border border-stone-200 bg-stone-50 px-2.5 py-1.5 text-xs text-stone-900 outline-none focus:border-[#7C3AED]"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* ---------------------------------------------------- */}
+            {/* CARD 3: SOCIAL MEDIA & ONLINE CHANNELS               */}
+            {/* ---------------------------------------------------- */}
+            <div
+              id="social-media"
+              className="rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-6"
+            >
+              <div className="flex items-start gap-3.5 border-b border-stone-100 pb-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100">
+                  <ExternalLinkIcon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
+                    Social Media & Online Channels
+                  </h3>
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    Links used across footer and social icons on the INVORA website.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Facebook */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                    Facebook URL
+                  </label>
+                  <div className="relative">
+                    <FacebookIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-600 pointer-events-none" />
+                    <input
+                      type="url"
+                      value={formData.socialMedia.facebook}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          socialMedia: { ...formData.socialMedia, facebook: e.target.value },
+                        })
+                      }
+                      placeholder="https://facebook.com/invora"
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                    />
+                  </div>
+                </div>
+
+                {/* Instagram */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                    Instagram URL
+                  </label>
+                  <div className="relative">
+                    <InstagramIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-pink-500 pointer-events-none" />
+                    <input
+                      type="url"
+                      value={formData.socialMedia.instagram}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          socialMedia: { ...formData.socialMedia, instagram: e.target.value },
+                        })
+                      }
+                      placeholder="https://instagram.com/invora"
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                    />
+                  </div>
+                </div>
+
+                {/* TikTok */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                    TikTok URL
+                  </label>
+                  <div className="relative">
+                    <TikTokIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-800 pointer-events-none" />
+                    <input
+                      type="url"
+                      value={formData.socialMedia.tiktok}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          socialMedia: { ...formData.socialMedia, tiktok: e.target.value },
+                        })
+                      }
+                      placeholder="https://tiktok.com/@invora"
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                    />
+                  </div>
+                </div>
+
+                {/* WhatsApp Direct URL */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                    WhatsApp Direct URL
+                  </label>
+                  <div className="relative">
+                    <WhatsAppIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600 pointer-events-none" />
+                    <input
+                      type="url"
+                      value={formData.socialMedia.whatsapp}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          socialMedia: { ...formData.socialMedia, whatsapp: e.target.value },
+                        })
+                      }
+                      placeholder="https://wa.me/94771234567"
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ---------------------------------------------------- */}
+            {/* CARD 4: GOOGLE REVIEWS                               */}
+            {/* ---------------------------------------------------- */}
+            <div
+              id="google-reviews"
+              className="rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-6"
+            >
+              <div className="flex items-start justify-between gap-3 border-b border-stone-100 pb-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100">
+                    <StarIcon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
+                      Google Reviews
+                    </h3>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      Display reviews from the salon&apos;s Google Business Profile.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Configuration status badge */}
+                <div>
+                  <span
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold shadow-2xs ${
+                      googleStatus === "configured"
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        : googleStatus === "incomplete"
+                        ? "bg-amber-50 text-amber-700 border border-amber-200"
+                        : "bg-stone-100 text-stone-600 border border-stone-200"
+                    }`}
+                  >
+                    <span
+                      className={`h-2 w-2 rounded-full ${
+                        googleStatus === "configured"
+                          ? "bg-emerald-500"
+                          : googleStatus === "incomplete"
+                          ? "bg-amber-500"
+                          : "bg-stone-400"
+                      }`}
+                    />
+                    <span className="capitalize">{googleStatus}</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Toggle switch at top */}
+              <div className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50/60 p-4">
+                <div>
+                  <p className="text-xs font-bold text-stone-900">Enable Google Reviews</p>
+                  <p className="text-[11px] text-stone-500 mt-0.5">
+                    Fetch and display real reviews on the public Reviews page.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={formData.googleReviews?.enabled}
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      googleReviews: {
+                        enabled: !formData.googleReviews?.enabled,
+                        placeId: formData.googleReviews?.placeId || "",
+                        businessUrl: formData.googleReviews?.businessUrl || "",
+                        maxReviews: formData.googleReviews?.maxReviews || 5,
+                      },
+                    })
+                  }
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 ${
+                    formData.googleReviews?.enabled ? "bg-[#7C3AED]" : "bg-stone-300"
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                      formData.googleReviews?.enabled ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Google Reviews Form Fields */}
+              {formData.googleReviews?.enabled ? (
+                <div className="space-y-4 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                        Google Place ID <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.googleReviews?.placeId || ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            googleReviews: {
+                              enabled: true,
+                              placeId: e.target.value,
+                              businessUrl: formData.googleReviews?.businessUrl || "",
+                              maxReviews: formData.googleReviews?.maxReviews || 5,
+                            },
+                          })
+                        }
+                        placeholder="e.g. ChIJN1t_tDeuEmsRUsoyG83frY4"
+                        className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                      />
+                      <p className="mt-1 text-[11px] text-stone-400">
+                        Obtain your unique Place ID from Google Place ID Finder.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                        Reviews to Display (1–5)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={formData.googleReviews?.maxReviews || 5}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            googleReviews: {
+                              enabled: true,
+                              placeId: formData.googleReviews?.placeId || "",
+                              businessUrl: formData.googleReviews?.businessUrl || "",
+                              maxReviews: Math.min(5, Math.max(1, Number(e.target.value) || 5)),
+                            },
+                          })
+                        }
+                        className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                      />
+                      <p className="mt-1 text-[11px] text-stone-400">
+                        Top 5-star verified customer reviews shown.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                      Google Maps Business URL
+                    </label>
+                    <div className="relative">
+                      <MapPinIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
+                      <input
+                        type="url"
+                        value={formData.googleReviews?.businessUrl || ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            googleReviews: {
+                              enabled: true,
+                              placeId: formData.googleReviews?.placeId || "",
+                              businessUrl: e.target.value,
+                              maxReviews: formData.googleReviews?.maxReviews || 5,
+                            },
+                          })
+                        }
+                        placeholder="https://maps.google.com/?cid=..."
+                        className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-3 text-xs text-purple-900">
+                    <p className="font-semibold">Security Note:</p>
+                    <p className="text-[11px] text-purple-700 mt-0.5">
+                      The Google Places API key is securely managed on the server in environment variables (<code className="font-mono text-[10px] bg-purple-100 px-1 py-0.5 rounded">GOOGLE_PLACES_API_KEY</code>) and is never exposed in the browser.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-stone-100 bg-stone-50/50 p-6 text-center">
+                  <p className="text-xs text-stone-500 font-medium">
+                    Google Reviews integration is currently disabled. Toggle the switch above to configure.
+                  </p>
                 </div>
               )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Primary Phone
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Secondary / Mobile Phone
-                </label>
-                <input
-                  type="text"
-                  value={formData.phoneSecondary}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phoneSecondary: e.target.value })
-                  }
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  WhatsApp Hotline
-                </label>
-                <input
-                  type="text"
-                  value={formData.whatsapp}
-                  onChange={(e) =>
-                    setFormData({ ...formData, whatsapp: e.target.value })
-                  }
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Concierge Email
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Physical Salon Address
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.address}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address: e.target.value })
-                  }
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  About Description
-                </label>
-                <textarea
-                  rows={3}
-                  value={formData.aboutDescription}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      aboutDescription: e.target.value,
-                    })
-                  }
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section 2: Opening Hours */}
-          <div className="rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="border-b border-stone-100 pb-4">
-              <h2 className="font-serif text-lg font-semibold text-stone-900 flex items-center gap-2">
-                <ClockIcon className="h-5 w-5 text-[#B7925A]" />
-                <span>Salon Opening Hours</span>
-              </h2>
-              <p className="text-xs text-stone-500 mt-0.5">
-                Define regular operational opening and closing hours for each day of the week.
-              </p>
-            </div>
-
-            <div className="divide-y divide-stone-100">
-              {formData.openingHours.map((schedule, idx) => (
-                <div
-                  key={schedule.day}
-                  className="py-3 sm:py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm"
-                >
-                  <div className="w-32 font-medium text-stone-900">
-                    {schedule.day}
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-3">
-                    <label className="flex items-center gap-2 text-xs text-stone-600">
-                      <input
-                        type="checkbox"
-                        checked={schedule.isClosed}
-                        onChange={(e) =>
-                          handleHourChange(idx, "isClosed", e.target.checked)
-                        }
-                        className="rounded text-[#B7925A] focus:ring-[#B7925A]"
-                      />
-                      <span>Closed</span>
-                    </label>
-
-                    {!schedule.isClosed && (
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="time"
-                          value={schedule.open}
-                          onChange={(e) =>
-                            handleHourChange(idx, "open", e.target.value)
-                          }
-                          className="rounded-xl border border-stone-200 px-2.5 py-1 text-xs text-stone-800 outline-none focus:border-[#B7925A]"
-                        />
-                        <span className="text-stone-400">to</span>
-                        <input
-                          type="time"
-                          value={schedule.close}
-                          onChange={(e) =>
-                            handleHourChange(idx, "close", e.target.value)
-                          }
-                          className="rounded-xl border border-stone-200 px-2.5 py-1 text-xs text-stone-800 outline-none focus:border-[#B7925A]"
-                        />
-                      </div>
-                    )}
-                  </div>
+            {/* ---------------------------------------------------- */}
+            {/* CARD 5: EXTERNAL SALON MANAGEMENT SYSTEM LINKS       */}
+            {/* ---------------------------------------------------- */}
+            <div
+              id="external-system"
+              className="rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-6"
+            >
+              <div className="flex items-start gap-3.5 border-b border-stone-100 pb-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100">
+                  <LinkIcon className="h-5 w-5" />
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Section 3: Social Media Channels */}
-          <div className="rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="border-b border-stone-100 pb-4">
-              <h2 className="font-serif text-lg font-semibold text-stone-900 flex items-center gap-2">
-                <SettingsIcon className="h-5 w-5 text-[#B7925A]" />
-                <span>Social Media & Online Channels</span>
-              </h2>
-              <p className="text-xs text-stone-500 mt-0.5">
-                Official handles linked in the website header and footer.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Facebook URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.socialMedia.facebook}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      socialMedia: {
-                        ...formData.socialMedia,
-                        facebook: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Instagram URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.socialMedia.instagram}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      socialMedia: {
-                        ...formData.socialMedia,
-                        instagram: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  TikTok URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.socialMedia.tiktok}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      socialMedia: {
-                        ...formData.socialMedia,
-                        tiktok: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  WhatsApp Direct URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.socialMedia.whatsapp}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      socialMedia: {
-                        ...formData.socialMedia,
-                        whatsapp: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section 4: Google Reviews */}
-          <div className="rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="border-b border-stone-100 pb-4">
-              <h2 className="font-serif text-lg font-semibold text-stone-900 flex items-center gap-2">
-                <StarIcon className="h-5 w-5 text-[#B7925A]" />
-                <span>GOOGLE REVIEWS</span>
-              </h2>
-              <p className="text-xs text-stone-500 mt-0.5">
-                Display reviews from your salon&apos;s Google Business Profile.
-              </p>
-            </div>
-
-            {/* Incomplete Configuration Alert */}
-            {formData.googleReviews?.enabled && !formData.googleReviews?.placeId?.trim() && (
-              <div className="flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-xs text-amber-800">
-                <AlertCircleIcon className="h-4 w-4 shrink-0 text-amber-600" />
-                <span>
-                  <strong>Configuration Incomplete:</strong> Google Reviews is enabled, but a Google Place ID is missing. Public reviews will remain hidden until a valid Place ID is configured.
-                </span>
-              </div>
-            )}
-
-            {/* Enable/Disable Toggle */}
-            <div className="flex items-center gap-3">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.googleReviews?.enabled || false}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      googleReviews: {
-                        enabled: e.target.checked,
-                        placeId: prev.googleReviews?.placeId || "",
-                        businessUrl: prev.googleReviews?.businessUrl || "",
-                        maxReviews: prev.googleReviews?.maxReviews || 5,
-                      },
-                    }))
-                  }
-                  className="h-4 w-4 rounded-sm text-[#B7925A] focus:ring-[#B7925A]"
-                />
                 <div>
-                  <span className="text-xs font-semibold text-stone-800">
-                    Display Google Reviews
-                  </span>
-                  <p className="text-[11px] text-stone-500">
-                    Show verified Google reviews on the public Reviews page.
+                  <h3 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
+                    Salon Management System Links
+                  </h3>
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    Connect the public INVORA website to the external Salon Management System.
                   </p>
                 </div>
-              </label>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              {/* Google Place ID */}
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Google Place ID
-                </label>
-                <input
-                  type="text"
-                  value={formData.googleReviews?.placeId || ""}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      googleReviews: {
-                        enabled: prev.googleReviews?.enabled || false,
-                        placeId: e.target.value,
-                        businessUrl: prev.googleReviews?.businessUrl || "",
-                        maxReviews: prev.googleReviews?.maxReviews || 5,
-                      },
-                    }))
-                  }
-                  placeholder="e.g. ChIJN1t_tDeuEmsRUsoyG83frY4"
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-                <p className="mt-1 text-[11px] text-stone-400">
-                  Find your Place ID via Google&apos;s Place ID Finder tool.
-                </p>
               </div>
 
-              {/* Reviews to Display */}
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Reviews to Display (1–5)
-                </label>
-                <input
-                  type="number"
-                  min={1}
-                  max={5}
-                  value={formData.googleReviews?.maxReviews ?? 5}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      googleReviews: {
-                        enabled: prev.googleReviews?.enabled || false,
-                        placeId: prev.googleReviews?.placeId || "",
-                        businessUrl: prev.googleReviews?.businessUrl || "",
-                        maxReviews: Math.min(5, Math.max(1, Number(e.target.value) || 5)),
-                      },
-                    }))
-                  }
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-                <p className="mt-1 text-[11px] text-stone-400">
-                  Google Places API returns up to 5 top reviews per request.
-                </p>
-              </div>
+              <div className="space-y-5">
+                {/* 1. Customer Login URL */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-stone-700">
+                      Customer Login URL
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                          formData.externalSystem?.loginUrl?.trim()
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-stone-100 text-stone-500 border border-stone-200"
+                        }`}
+                      >
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            formData.externalSystem?.loginUrl?.trim()
+                              ? "bg-emerald-500"
+                              : "bg-stone-400"
+                          }`}
+                        />
+                        <span>
+                          {formData.externalSystem?.loginUrl?.trim() ? "Connected" : "Not configured"}
+                        </span>
+                      </span>
 
-              {/* Google Maps Business URL */}
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Google Maps Business URL (Optional)
-                </label>
-                <input
-                  type="url"
-                  value={formData.googleReviews?.businessUrl || ""}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      googleReviews: {
-                        enabled: prev.googleReviews?.enabled || false,
-                        placeId: prev.googleReviews?.placeId || "",
-                        businessUrl: e.target.value,
-                        maxReviews: prev.googleReviews?.maxReviews || 5,
-                      },
-                    }))
-                  }
-                  placeholder="https://maps.google.com/..."
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-                <p className="mt-1 text-[11px] text-stone-400">
-                  Direct link opened when visitors click &ldquo;View All Reviews on Google&rdquo;.
-                </p>
+                      {formData.externalSystem?.loginUrl?.trim() && (
+                        <a
+                          href={formData.externalSystem.loginUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-700 hover:text-purple-800"
+                        >
+                          <ExternalLinkIcon className="h-3 w-3" />
+                          <span>Test Link</span>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+
+                  <input
+                    type="url"
+                    value={formData.externalSystem?.loginUrl || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        externalSystem: {
+                          loginUrl: e.target.value,
+                          registerUrl: formData.externalSystem?.registerUrl || "",
+                          bookingUrl: formData.externalSystem?.bookingUrl || "",
+                        },
+                      })
+                    }
+                    placeholder="https://app.salonms.com/login"
+                    className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                  />
+                  <p className="text-[11px] text-stone-400">
+                    Used by the Login button in the public website header.
+                  </p>
+                </div>
+
+                {/* 2. Customer Registration URL */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-stone-700">
+                      Customer Registration URL
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                          formData.externalSystem?.registerUrl?.trim()
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-stone-100 text-stone-500 border border-stone-200"
+                        }`}
+                      >
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            formData.externalSystem?.registerUrl?.trim()
+                              ? "bg-emerald-500"
+                              : "bg-stone-400"
+                          }`}
+                        />
+                        <span>
+                          {formData.externalSystem?.registerUrl?.trim() ? "Connected" : "Not configured"}
+                        </span>
+                      </span>
+
+                      {formData.externalSystem?.registerUrl?.trim() && (
+                        <a
+                          href={formData.externalSystem.registerUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-700 hover:text-purple-800"
+                        >
+                          <ExternalLinkIcon className="h-3 w-3" />
+                          <span>Test Link</span>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+
+                  <input
+                    type="url"
+                    value={formData.externalSystem?.registerUrl || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        externalSystem: {
+                          loginUrl: formData.externalSystem?.loginUrl || "",
+                          registerUrl: e.target.value,
+                          bookingUrl: formData.externalSystem?.bookingUrl || "",
+                        },
+                      })
+                    }
+                    placeholder="https://app.salonms.com/register"
+                    className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                  />
+                  <p className="text-[11px] text-stone-400">
+                    Used by customer registration prompts and new client onboarding.
+                  </p>
+                </div>
+
+                {/* 3. Book Appointment URL */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-stone-700">
+                      Book Appointment URL
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                          formData.externalSystem?.bookingUrl?.trim()
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-stone-100 text-stone-500 border border-stone-200"
+                        }`}
+                      >
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            formData.externalSystem?.bookingUrl?.trim()
+                              ? "bg-emerald-500"
+                              : "bg-stone-400"
+                          }`}
+                        />
+                        <span>
+                          {formData.externalSystem?.bookingUrl?.trim() ? "Connected" : "Not configured"}
+                        </span>
+                      </span>
+
+                      {formData.externalSystem?.bookingUrl?.trim() && (
+                        <a
+                          href={formData.externalSystem.bookingUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-700 hover:text-purple-800"
+                        >
+                          <ExternalLinkIcon className="h-3 w-3" />
+                          <span>Test Link</span>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+
+                  <input
+                    type="url"
+                    value={formData.externalSystem?.bookingUrl || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        externalSystem: {
+                          loginUrl: formData.externalSystem?.loginUrl || "",
+                          registerUrl: formData.externalSystem?.registerUrl || "",
+                          bookingUrl: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="https://app.salonms.com/book"
+                    className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                  />
+                  <p className="text-[11px] text-stone-400">
+                    Used by &quot;Book Appointment&quot; buttons and call-to-actions throughout the entire website.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Section 5: Salon Management System Links */}
-          <div className="rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="border-b border-stone-100 pb-4">
-              <h2 className="font-serif text-lg font-semibold text-stone-900 flex items-center gap-2">
-                <ExternalLinkIcon className="h-5 w-5 text-[#B7925A]" />
-                <span>SALON MANAGEMENT SYSTEM LINKS</span>
-              </h2>
-              <p className="text-xs text-stone-500 mt-0.5">
-                Connect this public website with your external salon management system.
+      {/* ========================================================== */}
+      {/* 4. STICKY SAVE CHANGES BAR AT BOTTOM (MATCHES MOCKUP)      */}
+      {/* ========================================================== */}
+      <div className="sticky bottom-4 z-40 rounded-2xl border border-stone-200/90 bg-white/95 p-4 sm:p-5 shadow-xl backdrop-blur-md transition-all">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Status Indicator */}
+          <div className="flex items-center gap-3">
+            <span
+              className={`h-3 w-3 shrink-0 rounded-full ${
+                hasUnsavedChanges ? "bg-amber-500 animate-pulse" : "bg-emerald-500"
+              }`}
+            />
+            <div>
+              <p className="text-xs sm:text-sm font-bold text-stone-900">
+                {hasUnsavedChanges
+                  ? "You have unsaved changes"
+                  : "All changes saved to database"}
+              </p>
+              <p className="text-[11px] text-stone-500 mt-0.5">
+                {hasUnsavedChanges
+                  ? "Make sure to save your changes to update the website settings."
+                  : "Your website settings are up to date."}
               </p>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              {/* Customer Login URL */}
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Customer Login URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.externalSystem?.loginUrl || ""}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      externalSystem: {
-                        loginUrl: e.target.value,
-                        registerUrl: prev.externalSystem?.registerUrl || "",
-                        bookingUrl: prev.externalSystem?.bookingUrl || "",
-                      },
-                    }))
-                  }
-                  placeholder="https://management.example.com/login"
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-                <p className="mt-1 text-[11px] text-stone-400">
-                  Target destination when visitors click &ldquo;Login&rdquo; in the website navigation.
-                </p>
-              </div>
-
-              {/* Customer Registration URL */}
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Customer Registration URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.externalSystem?.registerUrl || ""}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      externalSystem: {
-                        loginUrl: prev.externalSystem?.loginUrl || "",
-                        registerUrl: e.target.value,
-                        bookingUrl: prev.externalSystem?.bookingUrl || "",
-                      },
-                    }))
-                  }
-                  placeholder="https://management.example.com/register"
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-                <p className="mt-1 text-[11px] text-stone-400">
-                  Target destination when visitors click &ldquo;Register&rdquo; in the website navigation.
-                </p>
-              </div>
-
-              {/* Book Appointment URL */}
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Book Appointment URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.externalSystem?.bookingUrl || ""}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      externalSystem: {
-                        loginUrl: prev.externalSystem?.loginUrl || "",
-                        registerUrl: prev.externalSystem?.registerUrl || "",
-                        bookingUrl: e.target.value,
-                      },
-                    }))
-                  }
-                  placeholder="https://management.example.com/appointments"
-                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
-                />
-                <p className="mt-1 text-[11px] text-stone-400">
-                  Target destination when visitors click &ldquo;Book Appointment&rdquo; buttons across the website.
-                </p>
-              </div>
-            </div>
           </div>
 
-          {/* Submit Action */}
-          <div className="flex items-center justify-end gap-3 pt-2">
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3">
             <button
-              type="submit"
-              disabled={saving}
-              className="inline-flex items-center gap-2 rounded-xl bg-stone-900 px-8 py-3 text-xs sm:text-sm font-semibold text-white hover:bg-stone-800 disabled:opacity-50 transition-colors border border-[#B7925A]/30 shadow-xs"
+              type="button"
+              disabled={!hasUnsavedChanges || saving}
+              onClick={handleResetChanges}
+              className="rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-stone-700 hover:bg-stone-50 transition-colors disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
             >
-              <CheckIcon className="h-4 w-4 text-[#C5A46D]" />
-              <span>{saving ? "Saving Changes..." : "Save Website Settings"}</span>
+              Reset Changes
+            </button>
+
+            <button
+              type="button"
+              disabled={!hasUnsavedChanges || saving}
+              onClick={() => handleSubmit()}
+              className="inline-flex items-center gap-2 rounded-xl bg-[#7C3AED] px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-[#6D28D9] transition-all disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+            >
+              {saving && (
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              )}
+              <span>{saving ? "Saving..." : "Save Changes"}</span>
             </button>
           </div>
-        </form>
-      )}
+        </div>
+      </div>
     </div>
   );
 }
