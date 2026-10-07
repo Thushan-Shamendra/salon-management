@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
     // Sort displayOrder ascending, then newest first
     const galleryItems = await Gallery.find(query)
-      .select("_id title description category image imagePublicId altText isFeatured displayOrder createdAt")
+      .select("_id title description category image imagePublicId altText isFeatured displayOrder cropPosition createdAt")
       .sort({ displayOrder: 1, createdAt: -1 })
       .lean();
 

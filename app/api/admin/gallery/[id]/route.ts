@@ -161,6 +161,15 @@ export async function PATCH(request: Request, context: RouteContext) {
       updateData.displayOrder = isNaN(order) ? 0 : order;
     }
 
+    if (body.cropPosition !== undefined) {
+      const cp = body.cropPosition;
+      updateData.cropPosition = {
+        x: typeof cp?.x === "number" ? Math.max(0, Math.min(100, cp.x)) : 50,
+        y: typeof cp?.y === "number" ? Math.max(0, Math.min(100, cp.y)) : 50,
+        zoom: typeof cp?.zoom === "number" ? Math.max(1, Math.min(3, cp.zoom)) : 1,
+      };
+    }
+
     // Handle Image Replacement
     const oldPublicId = existingPhoto.imagePublicId;
     let isImageReplaced = false;

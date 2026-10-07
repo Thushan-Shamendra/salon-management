@@ -271,26 +271,48 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
     index: number,
     aspectClass: string
   ) {
+    const cropX = photo.cropPosition?.x ?? 50;
+    const cropY = photo.cropPosition?.y ?? 50;
+    const cropZoom = photo.cropPosition?.zoom ?? 1;
+
     return (
       <div
         key={photo._id}
         onClick={() => handleOpenLightbox(index)}
         className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-stone-100 shadow-xs transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer ${aspectClass}`}
       >
-        {/* Gallery Image */}
-        <Image
-          src={photo.image}
-          alt={photo.altText || photo.title || "Invora Salon Gallery Transformation"}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+        {/* Gallery Image with Crop and Zoom */}
+        <div
+          className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
+          style={{
+            transformOrigin: `${cropX}% ${cropY}%`,
+          }}
+        >
+          <div
+            className="w-full h-full relative"
+            style={{
+              transform: cropZoom > 1 ? `scale(${cropZoom})` : undefined,
+              transformOrigin: `${cropX}% ${cropY}%`,
+            }}
+          >
+            <Image
+              src={photo.image}
+              alt={photo.altText || photo.title || "Invora Salon Gallery Transformation"}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover"
+              style={{
+                objectPosition: `${cropX}% ${cropY}%`,
+              }}
+            />
+          </div>
+        </div>
 
         {/* Subtle Dark Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent transition-opacity duration-300 group-hover:from-black/85" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent transition-opacity duration-300 group-hover:from-black/85 pointer-events-none" />
 
         {/* Card Content Bar */}
-        <div className="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-5 flex items-end justify-between text-white z-10">
+        <div className="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-5 flex items-end justify-between text-white z-10 pointer-events-none">
           <div className="max-w-[80%] pr-2">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-[#C4B5FD]">
               {photo.category}
@@ -301,7 +323,7 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
           </div>
 
           {/* Search / Zoom View Icon Badge */}
-          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white shadow-xs transition-all duration-300 group-hover:bg-[#7C3AED] group-hover:scale-110">
+          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white shadow-xs transition-all duration-300 group-hover:bg-[#7C3AED] group-hover:scale-110 pointer-events-auto">
             <SearchIcon className="h-4 w-4" />
           </div>
         </div>

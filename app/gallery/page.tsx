@@ -42,6 +42,13 @@ async function getGalleryData(): Promise<{
       isActive: Boolean(p.isActive),
       isFeatured: Boolean(p.isFeatured),
       displayOrder: typeof p.displayOrder === "number" ? p.displayOrder : 0,
+      cropPosition: p.cropPosition
+        ? {
+            x: typeof p.cropPosition.x === "number" ? p.cropPosition.x : 50,
+            y: typeof p.cropPosition.y === "number" ? p.cropPosition.y : 50,
+            zoom: typeof p.cropPosition.zoom === "number" ? p.cropPosition.zoom : 1,
+          }
+        : { x: 50, y: 50, zoom: 1 },
     }));
 
     const bookingUrl = settings?.externalSystem?.bookingUrl || "";

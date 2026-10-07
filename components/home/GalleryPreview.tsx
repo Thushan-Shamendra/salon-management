@@ -11,6 +11,11 @@ interface GalleryItem {
   category?: string;
   image: string;
   altText?: string;
+  cropPosition?: {
+    x: number;
+    y: number;
+    zoom: number;
+  };
 }
 
 export default function GalleryPreview() {
@@ -42,6 +47,36 @@ export default function GalleryPreview() {
       isMounted = false;
     };
   }, []);
+
+  const renderItemImage = (item: GalleryItem, sizes: string) => {
+    const cropX = item.cropPosition?.x ?? 50;
+    const cropY = item.cropPosition?.y ?? 50;
+    const cropZoom = item.cropPosition?.zoom ?? 1;
+
+    return (
+      <div
+        className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
+        style={{ transformOrigin: `${cropX}% ${cropY}%` }}
+      >
+        <div
+          className="w-full h-full relative"
+          style={{
+            transform: cropZoom > 1 ? `scale(${cropZoom})` : undefined,
+            transformOrigin: `${cropX}% ${cropY}%`,
+          }}
+        >
+          <Image
+            src={item.image}
+            alt={item.altText || item.title || "Invora Salon look"}
+            fill
+            sizes={sizes}
+            className="object-cover"
+            style={{ objectPosition: `${cropX}% ${cropY}%` }}
+          />
+        </div>
+      </div>
+    );
+  };
 
   return (
     <section className="bg-[#FAF8F5] py-16 sm:py-20 lg:py-24 border-t border-stone-200/60">
@@ -99,15 +134,9 @@ export default function GalleryPreview() {
             {items.length === 1 && (
               <div className="max-w-2xl mx-auto">
                 <div className="relative group overflow-hidden rounded-3xl bg-stone-100 shadow-md aspect-[16/10]">
-                  <Image
-                    src={items[0].image}
-                    alt={items[0].title || "Invora Salon look"}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 60vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-white">
+                  {renderItemImage(items[0], "(max-width: 1024px) 100vw, 60vw")}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+                  <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-white pointer-events-none">
                     <div>
                       <p className="text-xs font-medium uppercase tracking-wider text-[#C4B5FD]">
                         {items[0].category || "Salon Portfolio"}
@@ -116,7 +145,7 @@ export default function GalleryPreview() {
                         {items[0].title}
                       </h3>
                     </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white pointer-events-auto">
                       <ExternalLinkIcon className="h-4 w-4" />
                     </div>
                   </div>
@@ -132,15 +161,9 @@ export default function GalleryPreview() {
                     key={item._id}
                     className="relative group overflow-hidden rounded-3xl bg-stone-100 shadow-sm aspect-[4/3] transition-all hover:shadow-lg"
                   >
-                    <Image
-                      src={item.image}
-                      alt={item.title || "Invora Salon look"}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-white">
+                    {renderItemImage(item, "(max-width: 768px) 100vw, 50vw")}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+                    <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-white pointer-events-none">
                       <div>
                         <p className="text-xs font-medium uppercase tracking-wider text-[#C4B5FD]">
                           {item.category || "Salon Portfolio"}
@@ -149,7 +172,7 @@ export default function GalleryPreview() {
                           {item.title}
                         </h3>
                       </div>
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white transition-transform group-hover:scale-110 group-hover:bg-[#7C3AED]">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white transition-transform group-hover:scale-110 group-hover:bg-[#7C3AED] pointer-events-auto">
                         <ExternalLinkIcon className="h-4 w-4" />
                       </div>
                     </div>
@@ -170,15 +193,9 @@ export default function GalleryPreview() {
                     key={item._id}
                     className="relative group overflow-hidden rounded-2xl bg-stone-100 shadow-sm aspect-[4/3] transition-all hover:shadow-lg"
                   >
-                    <Image
-                      src={item.image}
-                      alt={item.title || "Invora Salon look"}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4 text-white">
+                    {renderItemImage(item, "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw")}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute bottom-4 left-4 right-4 text-white pointer-events-none">
                       <p className="text-[11px] font-medium uppercase tracking-wider text-[#C4B5FD]">
                         {item.category || "Style"}
                       </p>
@@ -194,15 +211,9 @@ export default function GalleryPreview() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                 {/* 1 Large Feature Card on Left */}
                 <div className="lg:col-span-5 relative group overflow-hidden rounded-3xl bg-stone-100 shadow-sm aspect-[4/5] min-h-[380px]">
-                  <Image
-                    src={items[0].image}
-                    alt={items[0].title || "Invora Salon style"}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 45vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-white">
+                  {renderItemImage(items[0], "(max-width: 1024px) 100vw, 45vw")}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+                  <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-white pointer-events-none">
                     <div>
                       <p className="text-xs font-medium uppercase tracking-wider text-[#C4B5FD]">
                         {items[0].category || "Featured Style"}
@@ -211,7 +222,7 @@ export default function GalleryPreview() {
                         {items[0].title}
                       </h3>
                     </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white transition-transform group-hover:scale-110 group-hover:bg-[#7C3AED]">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white transition-transform group-hover:scale-110 group-hover:bg-[#7C3AED] pointer-events-auto">
                       <ExternalLinkIcon className="h-4 w-4" />
                     </div>
                   </div>
@@ -224,15 +235,9 @@ export default function GalleryPreview() {
                       key={item._id}
                       className="relative group overflow-hidden rounded-2xl bg-stone-100 shadow-2xs aspect-[4/3] transition-all hover:shadow-md"
                     >
-                      <Image
-                        src={item.image}
-                        alt={item.title || "Invora Salon look"}
-                        fill
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="absolute bottom-3 left-3 right-3 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                      {renderItemImage(item, "(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw")}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                      <div className="absolute bottom-3 left-3 right-3 text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                         <p className="text-xs font-semibold truncate">{item.title}</p>
                       </div>
                     </div>

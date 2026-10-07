@@ -1,5 +1,11 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
+export interface IGalleryCropPosition {
+  x: number;
+  y: number;
+  zoom: number;
+}
+
 export interface IGallery extends Document {
   title: string;
   description?: string;
@@ -10,6 +16,7 @@ export interface IGallery extends Document {
   isActive: boolean;
   isFeatured: boolean;
   displayOrder: number;
+  cropPosition?: IGalleryCropPosition;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -63,6 +70,20 @@ const GallerySchema = new Schema<IGallery>(
       type: Number,
       default: 0,
       index: true,
+    },
+    cropPosition: {
+      x: {
+        type: Number,
+        default: 50,
+      },
+      y: {
+        type: Number,
+        default: 50,
+      },
+      zoom: {
+        type: Number,
+        default: 1,
+      },
     },
   },
   {

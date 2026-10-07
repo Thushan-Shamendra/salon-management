@@ -83,6 +83,7 @@ export async function POST(request: Request) {
       isActive,
       isFeatured,
       displayOrder,
+      cropPosition,
     } = body;
 
     // Validate required fields
@@ -163,6 +164,11 @@ export async function POST(request: Request) {
       isActive: typeof isActive === "boolean" ? isActive : true,
       isFeatured: typeof isFeatured === "boolean" ? isFeatured : false,
       displayOrder: typeof displayOrder === "number" ? displayOrder : Number(displayOrder) || 0,
+      cropPosition: {
+        x: typeof cropPosition?.x === "number" ? Math.max(0, Math.min(100, cropPosition.x)) : 50,
+        y: typeof cropPosition?.y === "number" ? Math.max(0, Math.min(100, cropPosition.y)) : 50,
+        zoom: typeof cropPosition?.zoom === "number" ? Math.max(1, Math.min(3, cropPosition.zoom)) : 1,
+      },
     });
 
     return NextResponse.json(

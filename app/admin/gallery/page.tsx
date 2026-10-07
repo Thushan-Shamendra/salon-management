@@ -5,6 +5,7 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import EmptyState from "@/components/admin/EmptyState";
 import ImageUpload from "@/components/ui/ImageUpload";
+import ImageCropAdjuster, { CropPosition } from "@/components/admin/ImageCropAdjuster";
 import { CLOUDINARY_FOLDERS } from "@/lib/cloudinary-constants";
 import {
   ImageIcon,
@@ -31,6 +32,7 @@ interface GalleryPhoto {
   isActive: boolean;
   isFeatured: boolean;
   displayOrder: number;
+  cropPosition?: CropPosition;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -45,6 +47,7 @@ interface GalleryFormState {
   isActive: boolean;
   isFeatured: boolean;
   displayOrder: string;
+  cropPosition: CropPosition;
 }
 
 const PRESET_CATEGORIES = [
@@ -69,6 +72,11 @@ const emptyForm: GalleryFormState = {
   isActive: true,
   isFeatured: false,
   displayOrder: "0",
+  cropPosition: {
+    x: 50,
+    y: 50,
+    zoom: 1,
+  },
 };
 
 export default function AdminGalleryPage() {
@@ -251,6 +259,13 @@ export default function AdminGalleryPage() {
       isActive: photo.isActive,
       isFeatured: photo.isFeatured,
       displayOrder: String(photo.displayOrder ?? 0),
+      cropPosition: photo.cropPosition
+        ? {
+            x: typeof photo.cropPosition.x === "number" ? photo.cropPosition.x : 50,
+            y: typeof photo.cropPosition.y === "number" ? photo.cropPosition.y : 50,
+            zoom: typeof photo.cropPosition.zoom === "number" ? photo.cropPosition.zoom : 1,
+          }
+        : { x: 50, y: 50, zoom: 1 },
     });
     setIsFormOpen(true);
   };
@@ -296,6 +311,7 @@ export default function AdminGalleryPage() {
         isActive: form.isActive,
         isFeatured: form.isFeatured,
         displayOrder: Number(form.displayOrder) || 0,
+        cropPosition: form.cropPosition,
       };
 
       const res = await fetch(url, {
@@ -740,12 +756,26 @@ export default function AdminGalleryPage() {
                       title="Click to preview full image"
                     >
                       {photo.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={photo.image}
-                          alt={photo.altText || photo.title}
-                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-103"
-                        />
+                        <div
+                          className="w-full h-full relative overflow-hidden"
+                          style={{
+                            transform:
+                              (photo.cropPosition?.zoom ?? 1) > 1
+                                ? `scale(${photo.cropPosition?.zoom})`
+                                : undefined,
+                            transformOrigin: `${photo.cropPosition?.x ?? 50}% ${photo.cropPosition?.y ?? 50}%`,
+                          }}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={photo.image}
+                            alt={photo.altText || photo.title}
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-103"
+                            style={{
+                              objectPosition: `${photo.cropPosition?.x ?? 50}% ${photo.cropPosition?.y ?? 50}%`,
+                            }}
+                          />
+                        </div>
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-stone-300">
                           <ImageIcon className="h-12 w-12" />
@@ -921,10 +951,41 @@ export default function AdminGalleryPage() {
                         ...prev,
                         image: "",
                         imagePublicId: "",
+                        cropPosition: { x: 50, y: 50, zoom: 1 },
                       }));
                     }}
                   />
                 </div>
+
+                {/* Interactive Adjust Image Section */}
+                {form.image && (
+                  <div>
+                    <ImageCropAdjuster
+                      imageUrl={form.image}
+                      cropPosition={form.cropPosition}
+                      onChange={(newCrop) =>
+                        setForm((prev) => ({ ...prev, cropPosition: newCrop }))
+                      }
+                      isFeatured={form.isFeatured}
+                      category={form.category}
+                      title={form.title}
+                      onPreviewFull={() =>
+                        setPreviewPhoto({
+                          _id: editingId || "temp-preview",
+                          title: form.title || "Full Image Preview",
+                          category: form.category || "Gallery",
+                          description: form.description,
+                          image: form.image,
+                          imagePublicId: form.imagePublicId,
+                          isActive: form.isActive,
+                          isFeatured: form.isFeatured,
+                          displayOrder: Number(form.displayOrder) || 0,
+                          cropPosition: form.cropPosition,
+                        })
+                      }
+                    />
+                  </div>
+                )}
 
                 {/* Title */}
                 <div>

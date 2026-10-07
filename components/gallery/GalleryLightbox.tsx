@@ -19,6 +19,11 @@ export interface GalleryPhotoItem {
   isActive: boolean;
   isFeatured: boolean;
   displayOrder: number;
+  cropPosition?: {
+    x: number;
+    y: number;
+    zoom: number;
+  };
 }
 
 interface GalleryLightboxProps {
