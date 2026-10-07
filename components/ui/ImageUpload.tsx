@@ -221,7 +221,7 @@ export default function ImageUpload({
                       type="button"
                       onClick={() => open()}
                       disabled={isButtonDisabled}
-                      className="inline-flex items-center gap-2 rounded-xl bg-[#1C1917] px-4 py-2.5 text-xs sm:text-sm font-medium text-white shadow-xs transition hover:bg-[#B7925A] focus:outline-none focus:ring-2 focus:ring-[#B7925A]/50 disabled:opacity-50"
+                      className="inline-flex items-center gap-2 rounded-xl bg-[#1C1917] px-4 py-2.5 text-xs sm:text-sm font-medium text-white shadow-xs transition hover:bg-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/50 disabled:opacity-50"
                     >
                       <CameraIcon className="h-4 w-4" />
                       <span>{hasImage ? "Replace Photo" : "Upload Profile Photo"}</span>
@@ -252,7 +252,7 @@ export default function ImageUpload({
             <div className="space-y-3">
               {hasImage ? (
                 /* Preview State with Replace & Delete buttons */
-                <div className="relative overflow-hidden rounded-2xl border border-stone-200 bg-[#FAF7F2] p-3 shadow-xs transition hover:border-[#B7925A]/60">
+                <div className="relative overflow-hidden rounded-2xl border border-stone-200 bg-[#FAF7F2] p-3 shadow-xs transition hover:border-[#7C3AED]/60">
                   <div className="flex flex-col sm:flex-row items-center gap-4">
                     {/* Thumbnail */}
                     <div className="relative h-32 w-full sm:w-44 sm:h-28 shrink-0 overflow-hidden rounded-xl border border-stone-200/80 bg-stone-100">
@@ -281,7 +281,7 @@ export default function ImageUpload({
                           type="button"
                           onClick={() => open()}
                           disabled={isButtonDisabled}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 shadow-xs hover:border-[#B7925A] hover:text-[#B7925A] disabled:opacity-50 transition"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 shadow-xs hover:border-[#7C3AED] hover:text-[#7C3AED] disabled:opacity-50 transition"
                         >
                           <EditIcon className="h-3.5 w-3.5" />
                           <span>Replace Image</span>
@@ -306,13 +306,13 @@ export default function ImageUpload({
                   type="button"
                   onClick={() => open()}
                   disabled={isButtonDisabled}
-                  className="group relative flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 bg-[#FAF7F2]/50 p-6 sm:p-8 text-center transition hover:border-[#B7925A] hover:bg-[#FAF7F2] focus:outline-none focus:ring-2 focus:ring-[#B7925A]/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group relative flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 bg-[#FAF7F2]/50 p-6 sm:p-8 text-center transition hover:border-[#7C3AED] hover:bg-[#FAF7F2] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/30 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-xs border border-stone-200 transition group-hover:scale-110 group-hover:border-[#B7925A]/50">
-                    <UploadCloudIcon className="h-6 w-6 text-stone-500 group-hover:text-[#B7925A] transition" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-xs border border-stone-200 transition group-hover:scale-110 group-hover:border-[#7C3AED]/50">
+                    <UploadCloudIcon className="h-6 w-6 text-stone-500 group-hover:text-[#7C3AED] transition" />
                   </div>
 
-                  <p className="mt-3 text-xs sm:text-sm font-semibold text-stone-800 group-hover:text-[#B7925A] transition">
+                  <p className="mt-3 text-xs sm:text-sm font-semibold text-stone-800 group-hover:text-[#7C3AED] transition">
                     {widgetLoading
                       ? "Loading Uploader..."
                       : isUploading
