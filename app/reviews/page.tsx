@@ -1,153 +1,61 @@
 import React from "react";
+import type { Metadata } from "next";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import GoogleReviewsSection from "@/components/reviews/GoogleReviewsSection";
-import { StarIcon, CheckIcon } from "@/components/ui/icons";
+import ReviewsHero from "@/components/reviews/ReviewsHero";
+import GoogleReviewsGrid from "@/components/reviews/GoogleReviewsGrid";
+import TrustSection from "@/components/reviews/TrustSection";
+import BookingCTA from "@/components/home/BookingCTA";
+import { connectDB } from "@/lib/mongodb";
+import SalonSettings from "@/models/SalonSettings";
 
-export const metadata = {
-  title: "Client Reviews & Testimonials | Lumina Salon",
-  description: "Read real client reviews and ratings for Lumina Salon hair and beauty services.",
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Client Reviews | INVORA Salon",
+  description:
+    "Read real Google client reviews and feedback from guests who have experienced salon services at Invora.",
 };
 
-const APPROVED_REVIEWS = [
-  {
-    id: "rev-1",
-    author: "Kavindi Wickramasinghe",
-    rating: 5,
-    service: "Keratin Treatment & Cut",
-    date: "March 2026",
-    initials: "KW",
-    comment:
-      "The best salon experience in Colombo hands down. My stylist took the time to assess my hair texture before recommending a tailored treatment. My hair has never felt so silky and manageable!",
-  },
-  {
-    id: "rev-2",
-    author: "Roshini Senanayake",
-    rating: 5,
-    service: "Hydra Glow Facial",
-    date: "February 2026",
-    initials: "RS",
-    comment:
-      "Such a calming oasis. The private aesthetic suites and gentle facial techniques made my skin radiate instantly for my sister's engagement. Truly personalized and hygienic care.",
-  },
-  {
-    id: "rev-3",
-    author: "Tariq Mansoor",
-    rating: 5,
-    service: "Executive Haircut & Scalp Spa",
-    date: "March 2026",
-    initials: "TM",
-    comment:
-      "Precision haircut and an exceptionally relaxing scalp therapy. Professional hospitality from the moment you step through the doors. The online booking process was super smooth.",
-  },
-  {
-    id: "rev-4",
-    author: "Shenali Perera",
-    rating: 5,
-    service: "Honey Balayage & Gloss",
-    date: "March 2026",
-    initials: "SP",
-    comment:
-      "Transformed my dark hair into a vibrant warm dimensional balayage with zero breakage. The attention to detail was exceptional.",
-  },
-];
+async function getBookingUrl(): Promise<string> {
+  try {
+    await connectDB();
+    const settings = await SalonSettings.findOne().lean();
+    return settings?.externalSystem?.bookingUrl || "";
+  } catch (error) {
+    console.error("Failed to load booking URL for Reviews page:", error);
+    return "";
+  }
+}
 
-export default function ReviewsPage() {
+export default async function ReviewsPage() {
+  const bookingUrl = await getBookingUrl();
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1C1917]">
+    <div className="min-h-screen flex flex-col bg-white text-stone-900 selection:bg-purple-100 selection:text-[#7C3AED]">
+      {/* 1. Navbar */}
       <Navbar />
 
-      <main className="flex-1 py-12 md:py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-stone-200/80 pb-8">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#B7925A]/30 bg-white px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#B7925A] mb-3">
-                <StarIcon className="h-3.5 w-3.5" />
-                <span>Verified Client Feedback</span>
-              </div>
-              <h1 className="font-serif text-3xl sm:text-4xl font-normal text-stone-900 tracking-tight">
-                Guest Reviews & Testimonials
-              </h1>
-              <p className="mt-2 text-xs sm:text-sm text-[#78716C] leading-relaxed">
-                Discover firsthand experiences from our salon guests. Every review reflects our dedication to artisanal craftsmanship and personalized wellness.
-              </p>
-            </div>
+      <main className="flex-1">
+        {/* 2. Reviews Hero */}
+        <ReviewsHero />
 
-            {/* Scorecard Pill */}
-            <div className="rounded-2xl border border-[#B7925A]/25 bg-white p-4 sm:p-5 shadow-xs flex items-center gap-4 shrink-0">
-              <span className="font-serif text-3xl sm:text-4xl font-bold text-stone-900">
-                4.9
-              </span>
-              <div>
-                <div className="flex items-center gap-1 text-[#B7925A]">
-                  {[...Array(5)].map((_, i) => (
-                    <StarIcon key={i} className="h-3.5 w-3.5" />
-                  ))}
-                </div>
-                <p className="text-xs text-[#78716C] mt-0.5">320+ verified ratings</p>
-              </div>
-            </div>
-          </div>
+        {/* 3. Google Rating Summary & 4. Google Reviews Grid */}
+        <GoogleReviewsGrid />
 
-          {/* Google Reviews Section (Display-Only from Google Places API) */}
-          <GoogleReviewsSection />
+        {/* 5. Trust / Customer Experience Section */}
+        <TrustSection />
 
-          {/* Curated Client Testimonials Grid */}
-          <div className="mt-12">
-            <div className="mb-6">
-              <h2 className="font-serif text-xl sm:text-2xl font-normal text-stone-900">
-                Salon Guest Experiences
-              </h2>
-              <p className="text-xs sm:text-sm text-stone-500 mt-1">
-                Curated testimonials from our valued salon guests.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {APPROVED_REVIEWS.map((review) => (
-                <div
-                  key={review.id}
-                  className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-white p-6 sm:p-7 shadow-xs transition-all hover:border-[#B7925A]/40 hover:shadow-sm"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-1 text-[#B7925A]">
-                        {[...Array(review.rating)].map((_, i) => (
-                          <StarIcon key={i} className="h-3.5 w-3.5" />
-                        ))}
-                      </div>
-                      <span className="text-[11px] text-stone-400">{review.date}</span>
-                    </div>
-
-                    <p className="text-xs sm:text-sm text-stone-700 leading-relaxed italic">
-                      &ldquo;{review.comment}&rdquo;
-                    </p>
-                  </div>
-
-                  <div className="mt-5 pt-4 border-t border-stone-100 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FAF7F2] font-serif text-xs font-bold text-stone-900 border border-[#B7925A]/30">
-                        {review.initials}
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-stone-900">{review.author}</p>
-                        <p className="text-[11px] text-[#B7925A] font-medium">{review.service}</p>
-                      </div>
-                    </div>
-
-                    <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                      <CheckIcon className="h-3 w-3" />
-                      Verified
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        {/* 6. Booking CTA */}
+        <BookingCTA
+          tag="✦ READY FOR YOUR VISIT"
+          heading="Experience Invora for Yourself"
+          description="Choose your preferred service and continue to our salon booking system."
+          bookingUrl={bookingUrl}
+        />
       </main>
 
+      {/* 7. Footer */}
       <Footer />
     </div>
   );
