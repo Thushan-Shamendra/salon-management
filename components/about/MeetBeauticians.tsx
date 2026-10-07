@@ -8,7 +8,6 @@ import {
   BriefcaseIcon,
   InstagramIcon,
   FacebookIcon,
-  LinkedInIcon,
   SparklesIcon,
 } from "@/components/ui/icons";
 
@@ -128,35 +127,32 @@ export default function MeetBeauticians({ beauticians }: MeetBeauticiansProps) {
                   </p>
 
                   {/* Social Media Links */}
-                  <div className="pt-2 flex items-center justify-center sm:justify-start gap-2">
-                    <a
-                      href={person.facebook || "https://facebook.com"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`${person.name} Facebook`}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
-                    >
-                      <FacebookIcon className="h-4 w-4" />
-                    </a>
-                    <a
-                      href={person.instagram || "https://instagram.com"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`${person.name} Instagram`}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
-                    >
-                      <InstagramIcon className="h-4 w-4" />
-                    </a>
-                    <a
-                      href="https://linkedin.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`${person.name} LinkedIn`}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
-                    >
-                      <LinkedInIcon className="h-3.5 w-3.5" />
-                    </a>
-                  </div>
+                  {(person.facebook || person.instagram) ? (
+                    <div className="pt-2 flex items-center justify-center sm:justify-start gap-2">
+                      {person.facebook ? (
+                        <a
+                          href={person.facebook}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`${person.name} Facebook`}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
+                        >
+                          <FacebookIcon className="h-4 w-4" />
+                        </a>
+                      ) : null}
+                      {person.instagram ? (
+                        <a
+                          href={person.instagram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`${person.name} Instagram`}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
+                        >
+                          <InstagramIcon className="h-4 w-4" />
+                        </a>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -238,26 +234,32 @@ export default function MeetBeauticians({ beauticians }: MeetBeauticiansProps) {
             )}
 
             {/* Social Row */}
-            <div className="mt-3 flex items-center gap-1.5 pt-3 border-t border-stone-100">
-              <a
-                href={person.instagram || "https://instagram.com"}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${person.name} Instagram`}
-                className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
-              >
-                <InstagramIcon className="h-3.5 w-3.5" />
-              </a>
-              <a
-                href={person.facebook || "https://facebook.com"}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${person.name} Facebook`}
-                className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
-              >
-                <FacebookIcon className="h-3.5 w-3.5" />
-              </a>
-            </div>
+            {(person.instagram || person.facebook) ? (
+              <div className="mt-3 flex items-center gap-1.5 pt-3 border-t border-stone-100">
+                {person.instagram ? (
+                  <a
+                    href={person.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${person.name} Instagram`}
+                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
+                  >
+                    <InstagramIcon className="h-3.5 w-3.5" />
+                  </a>
+                ) : null}
+                {person.facebook ? (
+                  <a
+                    href={person.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${person.name} Facebook`}
+                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
+                  >
+                    <FacebookIcon className="h-3.5 w-3.5" />
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

@@ -202,26 +202,32 @@ export default function BeauticiansPreview() {
                         </span>
 
                         {/* Social Links */}
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <a
-                            href={person.instagram || "https://instagram.com"}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`${person.name} Instagram`}
-                            className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
-                          >
-                            <InstagramIcon className="h-3.5 w-3.5" />
-                          </a>
-                          <a
-                            href={person.facebook || "https://facebook.com"}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`${person.name} Facebook`}
-                            className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
-                          >
-                            <FacebookIcon className="h-3.5 w-3.5" />
-                          </a>
-                        </div>
+                        {(person.instagram || person.facebook) ? (
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {person.instagram ? (
+                              <a
+                                href={person.instagram}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={`${person.name} Instagram`}
+                                className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
+                              >
+                                <InstagramIcon className="h-3.5 w-3.5" />
+                              </a>
+                            ) : null}
+                            {person.facebook ? (
+                              <a
+                                href={person.facebook}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={`${person.name} Facebook`}
+                                className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
+                              >
+                                <FacebookIcon className="h-3.5 w-3.5" />
+                              </a>
+                            ) : null}
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   </div>

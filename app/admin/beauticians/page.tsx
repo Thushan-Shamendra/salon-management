@@ -18,8 +18,6 @@ import {
   SearchIcon,
   PlusIcon,
   XIcon,
-  InstagramIcon,
-  FacebookIcon,
   CheckCircleIcon,
   AlertCircleIcon,
 } from "@/components/ui/icons";
@@ -50,8 +48,6 @@ interface BeauticianFormState {
   experienceYears: string;
   image: string;
   imagePublicId: string;
-  instagram: string;
-  facebook: string;
   isActive: boolean;
   isFeatured: boolean;
   displayOrder: string;
@@ -77,8 +73,6 @@ const emptyForm: BeauticianFormState = {
   experienceYears: "",
   image: "",
   imagePublicId: "",
-  instagram: "",
-  facebook: "",
   isActive: true,
   isFeatured: false,
   displayOrder: "0",
@@ -245,8 +239,6 @@ export default function AdminBeauticiansPage() {
       experienceYears: String(b.experienceYears ?? 0),
       image: b.image,
       imagePublicId: b.imagePublicId,
-      instagram: b.instagram || "",
-      facebook: b.facebook || "",
       isActive: b.isActive,
       isFeatured: b.isFeatured,
       displayOrder: String(b.displayOrder ?? 0),
@@ -317,32 +309,6 @@ export default function AdminBeauticiansPage() {
       return;
     }
 
-    if (form.instagram.trim()) {
-      try {
-        const u = new URL(form.instagram.trim());
-        if (u.protocol !== "https:") throw new Error();
-      } catch {
-        showNotification(
-          "error",
-          "Instagram URL must be a valid https link (e.g. https://instagram.com/username)."
-        );
-        return;
-      }
-    }
-
-    if (form.facebook.trim()) {
-      try {
-        const u = new URL(form.facebook.trim());
-        if (u.protocol !== "https:") throw new Error();
-      } catch {
-        showNotification(
-          "error",
-          "Facebook URL must be a valid https link (e.g. https://facebook.com/username)."
-        );
-        return;
-      }
-    }
-
     setFormLoading(true);
 
     try {
@@ -359,8 +325,8 @@ export default function AdminBeauticiansPage() {
         experienceYears: Number(form.experienceYears) || 0,
         image: form.image,
         imagePublicId: form.imagePublicId,
-        instagram: form.instagram.trim(),
-        facebook: form.facebook.trim(),
+        instagram: "",
+        facebook: "",
         isActive: form.isActive,
         isFeatured: form.isFeatured,
         displayOrder: Number(form.displayOrder) || 0,
@@ -855,33 +821,6 @@ export default function AdminBeauticiansPage() {
                         </span>
                       </div>
 
-                      {/* Social Links */}
-                      {(b.instagram || b.facebook) && (
-                        <div className="flex items-center gap-2 pt-1">
-                          {b.instagram && (
-                            <a
-                              href={b.instagram}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex h-7 w-7 items-center justify-center rounded-lg bg-pink-50 text-pink-600 hover:bg-pink-100 transition-colors"
-                              title="View Instagram"
-                            >
-                              <InstagramIcon className="h-3.5 w-3.5" />
-                            </a>
-                          )}
-                          {b.facebook && (
-                            <a
-                              href={b.facebook}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
-                              title="View Facebook"
-                            >
-                              <FacebookIcon className="h-3.5 w-3.5" />
-                            </a>
-                          )}
-                        </div>
-                      )}
                     </div>
                   </div>
 
@@ -1146,44 +1085,6 @@ export default function AdminBeauticiansPage() {
                           + {preset}
                         </button>
                       ))}
-                  </div>
-                </div>
-
-                {/* Instagram URL */}
-                <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                    Instagram URL
-                  </label>
-                  <div className="relative">
-                    <InstagramIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-pink-500 pointer-events-none" />
-                    <input
-                      type="url"
-                      value={form.instagram}
-                      onChange={(e) =>
-                        setForm({ ...form, instagram: e.target.value })
-                      }
-                      placeholder="https://instagram.com/username"
-                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
-                    />
-                  </div>
-                </div>
-
-                {/* Facebook URL */}
-                <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                    Facebook URL
-                  </label>
-                  <div className="relative">
-                    <FacebookIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-600 pointer-events-none" />
-                    <input
-                      type="url"
-                      value={form.facebook}
-                      onChange={(e) =>
-                        setForm({ ...form, facebook: e.target.value })
-                      }
-                      placeholder="https://facebook.com/username"
-                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
-                    />
                   </div>
                 </div>
 
