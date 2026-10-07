@@ -1,23 +1,22 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import Image from "next/image";
+import React, { FormEvent, useEffect, useState, useMemo, useCallback } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
-import StatCard from "@/components/admin/StatCard";
-import StatusBadge from "@/components/admin/StatusBadge";
+import ConfirmModal from "@/components/admin/ConfirmModal";
 import EmptyState from "@/components/admin/EmptyState";
-import ImageUpload, { UploadResult } from "@/components/ui/ImageUpload";
+import ImageUpload from "@/components/ui/ImageUpload";
 import { CLOUDINARY_FOLDERS } from "@/lib/cloudinary-constants";
 import {
   ImageIcon,
-  PlusIcon,
-  SparklesIcon,
-  CheckCircleIcon,
-  EyeOffIcon,
+  StarIcon,
   EditIcon,
   TrashIcon,
+  EyeIcon,
+  EyeOffIcon,
   SearchIcon,
+  PlusIcon,
   XIcon,
+  CheckCircleIcon,
   AlertCircleIcon,
 } from "@/components/ui/icons";
 
@@ -33,13 +32,19 @@ interface GalleryPhoto {
   isFeatured: boolean;
   displayOrder: number;
   createdAt?: string;
+  updatedAt?: string;
 }
 
-interface GalleryStats {
-  totalPhotos: number;
-  activePhotos: number;
-  hiddenPhotos: number;
-  featuredPhotos: number;
+interface GalleryFormState {
+  title: string;
+  description: string;
+  category: string;
+  image: string;
+  imagePublicId: string;
+  altText: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  displayOrder: string;
 }
 
 const PRESET_CATEGORIES = [
@@ -49,210 +54,248 @@ const PRESET_CATEGORIES = [
   "Bridal",
   "Makeup",
   "Nails",
+  "Skin Care",
   "Salon Interior",
   "Special Events",
 ];
 
-const emptyFormData = {
+const emptyForm: GalleryFormState = {
   title: "",
   description: "",
   category: "Hair Styling",
-  customCategory: "",
   image: "",
   imagePublicId: "",
   altText: "",
   isActive: true,
   isFeatured: false,
-  displayOrder: 0,
+  displayOrder: "0",
 };
 
 export default function AdminGalleryPage() {
   const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
-  const [stats, setStats] = useState<GalleryStats>({
-    totalPhotos: 0,
-    activePhotos: 0,
-    hiddenPhotos: 0,
-    featuredPhotos: 0,
-  });
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [togglingId, setTogglingId] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [formLoading, setFormLoading] = useState(false);
+  const [form, setForm] = useState<GalleryFormState>(emptyForm);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
-  // Filter & Search states
+  // Search, filter, and sort state
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "hidden" | "featured">("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "hidden">("all");
+  const [featuredFilter, setFeaturedFilter] = useState<"all" | "featured" | "not-featured">("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"order" | "newest" | "oldest">("order");
 
-  // Modal states
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPhoto, setEditingPhoto] = useState<GalleryPhoto | null>(null);
-  const [formData, setFormData] = useState(emptyFormData);
-  const [formError, setFormError] = useState<string | null>(null);
+  // Toggle loading states
+  const [togglingStatusId, setTogglingStatusId] = useState<string | null>(null);
+  const [togglingFeaturedId, setTogglingFeaturedId] = useState<string | null>(null);
 
-  // Reload gallery photos after actions
-  const reloadGallery = useCallback(async () => {
+  // Notification feedback
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
+  // Delete modal state
+  const [photoToDelete, setPhotoToDelete] = useState<GalleryPhoto | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Image Preview Lightbox modal state
+  const [previewPhoto, setPreviewPhoto] = useState<GalleryPhoto | null>(null);
+
+  const showNotification = (type: "success" | "error", message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => {
+      setNotification(null);
+    }, 4000);
+  };
+
+  const loadGallery = useCallback(async () => {
     try {
-      setLoading(true);
       const res = await fetch("/api/admin/gallery");
       const data = await res.json();
-
       if (res.ok && data.success) {
         setPhotos(data.photos || []);
-        if (data.stats) {
-          setStats(data.stats);
-        }
       } else {
-        setErrorMessage(data.message || "Failed to load gallery photos");
+        showNotification("error", data.message || "Failed to load gallery photos");
       }
-    } catch (err) {
-      console.error("Failed to reload gallery:", err);
-      setErrorMessage("Network error: Unable to load gallery items.");
+    } catch {
+      showNotification("error", "Network error loading gallery photos");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Initial load
   useEffect(() => {
     let isMounted = true;
-    fetch("/api/admin/gallery")
-      .then((res) => res.json())
-      .then((data) => {
-        if (!isMounted) return;
-        if (data.success) {
+    async function init() {
+      try {
+        const res = await fetch("/api/admin/gallery");
+        const data = await res.json();
+        if (isMounted && res.ok && data.success) {
           setPhotos(data.photos || []);
-          if (data.stats) setStats(data.stats);
-        } else {
-          setErrorMessage(data.message || "Failed to load gallery photos");
+        } else if (isMounted) {
+          showNotification("error", data.message || "Failed to load gallery photos");
         }
-      })
-      .catch((err) => {
-        console.error("Initial gallery load error:", err);
-        if (isMounted) setErrorMessage("Network error: Unable to load gallery items.");
-      })
-      .finally(() => {
+      } catch {
+        if (isMounted) showNotification("error", "Network error loading gallery photos");
+      } finally {
         if (isMounted) setLoading(false);
-      });
-
+      }
+    }
+    init();
     return () => {
       isMounted = false;
     };
   }, []);
 
-  // Open modal for Adding
-  const handleOpenAddModal = () => {
-    setEditingPhoto(null);
-    setFormData(emptyFormData);
-    setFormError(null);
-    setIsModalOpen(true);
+  // Stats calculation from real database records
+  const stats = useMemo(() => {
+    const totalPhotos = photos.length;
+    const activePhotos = photos.filter((p) => p.isActive).length;
+    const hiddenPhotos = photos.filter((p) => !p.isActive).length;
+    const featuredPhotos = photos.filter((p) => p.isFeatured).length;
+
+    return { totalPhotos, activePhotos, hiddenPhotos, featuredPhotos };
+  }, [photos]);
+
+  // Unique categories for filtering and suggestions
+  const dynamicCategories = useMemo(() => {
+    const set = new Set<string>();
+    photos.forEach((p) => {
+      if (p.category && p.category.trim()) {
+        set.add(p.category.trim());
+      }
+    });
+    return Array.from(set).sort();
+  }, [photos]);
+
+  const availableCategoryOptions = useMemo(() => {
+    const set = new Set<string>([...PRESET_CATEGORIES, ...dynamicCategories]);
+    return Array.from(set).sort();
+  }, [dynamicCategories]);
+
+  // Filtered and sorted photos
+  const filteredPhotos = useMemo(() => {
+    return photos
+      .filter((photo) => {
+        // Status filter
+        if (statusFilter === "active" && !photo.isActive) return false;
+        if (statusFilter === "hidden" && photo.isActive) return false;
+
+        // Featured filter
+        if (featuredFilter === "featured" && !photo.isFeatured) return false;
+        if (featuredFilter === "not-featured" && photo.isFeatured) return false;
+
+        // Category filter
+        if (categoryFilter !== "all" && photo.category.toLowerCase() !== categoryFilter.toLowerCase()) {
+          return false;
+        }
+
+        // Search query (title, description, category)
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase().trim();
+          const titleMatch = photo.title.toLowerCase().includes(q);
+          const descMatch = (photo.description || "").toLowerCase().includes(q);
+          const catMatch = photo.category.toLowerCase().includes(q);
+          return titleMatch || descMatch || catMatch;
+        }
+
+        return true;
+      })
+      .sort((a, b) => {
+        if (sortBy === "order") {
+          const orderDiff = (a.displayOrder ?? 0) - (b.displayOrder ?? 0);
+          if (orderDiff !== 0) return orderDiff;
+          return (
+            new Date(b.createdAt || 0).getTime() -
+            new Date(a.createdAt || 0).getTime()
+          );
+        }
+        if (sortBy === "newest") {
+          return (
+            new Date(b.createdAt || 0).getTime() -
+            new Date(a.createdAt || 0).getTime()
+          );
+        }
+        if (sortBy === "oldest") {
+          return (
+            new Date(a.createdAt || 0).getTime() -
+            new Date(b.createdAt || 0).getTime()
+          );
+        }
+        return 0;
+      });
+  }, [photos, statusFilter, featuredFilter, categoryFilter, searchQuery, sortBy]);
+
+  // Open Form for Create
+  const handleOpenCreateForm = () => {
+    setEditingId(null);
+    setForm({
+      ...emptyForm,
+      displayOrder: String(photos.length + 1),
+    });
+    setIsFormOpen(true);
   };
 
-  // Open modal for Editing
-  const handleOpenEditModal = (photo: GalleryPhoto) => {
-    setEditingPhoto(photo);
-    const isPreset = PRESET_CATEGORIES.includes(photo.category);
-    setFormData({
+  // Open Form for Edit
+  const handleOpenEditForm = (photo: GalleryPhoto) => {
+    setEditingId(photo._id);
+    setForm({
       title: photo.title,
       description: photo.description || "",
-      category: isPreset ? photo.category : "Custom",
-      customCategory: isPreset ? "" : photo.category,
+      category: photo.category,
       image: photo.image,
       imagePublicId: photo.imagePublicId,
       altText: photo.altText || "",
       isActive: photo.isActive,
       isFeatured: photo.isFeatured,
-      displayOrder: photo.displayOrder,
+      displayOrder: String(photo.displayOrder ?? 0),
     });
-    setFormError(null);
-    setIsModalOpen(true);
+    setIsFormOpen(true);
   };
 
-  const handleCloseModal = () => {
-    if (saving) return;
-    setIsModalOpen(false);
-    setEditingPhoto(null);
-    setFormError(null);
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setEditingId(null);
+    setForm(emptyForm);
   };
 
-  // Form input changes
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type } = e.target;
-    if (type === "checkbox") {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData((prev) => ({ ...prev, [name]: checked }));
-    } else if (name === "displayOrder") {
-      setFormData((prev) => ({ ...prev, [name]: Number(value) || 0 }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  // Image upload callback from ImageUpload component
-  const handleImageUploaded = (result: UploadResult) => {
-    setFormData((prev) => ({
-      ...prev,
-      image: result.url,
-      imagePublicId: result.publicId,
-    }));
-    setFormError(null);
-  };
-
-  const handleImageRemoved = () => {
-    setFormData((prev) => ({
-      ...prev,
-      image: "",
-      imagePublicId: "",
-    }));
-  };
-
-  // Submit Add or Edit Form
-  const handleSubmitForm = async (e: React.FormEvent) => {
+  // Submit Add / Edit
+  const handleSubmitForm = async (e: FormEvent) => {
     e.preventDefault();
-    setFormError(null);
 
-    // Validation
-    if (!formData.image || !formData.imagePublicId) {
-      setFormError("Please upload a photo to continue.");
+    if (!form.image || !form.imagePublicId) {
+      showNotification("error", "Gallery image is required. Please upload a photo.");
+      return;
+    }
+    if (!form.title.trim()) {
+      showNotification("error", "Photo title is required.");
+      return;
+    }
+    if (!form.category.trim()) {
+      showNotification("error", "Category is required.");
       return;
     }
 
-    if (!formData.title.trim()) {
-      setFormError("Title is required.");
-      return;
-    }
-
-    const finalCategory =
-      formData.category === "Custom"
-        ? formData.customCategory.trim()
-        : formData.category.trim();
-
-    if (!finalCategory) {
-      setFormError("Please select or enter a category.");
-      return;
-    }
+    setFormLoading(true);
 
     try {
-      setSaving(true);
-      const url = editingPhoto
-        ? `/api/admin/gallery/${editingPhoto._id}`
+      const url = editingId
+        ? `/api/admin/gallery/${editingId}`
         : "/api/admin/gallery";
-      const method = editingPhoto ? "PATCH" : "POST";
+      const method = editingId ? "PATCH" : "POST";
 
       const payload = {
-        title: formData.title.trim(),
-        description: formData.description.trim(),
-        category: finalCategory,
-        image: formData.image,
-        imagePublicId: formData.imagePublicId,
-        altText: formData.altText.trim(),
-        isActive: formData.isActive,
-        isFeatured: formData.isFeatured,
-        displayOrder: formData.displayOrder,
+        title: form.title.trim(),
+        description: form.description.trim(),
+        category: form.category.trim(),
+        image: form.image,
+        imagePublicId: form.imagePublicId,
+        altText: form.altText.trim() || form.title.trim(),
+        isActive: form.isActive,
+        isFeatured: form.isFeatured,
+        displayOrder: Number(form.displayOrder) || 0,
       };
 
       const res = await fetch(url, {
@@ -263,647 +306,888 @@ export default function AdminGalleryPage() {
 
       const data = await res.json();
 
-      if (res.ok && data.success) {
-        setSuccessMessage(
-          editingPhoto
-            ? "Gallery photo updated successfully!"
-            : "Gallery photo added successfully!"
-        );
-        setTimeout(() => setSuccessMessage(null), 4000);
-        setIsModalOpen(false);
-        await reloadGallery();
-      } else {
-        setFormError(data.message || "Failed to save photo.");
+      if (!res.ok || !data.success) {
+        showNotification("error", data.message || "Failed to save photo");
+        return;
       }
-    } catch (err) {
-      console.error("Save gallery error:", err);
-      setFormError("An unexpected error occurred while saving.");
+
+      showNotification(
+        "success",
+        editingId ? "Photo updated successfully." : "Photo added successfully."
+      );
+
+      handleCloseForm();
+      await loadGallery();
+    } catch {
+      showNotification("error", "Network error saving gallery photo");
     } finally {
-      setSaving(false);
+      setFormLoading(false);
     }
   };
 
-  // Quick Toggle Active/Hidden Status
+  // Toggle Active / Hidden Status
   const handleToggleStatus = async (photo: GalleryPhoto) => {
     try {
-      setTogglingId(photo._id);
+      setTogglingStatusId(photo._id);
       const res = await fetch(`/api/admin/gallery/${photo._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isActive: !photo.isActive }),
       });
-      const data = await res.json();
 
+      const data = await res.json();
       if (res.ok && data.success) {
+        showNotification(
+          "success",
+          photo.isActive ? "Photo hidden." : "Photo published."
+        );
         setPhotos((prev) =>
-          prev.map((p) =>
-            p._id === photo._id ? { ...p, isActive: !photo.isActive } : p
+          prev.map((item) =>
+            item._id === photo._id ? { ...item, isActive: !item.isActive } : item
           )
         );
-        setStats((prev) => ({
-          ...prev,
-          activePhotos: photo.isActive ? prev.activePhotos - 1 : prev.activePhotos + 1,
-          hiddenPhotos: photo.isActive ? prev.hiddenPhotos + 1 : prev.hiddenPhotos - 1,
-        }));
       } else {
-        setErrorMessage(data.message || "Failed to update photo status.");
+        showNotification("error", data.message || "Failed to update photo status");
       }
     } catch {
-      setErrorMessage("Network error: Failed to toggle photo status.");
+      showNotification("error", "Network error updating photo status");
     } finally {
-      setTogglingId(null);
+      setTogglingStatusId(null);
     }
   };
 
-  // Delete Gallery Item
-  const handleDeletePhoto = async (photo: GalleryPhoto) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to permanently delete "${photo.title}"? This will also remove the image from Cloudinary.`
-    );
-    if (!confirmed) return;
+  // Toggle Featured Status
+  const handleToggleFeatured = async (photo: GalleryPhoto) => {
+    try {
+      setTogglingFeaturedId(photo._id);
+      const res = await fetch(`/api/admin/gallery/${photo._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isFeatured: !photo.isFeatured }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showNotification(
+          "success",
+          photo.isFeatured ? "Photo removed from featured." : "Photo featured."
+        );
+        setPhotos((prev) =>
+          prev.map((item) =>
+            item._id === photo._id ? { ...item, isFeatured: !item.isFeatured } : item
+          )
+        );
+      } else {
+        showNotification("error", data.message || "Failed to update featured state");
+      }
+    } catch {
+      showNotification("error", "Network error updating featured state");
+    } finally {
+      setTogglingFeaturedId(null);
+    }
+  };
+
+  // Delete Action via ConfirmModal
+  const handleExecuteDelete = async () => {
+    if (!photoToDelete) return;
 
     try {
-      setDeletingId(photo._id);
-      const res = await fetch(`/api/admin/gallery/${photo._id}`, {
+      setIsDeleting(true);
+      const res = await fetch(`/api/admin/gallery/${photoToDelete._id}`, {
         method: "DELETE",
       });
+
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setSuccessMessage("Gallery photo deleted successfully.");
-        setTimeout(() => setSuccessMessage(null), 3000);
-        await reloadGallery();
+        showNotification("success", "Photo deleted successfully.");
+        setPhotos((prev) => prev.filter((item) => item._id !== photoToDelete._id));
+        setPhotoToDelete(null);
+
+        if (editingId === photoToDelete._id) {
+          handleCloseForm();
+        }
       } else {
-        setErrorMessage(data.message || "Failed to delete gallery photo.");
+        showNotification("error", data.message || "Failed to delete photo");
       }
     } catch {
-      setErrorMessage("Network error: Failed to delete gallery photo.");
+      showNotification("error", "Network error deleting photo");
     } finally {
-      setDeletingId(null);
+      setIsDeleting(false);
     }
   };
 
-  // Unique categories for filtering
-  const existingCategories = useMemo(() => {
-    const set = new Set<string>();
-    photos.forEach((p) => {
-      if (p.category) set.add(p.category);
-    });
-    return Array.from(set);
-  }, [photos]);
-
-  // Filtered Photos for Management Grid
-  const filteredPhotos = useMemo(() => {
-    return photos.filter((photo) => {
-      // Search
-      const matchesSearch =
-        searchQuery.trim() === "" ||
-        photo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        photo.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (photo.description &&
-          photo.description.toLowerCase().includes(searchQuery.toLowerCase()));
-
-      // Status
-      let matchesStatus = true;
-      if (statusFilter === "active") matchesStatus = photo.isActive;
-      if (statusFilter === "hidden") matchesStatus = !photo.isActive;
-      if (statusFilter === "featured") matchesStatus = photo.isFeatured;
-
-      // Category
-      const matchesCategory =
-        categoryFilter === "all" ||
-        photo.category.toLowerCase() === categoryFilter.toLowerCase();
-
-      return matchesSearch && matchesStatus && matchesCategory;
-    });
-  }, [photos, searchQuery, statusFilter, categoryFilter]);
-
   return (
-    <div className="space-y-8 animate-fadeIn pb-12">
-      {/* Header */}
+    <div className="space-y-8">
+      {/* ========================================================== */}
+      {/* 1. HEADER & ACTIONS                                        */}
+      {/* ========================================================== */}
       <AdminPageHeader
-        title="Gallery Management"
-        description="Manage photos displayed on the public salon gallery."
+        title="Gallery"
+        description="Manage photos displayed on the INVORA website gallery."
         breadcrumbs={[{ label: "Gallery" }]}
         action={
           <button
             type="button"
-            onClick={handleOpenAddModal}
-            className="inline-flex items-center gap-2 rounded-xl bg-stone-900 px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-stone-800 transition focus:outline-none focus:ring-2 focus:ring-[#B7925A] border border-[#B7925A]/30"
+            onClick={handleOpenCreateForm}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#7C3AED] px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-xs transition-all hover:bg-[#6D28D9] hover:shadow-md cursor-pointer"
           >
-            <PlusIcon className="h-4 w-4 text-[#C5A46D]" />
+            <PlusIcon className="h-4 w-4" />
             <span>Add Photo</span>
           </button>
         }
       />
 
-      {/* Notifications */}
-      {successMessage && (
-        <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs sm:text-sm text-emerald-800 shadow-xs animate-fadeIn">
-          <CheckCircleIcon className="h-5 w-5 text-emerald-600 shrink-0" />
-          <span>{successMessage}</span>
+      {/* Floating Toast Notification */}
+      {notification && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`flex items-center gap-3 rounded-2xl border p-4 text-xs sm:text-sm font-medium shadow-md transition-all ${
+            notification.type === "success"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+              : "border-rose-200 bg-rose-50 text-rose-800"
+          }`}
+        >
+          {notification.type === "success" ? (
+            <CheckCircleIcon className="h-5 w-5 text-emerald-600 shrink-0" />
+          ) : (
+            <AlertCircleIcon className="h-5 w-5 text-rose-600 shrink-0" />
+          )}
+          <span className="flex-1">{notification.message}</span>
+          <button
+            type="button"
+            onClick={() => setNotification(null)}
+            className="p-1 hover:opacity-70 transition-opacity cursor-pointer"
+          >
+            <XIcon className="h-4 w-4" />
+          </button>
         </div>
       )}
 
-      {errorMessage && (
-        <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-xs sm:text-sm text-red-800 shadow-xs animate-fadeIn">
-          <AlertCircleIcon className="h-5 w-5 text-red-600 shrink-0" />
-          <span>{errorMessage}</span>
+      {/* ========================================================== */}
+      {/* 2. STATS ROW (4 CARDS MATCHING MOCKUP)                     */}
+      {/* ========================================================== */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
+        {/* Total Photos */}
+        <div className="flex items-center gap-4 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-xs">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-purple-50 text-[#7C3AED] border border-purple-100">
+            <ImageIcon className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-stone-500">Total Photos</p>
+            <p className="text-2xl font-extrabold text-stone-900 mt-0.5">
+              {loading ? "..." : stats.totalPhotos}
+            </p>
+            <p className="text-[11px] text-stone-400 mt-0.5">
+              All photos in database
+            </p>
+          </div>
         </div>
-      )}
 
-      {/* Section 16: Stat Cards (Real MongoDB data) */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Total Photos"
-          value={stats.totalPhotos}
-          description="All portfolio items in database"
-          icon={ImageIcon}
-        />
-        <StatCard
-          title="Active Photos"
-          value={stats.activePhotos}
-          description="Visible to public visitors"
-          icon={CheckCircleIcon}
-          badge="Live"
-        />
-        <StatCard
-          title="Hidden Photos"
-          value={stats.hiddenPhotos}
-          description="Draft or unpublished photos"
-          icon={EyeOffIcon}
-        />
-        <StatCard
-          title="Featured Photos"
-          value={stats.featuredPhotos}
-          description="Highlighted on public intro"
-          icon={SparklesIcon}
-          badge="Featured"
-        />
+        {/* Published Photos */}
+        <div className="flex items-center gap-4 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-xs">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100">
+            <span className="h-3 w-3 rounded-full bg-emerald-500" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-stone-500">Published Photos</p>
+            <p className="text-2xl font-extrabold text-stone-900 mt-0.5">
+              {loading ? "..." : stats.activePhotos}
+            </p>
+            <p className="text-[11px] text-stone-400 mt-0.5">
+              Currently visible on website
+            </p>
+          </div>
+        </div>
+
+        {/* Hidden Photos */}
+        <div className="flex items-center gap-4 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-xs">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-500 border border-rose-100">
+            <EyeOffIcon className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-stone-500">Hidden Photos</p>
+            <p className="text-2xl font-extrabold text-stone-900 mt-0.5">
+              {loading ? "..." : stats.hiddenPhotos}
+            </p>
+            <p className="text-[11px] text-stone-400 mt-0.5">
+              Not visible on website
+            </p>
+          </div>
+        </div>
+
+        {/* Featured Photos */}
+        <div className="flex items-center gap-4 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-xs">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-purple-50 text-[#7C3AED] border border-purple-100">
+            <StarIcon className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-stone-500">Featured Photos</p>
+            <p className="text-2xl font-extrabold text-stone-900 mt-0.5">
+              {loading ? "..." : stats.featuredPhotos}
+            </p>
+            <p className="text-[11px] text-stone-400 mt-0.5">
+              Marked as featured
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Search & Filter Controls */}
-      <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-xs space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
-        {/* Search Input */}
-        <div className="relative flex-1 max-w-md">
-          <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+      {/* ========================================================== */}
+      {/* 3. SEARCH & FILTER TOOLBAR (MATCHES MOCKUP)                */}
+      {/* ========================================================== */}
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 rounded-2xl border border-stone-200/90 bg-white p-4 shadow-xs">
+        {/* Search */}
+        <div className="relative flex-1 min-w-[240px]">
+          <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by title, category, description..."
-            className="w-full rounded-xl border border-stone-200 bg-[#FAF7F2] pl-10 pr-4 py-2 text-xs text-stone-900 placeholder:text-stone-400 focus:border-[#B7925A] focus:bg-white focus:outline-none"
+            placeholder="Search gallery photos by title, description or category..."
+            className="w-full rounded-xl border border-stone-200 bg-stone-50/70 pl-10 pr-4 py-2 text-xs sm:text-sm text-stone-800 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
           />
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* Status Filter */}
-          <select
-            value={statusFilter}
-            onChange={(e) =>
-              setStatusFilter(
-                e.target.value as "all" | "active" | "hidden" | "featured"
-              )
-            }
-            aria-label="Filter photos by status"
-            className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-700 hover:border-stone-300 focus:border-[#B7925A] focus:outline-none"
-          >
-            <option value="all">All Statuses</option>
-            <option value="active">Active Only</option>
-            <option value="hidden">Hidden Only</option>
-            <option value="featured">Featured Only</option>
-          </select>
+        {/* Filters and Sort */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Status Dropdown */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-stone-500 hidden sm:inline">
+              Status
+            </span>
+            <select
+              value={statusFilter}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as "all" | "active" | "hidden")
+              }
+              className="rounded-xl border border-stone-200 bg-stone-50/70 px-3.5 py-2 text-xs sm:text-sm font-medium text-stone-700 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20 cursor-pointer"
+            >
+              <option value="all">All Photos</option>
+              <option value="active">Published</option>
+              <option value="hidden">Hidden</option>
+            </select>
+          </div>
 
-          {/* Category Filter */}
-          {existingCategories.length > 0 && (
+          {/* Featured Dropdown */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-stone-500 hidden sm:inline">
+              Featured
+            </span>
+            <select
+              value={featuredFilter}
+              onChange={(e) =>
+                setFeaturedFilter(
+                  e.target.value as "all" | "featured" | "not-featured"
+                )
+              }
+              className="rounded-xl border border-stone-200 bg-stone-50/70 px-3.5 py-2 text-xs sm:text-sm font-medium text-stone-700 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20 cursor-pointer"
+            >
+              <option value="all">All Featured</option>
+              <option value="featured">Featured Only</option>
+              <option value="not-featured">Not Featured</option>
+            </select>
+          </div>
+
+          {/* Category Dropdown */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-stone-500 hidden sm:inline">
+              Category
+            </span>
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              aria-label="Filter photos by category"
-              className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-700 hover:border-stone-300 focus:border-[#B7925A] focus:outline-none"
+              className="rounded-xl border border-stone-200 bg-stone-50/70 px-3.5 py-2 text-xs sm:text-sm font-medium text-stone-700 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20 cursor-pointer"
             >
               <option value="all">All Categories</option>
-              {existingCategories.map((cat) => (
+              {availableCategoryOptions.map((cat) => (
                 <option key={cat} value={cat}>
                   {cat}
                 </option>
               ))}
             </select>
-          )}
+          </div>
 
-          {(searchQuery || statusFilter !== "all" || categoryFilter !== "all") && (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery("");
-                setStatusFilter("all");
-                setCategoryFilter("all");
-              }}
-              className="text-xs text-[#B7925A] hover:underline px-2 py-1 font-medium"
+          {/* Sort By Dropdown */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-stone-500 hidden sm:inline">
+              Sort By
+            </span>
+            <select
+              value={sortBy}
+              onChange={(e) =>
+                setSortBy(e.target.value as "order" | "newest" | "oldest")
+              }
+              className="rounded-xl border border-stone-200 bg-stone-50/70 px-3.5 py-2 text-xs sm:text-sm font-medium text-stone-700 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20 cursor-pointer"
             >
-              Reset Filters
-            </button>
-          )}
+              <option value="order">Display Order</option>
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* Gallery Photos Grid / Management Cards */}
-      {loading ? (
-        /* Loading Skeleton */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
+      {/* ========================================================== */}
+      {/* 4. MAIN CONTENT AREA: GALLERY GRID + ADD/EDIT PANEL        */}
+      {/* ========================================================== */}
+      <div
+        className={
+          isFormOpen
+            ? "grid grid-cols-1 lg:grid-cols-12 gap-7 items-start"
+            : "block"
+        }
+      >
+        {/* ======================================================== */}
+        {/* LEFT: PHOTOS GRID                                        */}
+        {/* ======================================================== */}
+        <div
+          className={
+            isFormOpen ? "lg:col-span-7 xl:col-span-8" : "w-full"
+          }
+        >
+          {loading ? (
+            /* Skeleton Loading Grid */
             <div
-              key={i}
-              className="animate-pulse rounded-2xl border border-stone-200 bg-white p-4 space-y-3"
+              className={`grid grid-cols-1 gap-5 ${
+                isFormOpen
+                  ? "sm:grid-cols-2 xl:grid-cols-3"
+                  : "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              }`}
             >
-              <div className="aspect-[4/3] w-full rounded-xl bg-stone-200" />
-              <div className="h-4 w-3/4 rounded bg-stone-200" />
-              <div className="h-3 w-1/2 rounded bg-stone-200" />
-              <div className="h-8 w-full rounded bg-stone-100" />
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div
+                  key={i}
+                  className="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-xs animate-pulse"
+                >
+                  <div className="h-44 w-full rounded-xl bg-stone-200" />
+                  <div className="mt-4 space-y-2">
+                    <div className="h-4 w-3/4 rounded bg-stone-200" />
+                    <div className="h-4 w-1/3 rounded bg-blue-100" />
+                    <div className="h-3 w-full rounded bg-stone-100" />
+                    <div className="mt-4 pt-3 border-t border-stone-100 flex gap-2">
+                      <div className="h-8 flex-1 rounded-lg bg-stone-100" />
+                      <div className="h-8 flex-1 rounded-lg bg-stone-100" />
+                      <div className="h-8 flex-1 rounded-lg bg-stone-100" />
+                      <div className="h-8 flex-1 rounded-lg bg-stone-100" />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      ) : photos.length === 0 ? (
-        /* Section 21: Admin gallery empty state */
-        <EmptyState
-          icon={ImageIcon}
-          title="No gallery photos yet."
-          description="Upload hair transformations, bridal styling, and beauty looks to showcase your salon's craftsmanship."
-          actionText="Add First Photo"
-          onAction={handleOpenAddModal}
-        />
-      ) : filteredPhotos.length === 0 ? (
-        /* No results matching filter */
-        <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-10 text-center">
-          <p className="font-serif text-base font-semibold text-stone-800">
-            No photos found matching your criteria.
-          </p>
-          <p className="mt-1 text-xs text-stone-500">
-            Try adjusting your search query or filter selection.
-          </p>
-        </div>
-      ) : (
-        /* Section 17: Gallery Management Grid */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPhotos.map((photo) => {
-            const isDeleting = deletingId === photo._id;
-            const isToggling = togglingId === photo._id;
-
-            return (
-              <div
-                key={photo._id}
-                className={`flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xs transition hover:border-[#B7925A]/60 hover:shadow-md ${
-                  !photo.isActive ? "opacity-80 bg-stone-50/50" : ""
-                }`}
-              >
-                <div>
-                  {/* Photo Preview Container */}
-                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-stone-100">
-                    <Image
-                      src={photo.image}
-                      alt={photo.altText || photo.title}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover"
-                    />
-
-                    {/* Top Badges */}
-                    <div className="absolute top-2.5 inset-x-2.5 flex items-center justify-between pointer-events-none">
-                      <div className="flex items-center gap-1.5 pointer-events-auto">
-                        <StatusBadge
-                          status={photo.isActive ? "active" : "hidden"}
-                          label={photo.isActive ? "Active" : "Hidden"}
+          ) : filteredPhotos.length === 0 ? (
+            /* Empty State */
+            <EmptyState
+              icon={ImageIcon}
+              title={
+                searchQuery ||
+                statusFilter !== "all" ||
+                featuredFilter !== "all" ||
+                categoryFilter !== "all"
+                  ? "No gallery photos found matching criteria"
+                  : "No gallery photos yet"
+              }
+              description={
+                searchQuery ||
+                statusFilter !== "all" ||
+                featuredFilter !== "all" ||
+                categoryFilter !== "all"
+                  ? "Try adjusting or clearing your search and filters to view photos."
+                  : "Upload your first salon photo to display it in the INVORA gallery."
+              }
+              actionText={
+                searchQuery ||
+                statusFilter !== "all" ||
+                featuredFilter !== "all" ||
+                categoryFilter !== "all"
+                  ? "Clear All Filters"
+                  : "+ Add Photo"
+              }
+              onAction={
+                searchQuery ||
+                statusFilter !== "all" ||
+                featuredFilter !== "all" ||
+                categoryFilter !== "all"
+                  ? () => {
+                      setSearchQuery("");
+                      setStatusFilter("all");
+                      setFeaturedFilter("all");
+                      setCategoryFilter("all");
+                    }
+                  : handleOpenCreateForm
+              }
+            />
+          ) : (
+            /* Gallery Photos Grid */
+            <div
+              className={`grid grid-cols-1 gap-5 ${
+                isFormOpen
+                  ? "sm:grid-cols-2 xl:grid-cols-3"
+                  : "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              }`}
+            >
+              {filteredPhotos.map((photo) => (
+                <div
+                  key={photo._id}
+                  className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-xs transition-all duration-200 hover:border-purple-200 hover:shadow-md"
+                >
+                  <div>
+                    {/* Card Photo Section */}
+                    <div
+                      onClick={() => setPreviewPhoto(photo)}
+                      className="relative h-44 sm:h-48 w-full overflow-hidden bg-stone-100 cursor-pointer"
+                      title="Click to preview full image"
+                    >
+                      {photo.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={photo.image}
+                          alt={photo.altText || photo.title}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-103"
                         />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-stone-300">
+                          <ImageIcon className="h-12 w-12" />
+                        </div>
+                      )}
+
+                      {/* Floating Badges on top-right */}
+                      <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5 pointer-events-none">
+                        {/* Published / Hidden Status Pill */}
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold shadow-xs backdrop-blur-xs ${
+                            photo.isActive
+                              ? "bg-white/95 text-emerald-700 border border-emerald-200/80"
+                              : "bg-white/95 text-stone-600 border border-stone-200/80"
+                          }`}
+                        >
+                          <span
+                            className={`h-2 w-2 rounded-full ${
+                              photo.isActive ? "bg-emerald-500" : "bg-stone-400"
+                            }`}
+                          />
+                          <span>{photo.isActive ? "Published" : "Hidden"}</span>
+                        </span>
+
+                        {/* Featured Pill */}
                         {photo.isFeatured && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/90 text-stone-950 px-2 py-0.5 text-[10px] font-bold shadow-xs">
-                            <SparklesIcon className="h-3 w-3" />
-                            Featured
+                          <span className="inline-flex items-center gap-1 rounded-full bg-[#7C3AED] text-white px-2.5 py-0.5 text-[11px] font-semibold shadow-xs">
+                            <StarIcon className="h-3 w-3 fill-current" />
+                            <span>Featured</span>
                           </span>
                         )}
                       </div>
+                    </div>
 
-                      <span className="rounded-full bg-black/60 backdrop-blur-xs text-white px-2 py-0.5 text-[10px] font-semibold border border-white/20">
-                        Order: {photo.displayOrder}
-                      </span>
+                    {/* Card Body */}
+                    <div className="p-4 sm:p-5 space-y-2.5">
+                      {/* Title and Display Order */}
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="text-sm sm:text-base font-bold text-stone-900 tracking-tight line-clamp-1">
+                          {photo.title}
+                        </h3>
+                        <span className="rounded-md bg-stone-100 px-2 py-0.5 text-xs font-bold text-stone-600 shrink-0">
+                          #{photo.displayOrder ?? 0}
+                        </span>
+                      </div>
+
+                      {/* Category Pill (Soft Blue Badge matching Mockup) */}
+                      <div>
+                        <span className="inline-block rounded-md bg-blue-50 text-blue-700 border border-blue-200/60 px-2.5 py-0.5 text-xs font-medium">
+                          {photo.category}
+                        </span>
+                      </div>
+
+                      {/* Description Preview */}
+                      <p className="text-xs text-stone-500 line-clamp-2 leading-relaxed min-h-[32px]">
+                        {photo.description || "No description provided."}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Photo Metadata */}
-                  <div className="p-4 space-y-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="rounded-md bg-[#FAF7F2] text-[#B7925A] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider border border-[#B7925A]/20">
-                        {photo.category}
-                      </span>
-                      {photo.altText && (
-                        <span
-                          className="text-[10px] text-stone-400 truncate max-w-[120px]"
-                          title={`Alt: ${photo.altText}`}
-                        >
-                          Alt: {photo.altText}
-                        </span>
-                      )}
+                  {/* Card Actions (Edit, Hide/Publish, Feature/Unfeature, Delete) */}
+                  <div className="p-4 sm:p-5 pt-0">
+                    <div className="grid grid-cols-4 gap-1.5 pt-3 border-t border-stone-100 text-xs font-semibold">
+                      {/* Edit Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEditForm(photo)}
+                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-purple-200 bg-purple-50/50 px-2 py-1.5 text-purple-700 hover:bg-purple-100/70 transition-all cursor-pointer"
+                      >
+                        <EditIcon className="h-3.5 w-3.5" />
+                        <span>Edit</span>
+                      </button>
+
+                      {/* Hide / Publish Toggle */}
+                      <button
+                        type="button"
+                        disabled={togglingStatusId === photo._id}
+                        onClick={() => handleToggleStatus(photo)}
+                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-stone-700 hover:bg-stone-50 transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {photo.isActive ? (
+                          <>
+                            <EyeOffIcon className="h-3.5 w-3.5" />
+                            <span>Hide</span>
+                          </>
+                        ) : (
+                          <>
+                            <EyeIcon className="h-3.5 w-3.5" />
+                            <span>Publish</span>
+                          </>
+                        )}
+                      </button>
+
+                      {/* Feature / Unfeature Toggle */}
+                      <button
+                        type="button"
+                        disabled={togglingFeaturedId === photo._id}
+                        onClick={() => handleToggleFeatured(photo)}
+                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-stone-700 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        <StarIcon
+                          className={`h-3.5 w-3.5 ${
+                            photo.isFeatured ? "fill-purple-600 text-purple-600" : ""
+                          }`}
+                        />
+                        <span>{photo.isFeatured ? "Unfeature" : "Feature"}</span>
+                      </button>
+
+                      {/* Delete Button */}
+                      <button
+                        type="button"
+                        onClick={() => setPhotoToDelete(photo)}
+                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-rose-200 bg-white px-2 py-1.5 text-rose-600 hover:bg-rose-50 hover:border-rose-300 transition-all cursor-pointer"
+                      >
+                        <TrashIcon className="h-3.5 w-3.5" />
+                        <span>Delete</span>
+                      </button>
                     </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-                    <h3 className="font-serif text-base font-bold text-stone-900 line-clamp-1">
-                      {photo.title}
-                    </h3>
+        {/* ======================================================== */}
+        {/* RIGHT: ADD / EDIT PHOTO PANEL (MATCHES MOCKUP)            */}
+        {/* ======================================================== */}
+        {isFormOpen && (
+          <div className="lg:col-span-5 xl:col-span-4 sticky top-24">
+            <div className="rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-md transition-all">
+              {/* Panel Header */}
+              <div className="flex items-start justify-between gap-3 border-b border-stone-100 pb-4">
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
+                    {editingId ? "Edit Photo" : "Add New Photo"}
+                  </h2>
+                  <p className="mt-0.5 text-xs text-stone-500">
+                    {editingId
+                      ? "Update this gallery photo information."
+                      : "Upload a new gallery photo to display on your website."}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCloseForm}
+                  className="rounded-lg p-1 text-stone-400 hover:bg-stone-100 hover:text-stone-700 transition-colors cursor-pointer"
+                  aria-label="Close form"
+                >
+                  <XIcon className="h-5 w-5" />
+                </button>
+              </div>
 
-                    {photo.description ? (
-                      <p className="text-xs text-stone-500 line-clamp-2 leading-relaxed">
-                        {photo.description}
-                      </p>
-                    ) : (
-                      <p className="text-xs text-stone-400 italic">
-                        No description provided.
-                      </p>
-                    )}
+              {/* Form Body */}
+              <form onSubmit={handleSubmitForm} className="mt-5 space-y-4">
+                {/* Gallery Image Upload */}
+                <div>
+                  <ImageUpload
+                    folder={CLOUDINARY_FOLDERS.GALLERY}
+                    value={form.image}
+                    publicId={form.imagePublicId}
+                    label="Gallery Image *"
+                    description="PNG, JPG, WebP (Max 5MB)"
+                    onChange={({ url, publicId }) => {
+                      setForm((prev) => ({
+                        ...prev,
+                        image: url,
+                        imagePublicId: publicId,
+                      }));
+                    }}
+                    onRemove={() => {
+                      setForm((prev) => ({
+                        ...prev,
+                        image: "",
+                        imagePublicId: "",
+                      }));
+                    }}
+                  />
+                </div>
+
+                {/* Title */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                    Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={120}
+                    value={form.title}
+                    onChange={(e) =>
+                      setForm({ ...form, title: e.target.value })
+                    }
+                    placeholder="e.g. Hair Spa Treatment"
+                    className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                    Description
+                  </label>
+                  <textarea
+                    rows={3}
+                    maxLength={500}
+                    value={form.description}
+                    onChange={(e) =>
+                      setForm({ ...form, description: e.target.value })
+                    }
+                    placeholder="Describe this photo..."
+                    className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20 resize-y"
+                  />
+                </div>
+
+                {/* Category with suggestions & custom entry */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                    Category <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      required
+                      list="category-suggestions"
+                      value={form.category}
+                      onChange={(e) =>
+                        setForm({ ...form, category: e.target.value })
+                      }
+                      placeholder="e.g. Hair Treatments"
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                    />
+                    <datalist id="category-suggestions">
+                      {availableCategoryOptions.map((cat) => (
+                        <option key={cat} value={cat} />
+                      ))}
+                    </datalist>
+                  </div>
+
+                  {/* Quick Suggestions Pills */}
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    <span className="text-[11px] text-stone-400 mr-0.5">Quick select:</span>
+                    {availableCategoryOptions.slice(0, 5).map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setForm((prev) => ({ ...prev, category: cat }))}
+                        className={`rounded-lg px-2 py-0.5 text-[11px] font-medium transition-colors cursor-pointer ${
+                          form.category === cat
+                            ? "bg-purple-100 text-purple-700 font-semibold"
+                            : "bg-stone-100 hover:bg-purple-50 hover:text-purple-700 text-stone-600"
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                {/* Actions Footer */}
-                <div className="p-4 pt-3 border-t border-stone-100 bg-[#FAF7F2]/40 flex items-center justify-between gap-2">
-                  {/* Enable / Disable Quick Toggle */}
+                {/* Display Order */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                    Display Order <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      value={form.displayOrder}
+                      onChange={(e) =>
+                        setForm({ ...form, displayOrder: e.target.value })
+                      }
+                      placeholder="e.g. 1"
+                      className="w-24 rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+                    />
+                    <span className="text-xs text-stone-500">
+                      Lower numbers appear first on the website
+                    </span>
+                  </div>
+                </div>
+
+                {/* Featured Photo Toggle Switch */}
+                <div className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50/60 p-3.5">
+                  <div>
+                    <p className="text-xs font-semibold text-stone-800">
+                      Featured Photo
+                    </p>
+                    <p className="text-[11px] text-stone-500">
+                      Show as featured in gallery
+                    </p>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => handleToggleStatus(photo)}
-                    disabled={isToggling}
-                    className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium transition ${
-                      photo.isActive
-                        ? "text-stone-600 hover:text-amber-700 hover:bg-amber-50"
-                        : "text-emerald-700 hover:bg-emerald-50"
-                    } disabled:opacity-50`}
+                    role="switch"
+                    aria-checked={form.isFeatured}
+                    onClick={() =>
+                      setForm((prev) => ({
+                        ...prev,
+                        isFeatured: !prev.isFeatured,
+                      }))
+                    }
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 ${
+                      form.isFeatured ? "bg-[#7C3AED]" : "bg-stone-300"
+                    }`}
                   >
-                    {photo.isActive ? "Hide" : "Publish"}
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                        form.isFeatured ? "translate-x-5" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Published Toggle Switch */}
+                <div className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50/60 p-3.5">
+                  <div>
+                    <p className="text-xs font-semibold text-stone-800">
+                      Published
+                    </p>
+                    <p className="text-[11px] text-stone-500">
+                      Show this photo on the website
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={form.isActive}
+                    onClick={() =>
+                      setForm((prev) => ({
+                        ...prev,
+                        isActive: !prev.isActive,
+                      }))
+                    }
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 ${
+                      form.isActive ? "bg-[#7C3AED]" : "bg-stone-300"
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                        form.isActive ? "translate-x-5" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Form Action Buttons */}
+                <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-100">
+                  <button
+                    type="button"
+                    onClick={handleCloseForm}
+                    className="rounded-xl border border-stone-200 px-4 py-2.5 text-xs sm:text-sm font-semibold text-stone-600 hover:bg-stone-50 transition-colors cursor-pointer"
+                  >
+                    Cancel
                   </button>
 
-                  <div className="flex items-center gap-1.5">
-                    {/* Edit Button */}
-                    <button
-                      type="button"
-                      onClick={() => handleOpenEditModal(photo)}
-                      className="inline-flex items-center gap-1 rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 shadow-xs hover:border-[#B7925A] hover:text-[#B7925A] transition"
-                    >
-                      <EditIcon className="h-3.5 w-3.5" />
-                      <span>Edit</span>
-                    </button>
-
-                    {/* Delete Button */}
-                    <button
-                      type="button"
-                      onClick={() => handleDeletePhoto(photo)}
-                      disabled={isDeleting}
-                      className="inline-flex items-center gap-1 rounded-lg border border-red-200 bg-white px-2.5 py-1.5 text-xs font-medium text-red-600 shadow-xs hover:bg-red-50 disabled:opacity-50 transition"
-                    >
-                      <TrashIcon className="h-3.5 w-3.5" />
-                      <span>{isDeleting ? "Deleting..." : "Delete"}</span>
-                    </button>
-                  </div>
+                  <button
+                    type="submit"
+                    disabled={formLoading}
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#7C3AED] px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-[#6D28D9] transition-all disabled:opacity-50 cursor-pointer"
+                  >
+                    {formLoading && (
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    )}
+                    <span>
+                      {editingId ? "Save Changes" : "Add Photo"}
+                    </span>
+                  </button>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
 
-      {/* ============================================================== */}
-      {/* SECTION 18 & 19 - ADD / EDIT PHOTO MODAL                       */}
-      {/* ============================================================== */}
-      {isModalOpen && (
+      {/* ========================================================== */}
+      {/* 5. CONFIRM DELETE MODAL                                    */}
+      {/* ========================================================== */}
+      <ConfirmModal
+        isOpen={!!photoToDelete}
+        onClose={() => !isDeleting && setPhotoToDelete(null)}
+        onConfirm={handleExecuteDelete}
+        title="Delete Gallery Photo?"
+        message="Are you sure you want to permanently delete this gallery photo? This action cannot be undone."
+        confirmText="Delete Photo"
+        cancelText="Cancel"
+        loading={isDeleting}
+        variant="danger"
+      />
+
+      {/* ========================================================== */}
+      {/* 6. IMAGE PREVIEW MODAL (LIGHTBOX)                          */}
+      {/* ========================================================== */}
+      {previewPhoto && (
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto animate-fadeIn"
+          onClick={() => setPreviewPhoto(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn cursor-zoom-out"
         >
-          <div className="relative w-full max-w-2xl my-8 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-2xl">
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-w-4xl max-h-[90vh] w-full overflow-hidden rounded-2xl bg-white shadow-2xl cursor-default flex flex-col"
+          >
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-stone-200 px-6 py-4 bg-[#FAF7F2]">
-              <div>
-                <h2 className="font-serif text-lg sm:text-xl font-bold text-stone-900">
-                  {editingPhoto ? "Edit Gallery Photo" : "Add Gallery Photo"}
-                </h2>
-                <p className="text-xs text-stone-500">
-                  {editingPhoto
-                    ? "Update metadata or replace the photo."
-                    : "Upload a new photo to the public salon portfolio."}
-                </p>
+            <div className="flex items-center justify-between p-4 border-b border-stone-100 bg-stone-50/50">
+              <div className="flex items-center gap-3">
+                <span className="rounded-md bg-blue-50 text-blue-700 border border-blue-200/60 px-2.5 py-0.5 text-xs font-medium">
+                  {previewPhoto.category}
+                </span>
+                <h3 className="text-sm font-bold text-stone-900 truncate">
+                  {previewPhoto.title}
+                </h3>
               </div>
-
               <button
                 type="button"
-                onClick={handleCloseModal}
-                disabled={saving}
-                aria-label="Close modal"
-                className="rounded-lg p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition"
+                onClick={() => setPreviewPhoto(null)}
+                className="rounded-lg p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition cursor-pointer"
+                aria-label="Close preview"
               >
                 <XIcon className="h-5 w-5" />
               </button>
             </div>
 
-            {/* Modal Body / Form */}
-            <form onSubmit={handleSubmitForm} className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
-              {formError && (
-                <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
-                  <AlertCircleIcon className="h-4 w-4 shrink-0 text-red-600" />
-                  <span>{formError}</span>
-                </div>
-              )}
+            {/* Modal Image Body */}
+            <div className="relative flex-1 bg-stone-950 flex items-center justify-center max-h-[70vh] p-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewPhoto.image}
+                alt={previewPhoto.title}
+                className="max-h-[68vh] w-auto max-w-full object-contain rounded-lg"
+              />
+            </div>
 
-              {/* 1. Image Upload (reusing ImageUpload with folder salon-management/gallery) */}
-              <div>
-                <ImageUpload
-                  folder={CLOUDINARY_FOLDERS.GALLERY}
-                  value={formData.image}
-                  publicId={formData.imagePublicId}
-                  onChange={handleImageUploaded}
-                  onRemove={handleImageRemoved}
-                  label="Photo Image *"
-                  description="High-resolution salon work photo (JPG, PNG, WEBP up to 5MB)"
-                />
-              </div>
-
-              {/* 2. Title & Category */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                    Title *
-                  </label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    required
-                    maxLength={120}
-                    placeholder="e.g. Balayage Caramel Transformation"
-                    className="w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:border-[#B7925A] focus:outline-none"
-                  />
-                  <p className="mt-1 text-[11px] text-stone-400 text-right">
-                    {formData.title.length}/120
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                    Category *
-                  </label>
-                  <select
-                    name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    className="w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 focus:border-[#B7925A] focus:outline-none"
-                  >
-                    {PRESET_CATEGORIES.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                    <option value="Custom">Custom Category...</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Custom Category Input if selected */}
-              {formData.category === "Custom" && (
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                    Custom Category Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="customCategory"
-                    value={formData.customCategory}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="e.g. Japanese Head Spa"
-                    className="w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:border-[#B7925A] focus:outline-none"
-                  />
-                </div>
-              )}
-
-              {/* 3. Description */}
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                  Description (Optional)
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows={3}
-                  maxLength={500}
-                  placeholder="Describe the treatment, coloring formulation, or styling techniques used..."
-                  className="w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:border-[#B7925A] focus:outline-none resize-none"
-                />
-                <p className="mt-1 text-[11px] text-stone-400 text-right">
-                  {formData.description.length}/500
+            {/* Modal Caption */}
+            {previewPhoto.description && (
+              <div className="p-4 bg-white border-t border-stone-100">
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  {previewPhoto.description}
                 </p>
               </div>
-
-              {/* 4. Alt Text & Display Order */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                    Alt Text (Accessibility)
-                  </label>
-                  <input
-                    type="text"
-                    name="altText"
-                    value={formData.altText}
-                    onChange={handleInputChange}
-                    maxLength={160}
-                    placeholder="e.g. Client showcasing shiny blonde highlights"
-                    className="w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:border-[#B7925A] focus:outline-none"
-                  />
-                  <p className="mt-1 text-[11px] text-stone-400 text-right">
-                    {formData.altText.length}/160
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-                    Display Order
-                  </label>
-                  <input
-                    type="number"
-                    name="displayOrder"
-                    value={formData.displayOrder}
-                    onChange={handleInputChange}
-                    min={0}
-                    step={1}
-                    className="w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 focus:border-[#B7925A] focus:outline-none"
-                  />
-                  <p className="mt-1 text-[11px] text-stone-400">
-                    Lower numbers appear first on the gallery.
-                  </p>
-                </div>
-              </div>
-
-              {/* 5. Toggles: Featured & Active */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                <label className="flex items-start gap-3 rounded-xl border border-stone-200 bg-[#FAF7F2] p-3.5 cursor-pointer hover:border-[#B7925A]/50 transition">
-                  <input
-                    type="checkbox"
-                    name="isFeatured"
-                    checked={formData.isFeatured}
-                    onChange={handleInputChange}
-                    className="mt-0.5 h-4 w-4 rounded border-stone-300 text-[#B7925A] focus:ring-[#B7925A]"
-                  />
-                  <div>
-                    <span className="block text-xs font-semibold text-stone-900">
-                      Mark as Featured
-                    </span>
-                    <span className="block text-[11px] text-stone-500">
-                      Eligible to be shown on the main gallery introduction highlight.
-                    </span>
-                  </div>
-                </label>
-
-                <label className="flex items-start gap-3 rounded-xl border border-stone-200 bg-[#FAF7F2] p-3.5 cursor-pointer hover:border-[#B7925A]/50 transition">
-                  <input
-                    type="checkbox"
-                    name="isActive"
-                    checked={formData.isActive}
-                    onChange={handleInputChange}
-                    className="mt-0.5 h-4 w-4 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
-                  />
-                  <div>
-                    <span className="block text-xs font-semibold text-stone-900">
-                      Publish to Gallery (Active)
-                    </span>
-                    <span className="block text-[11px] text-stone-500">
-                      When enabled, this photo is visible to public visitors.
-                    </span>
-                  </div>
-                </label>
-              </div>
-
-              {/* Modal Actions */}
-              <div className="pt-4 border-t border-stone-200 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  disabled={saving}
-                  className="rounded-xl border border-stone-300 bg-white px-5 py-2.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="inline-flex items-center gap-2 rounded-xl bg-stone-900 px-6 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-stone-800 transition disabled:opacity-50 border border-[#B7925A]/30"
-                >
-                  {saving
-                    ? editingPhoto
-                      ? "Updating Photo..."
-                      : "Adding Photo..."
-                    : editingPhoto
-                    ? "Update Photo"
-                    : "Add Photo"}
-                </button>
-              </div>
-            </form>
+            )}
           </div>
         </div>
       )}
