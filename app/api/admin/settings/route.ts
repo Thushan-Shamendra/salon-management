@@ -80,6 +80,7 @@ export async function PUT(request: Request) {
       address,
       openingHours,
       socialMedia,
+      externalSystem,
     } = body;
 
     // Validate logo URL if provided
@@ -211,6 +212,36 @@ export async function PUT(request: Request) {
           maxReviews !== undefined && !isNaN(Number(maxReviews))
             ? Math.min(5, Math.max(1, Number(maxReviews)))
             : currentGr.maxReviews || 5,
+      };
+    }
+
+    if (externalSystem !== undefined && typeof externalSystem === "object") {
+      const { loginUrl, registerUrl, bookingUrl } = externalSystem;
+      const urlEntries: [string, unknown][] = [
+        ["Customer Login URL", loginUrl],
+        ["Customer Registration URL", registerUrl],
+        ["Book Appointment URL", bookingUrl],
+      ];
+
+      for (const [fieldName, urlVal] of urlEntries) {
+        if (urlVal !== undefined && urlVal !== null && typeof urlVal === "string" && urlVal.trim() !== "") {
+          const trimmed = urlVal.trim();
+          if (!trimmed.startsWith("https://")) {
+            return NextResponse.json(
+              {
+                success: false,
+                message: `${fieldName} must be a valid https URL (e.g., https://...)`,
+              },
+              { status: 400 }
+            );
+          }
+        }
+      }
+
+      settings.externalSystem = {
+        loginUrl: typeof loginUrl === "string" ? loginUrl.trim() : "",
+        registerUrl: typeof registerUrl === "string" ? registerUrl.trim() : "",
+        bookingUrl: typeof bookingUrl === "string" ? bookingUrl.trim() : "",
       };
     }
 

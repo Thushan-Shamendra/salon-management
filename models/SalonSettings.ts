@@ -14,6 +14,12 @@ export interface IGoogleReviewsSettings {
   maxReviews: number;
 }
 
+export interface IExternalSystemSettings {
+  loginUrl: string;
+  registerUrl: string;
+  bookingUrl: string;
+}
+
 export interface ISalonSettings extends Document {
   salonName: string;
   logo: string;
@@ -32,6 +38,7 @@ export interface ISalonSettings extends Document {
     whatsapp: string;
   };
   googleReviews?: IGoogleReviewsSettings;
+  externalSystem?: IExternalSystemSettings;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -131,6 +138,23 @@ const SalonSettingsSchema = new Schema<ISalonSettings>(
         default: 5,
         min: [1, "Minimum reviews to display is 1"],
         max: [5, "Maximum reviews to display is 5"],
+      },
+    },
+    externalSystem: {
+      loginUrl: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      registerUrl: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      bookingUrl: {
+        type: String,
+        trim: true,
+        default: "",
       },
     },
   },

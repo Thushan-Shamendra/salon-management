@@ -6,10 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   ScissorsIcon,
   LayoutDashboardIcon,
-  CalendarIcon,
-  UserIcon,
-  MessageCircleIcon,
-  StarIcon,
   SettingsIcon,
   ExternalLinkIcon,
   LogOutIcon,
@@ -67,19 +63,9 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       exact: true,
     },
     {
-      name: "Appointments",
-      href: "/admin/appointments",
-      icon: CalendarIcon,
-    },
-    {
       name: "Services",
       href: "/admin/services",
       icon: ScissorsIcon,
-    },
-    {
-      name: "Customers",
-      href: "/admin/customers",
-      icon: UserIcon,
     },
     {
       name: "Beauticians",
@@ -90,16 +76,6 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       name: "Gallery",
       href: "/admin/gallery",
       icon: ImageIcon,
-    },
-    {
-      name: "Community",
-      href: "/admin/community",
-      icon: MessageCircleIcon,
-    },
-    {
-      name: "Reviews",
-      href: "/admin/reviews",
-      icon: StarIcon,
     },
     {
       name: "Website Settings",

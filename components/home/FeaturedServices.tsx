@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ServiceItem } from "@/types/service";
@@ -12,41 +12,36 @@ import {
   CalendarIcon,
 } from "@/components/ui/icons";
 
-export default function FeaturedServices() {
+interface FeaturedServicesProps {
+  bookingUrl?: string;
+}
+
+export default function FeaturedServices({ bookingUrl: propBookingUrl }: FeaturedServicesProps) {
   const [services, setServices] = useState<ServiceItem[]>([]);
+  const [fetchedBookingUrl, setFetchedBookingUrl] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [failedImageIds, setFailedImageIds] = useState<Record<string, boolean>>({});
+  const [reloadKey, setReloadKey] = useState<number>(0);
 
-  const fetchServices = useCallback(() => {
+  const bookingUrl = propBookingUrl || fetchedBookingUrl;
+
+  const retryFetch = () => {
     setLoading(true);
-    setError(null);
+    setReloadKey((k) => k + 1);
+  };
 
-    fetch("/api/services")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`Failed to load services (${res.status})`);
-        }
-        return res.json();
-      })
+  useEffect(() => {
+    if (propBookingUrl) return;
+    fetch("/api/settings")
+      .then((res) => res.json())
       .then((data) => {
-        if (data?.success && Array.isArray(data.services)) {
-          const activeServices = data.services
-            .filter((s: ServiceItem) => s.isActive !== false)
-            .slice(0, 6);
-          setServices(activeServices);
-        } else {
-          setServices([]);
+        if (data?.success && data?.settings?.externalSystem?.bookingUrl) {
+          setFetchedBookingUrl(data.settings.externalSystem.bookingUrl);
         }
       })
-      .catch((err: unknown) => {
-        console.error("Error fetching featured services:", err);
-        setError("Unable to load salon services at the moment.");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
+      .catch(() => {});
+  }, [propBookingUrl]);
 
   useEffect(() => {
     let isMounted = true;
@@ -83,7 +78,7 @@ export default function FeaturedServices() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [reloadKey]);
 
   const handleImageError = (serviceId: string) => {
     setFailedImageIds((prev) => ({ ...prev, [serviceId]: true }));
@@ -154,7 +149,7 @@ export default function FeaturedServices() {
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
                 type="button"
-                onClick={() => fetchServices()}
+                onClick={retryFetch}
                 className="w-full sm:w-auto rounded-full bg-[#1C1917] px-6 py-2.5 text-xs font-medium text-white hover:bg-stone-800 transition-colors"
               >
                 Try Again
@@ -259,13 +254,25 @@ export default function FeaturedServices() {
                       </span>
                     </div>
 
-                    <Link
-                      href={`/appointments?service=${service._id}`}
-                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#1C1917] py-2.5 text-xs sm:text-sm font-medium text-white transition-all hover:bg-stone-800 hover:shadow-xs active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] border border-[#B7925A]/30"
-                    >
-                      <CalendarIcon className="h-3.5 w-3.5 text-[#C5A46D]" />
-                      <span>Book Now</span>
-                    </Link>
+                    {bookingUrl ? (
+                      <a
+                        href={bookingUrl}
+                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#1C1917] py-2.5 text-xs sm:text-sm font-medium text-white transition-all hover:bg-stone-800 hover:shadow-xs active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] border border-[#B7925A]/30"
+                      >
+                        <CalendarIcon className="h-3.5 w-3.5 text-[#C5A46D]" />
+                        <span>Book Now</span>
+                      </a>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled
+                        title="Online booking link not yet configured"
+                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#1C1917]/60 py-2.5 text-xs sm:text-sm font-medium text-white/60 cursor-not-allowed border border-[#B7925A]/20"
+                      >
+                        <CalendarIcon className="h-3.5 w-3.5 text-[#C5A46D]/50" />
+                        <span>Book Now</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               );

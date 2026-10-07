@@ -9,7 +9,11 @@ import {
   ShieldCheckIcon,
 } from "@/components/ui/icons";
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  bookingUrl?: string;
+}
+
+export default function HeroSection({ bookingUrl = "" }: HeroSectionProps) {
   return (
     <section className="relative overflow-hidden bg-[#FAF7F2] py-16 md:py-24 lg:py-28">
       {/* Subtle Background Glow Accents */}
@@ -52,13 +56,25 @@ export default function HeroSection() {
             {/* Call to Actions */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
               {/* Primary: Book Appointment */}
-              <Link
-                href="/appointments"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-full bg-[#1C1917] px-8 py-3.5 text-sm font-medium text-white shadow-md shadow-stone-900/10 transition-all hover:bg-stone-800 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] border border-[#B7925A]/40"
-              >
-                <CalendarIcon className="h-4 w-4 text-[#C5A46D]" />
-                <span>Book Appointment</span>
-              </Link>
+              {bookingUrl ? (
+                <a
+                  href={bookingUrl}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-full bg-[#1C1917] px-8 py-3.5 text-sm font-medium text-white shadow-md shadow-stone-900/10 transition-all hover:bg-stone-800 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B7925A] border border-[#B7925A]/40"
+                >
+                  <CalendarIcon className="h-4 w-4 text-[#C5A46D]" />
+                  <span>Book Appointment</span>
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  title="Online booking link not yet configured"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-full bg-[#1C1917]/60 px-8 py-3.5 text-sm font-medium text-white/60 cursor-not-allowed border border-[#B7925A]/20"
+                >
+                  <CalendarIcon className="h-4 w-4 text-[#C5A46D]/50" />
+                  <span>Book Appointment</span>
+                </button>
+              )}
 
               {/* Secondary: Explore Services */}
               <Link

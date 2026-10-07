@@ -31,6 +31,11 @@ export async function GET() {
         address: settings.address || "",
         openingHours: settings.openingHours || [],
         socialMedia: settings.socialMedia || {},
+        externalSystem: settings.externalSystem || {
+          loginUrl: "",
+          registerUrl: "",
+          bookingUrl: "",
+        },
       },
     });
   } catch (error) {

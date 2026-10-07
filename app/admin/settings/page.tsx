@@ -49,6 +49,11 @@ interface SalonSettingsData {
     whatsapp: string;
   };
   googleReviews?: GoogleReviewsData;
+  externalSystem?: {
+    loginUrl: string;
+    registerUrl: string;
+    bookingUrl: string;
+  };
 }
 
 const DEFAULT_DAYS = [
@@ -89,6 +94,11 @@ export default function AdminSettingsPage() {
       placeId: "",
       businessUrl: "",
       maxReviews: 5,
+    },
+    externalSystem: {
+      loginUrl: "",
+      registerUrl: "",
+      bookingUrl: "",
     },
   });
 
@@ -164,6 +174,11 @@ export default function AdminSettingsPage() {
               placeId: data.settings.googleReviews?.placeId || "",
               businessUrl: data.settings.googleReviews?.businessUrl || "",
               maxReviews: data.settings.googleReviews?.maxReviews || 5,
+            },
+            externalSystem: {
+              loginUrl: data.settings.externalSystem?.loginUrl || "",
+              registerUrl: data.settings.externalSystem?.registerUrl || "",
+              bookingUrl: data.settings.externalSystem?.bookingUrl || "",
             },
           });
         }
@@ -267,6 +282,24 @@ export default function AdminSettingsPage() {
       }
     }
 
+    if (formData.externalSystem) {
+      const { loginUrl, registerUrl, bookingUrl } = formData.externalSystem;
+      const urlChecks = [
+        { label: "Customer Login URL", val: loginUrl },
+        { label: "Customer Registration URL", val: registerUrl },
+        { label: "Book Appointment URL", val: bookingUrl },
+      ];
+      for (const check of urlChecks) {
+        if (check.val && check.val.trim() && !check.val.trim().startsWith("https://")) {
+          setStatusMessage({
+            type: "error",
+            text: `${check.label} must be a valid https link (e.g., https://...)`,
+          });
+          return;
+        }
+      }
+    }
+
     setSaving(true);
 
     try {
@@ -301,6 +334,13 @@ export default function AdminSettingsPage() {
                 maxReviews: data.settings.googleReviews.maxReviews || 5,
               }
             : prev.googleReviews,
+          externalSystem: data.settings.externalSystem
+            ? {
+                loginUrl: data.settings.externalSystem.loginUrl || "",
+                registerUrl: data.settings.externalSystem.registerUrl || "",
+                bookingUrl: data.settings.externalSystem.bookingUrl || "",
+              }
+            : prev.externalSystem,
         }));
         if (data.settings.logoPublicId) {
           setLogoTab("upload");
@@ -955,6 +995,99 @@ export default function AdminSettingsPage() {
                 />
                 <p className="mt-1 text-[11px] text-stone-400">
                   Direct link opened when visitors click &ldquo;View All Reviews on Google&rdquo;.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 5: Salon Management System Links */}
+          <div className="rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-8 shadow-xs space-y-6">
+            <div className="border-b border-stone-100 pb-4">
+              <h2 className="font-serif text-lg font-semibold text-stone-900 flex items-center gap-2">
+                <ExternalLinkIcon className="h-5 w-5 text-[#B7925A]" />
+                <span>SALON MANAGEMENT SYSTEM LINKS</span>
+              </h2>
+              <p className="text-xs text-stone-500 mt-0.5">
+                Connect this public website with your external salon management system.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              {/* Customer Login URL */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                  Customer Login URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.externalSystem?.loginUrl || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      externalSystem: {
+                        loginUrl: e.target.value,
+                        registerUrl: prev.externalSystem?.registerUrl || "",
+                        bookingUrl: prev.externalSystem?.bookingUrl || "",
+                      },
+                    }))
+                  }
+                  placeholder="https://management.example.com/login"
+                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
+                />
+                <p className="mt-1 text-[11px] text-stone-400">
+                  Target destination when visitors click &ldquo;Login&rdquo; in the website navigation.
+                </p>
+              </div>
+
+              {/* Customer Registration URL */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                  Customer Registration URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.externalSystem?.registerUrl || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      externalSystem: {
+                        loginUrl: prev.externalSystem?.loginUrl || "",
+                        registerUrl: e.target.value,
+                        bookingUrl: prev.externalSystem?.bookingUrl || "",
+                      },
+                    }))
+                  }
+                  placeholder="https://management.example.com/register"
+                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
+                />
+                <p className="mt-1 text-[11px] text-stone-400">
+                  Target destination when visitors click &ldquo;Register&rdquo; in the website navigation.
+                </p>
+              </div>
+
+              {/* Book Appointment URL */}
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                  Book Appointment URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.externalSystem?.bookingUrl || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      externalSystem: {
+                        loginUrl: prev.externalSystem?.loginUrl || "",
+                        registerUrl: prev.externalSystem?.registerUrl || "",
+                        bookingUrl: e.target.value,
+                      },
+                    }))
+                  }
+                  placeholder="https://management.example.com/appointments"
+                  className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A]"
+                />
+                <p className="mt-1 text-[11px] text-stone-400">
+                  Target destination when visitors click &ldquo;Book Appointment&rdquo; buttons across the website.
                 </p>
               </div>
             </div>

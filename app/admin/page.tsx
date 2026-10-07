@@ -4,65 +4,31 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import StatCard from "@/components/admin/StatCard";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
-import EmptyState from "@/components/admin/EmptyState";
-import StatusBadge from "@/components/admin/StatusBadge";
-import { formatTime12Hour } from "@/lib/appointments";
 import {
   ScissorsIcon,
-  UserIcon,
   StarIcon,
-  CalendarIcon,
-  MessageCircleIcon,
   SparklesIcon,
   SettingsIcon,
-  ClockIcon,
   ArrowRightIcon,
   ImageIcon,
   UsersIcon,
+  ExternalLinkIcon,
 } from "@/components/ui/icons";
 
-interface AppointmentRow {
-  _id: string;
-  startTime: string;
-  endTime: string;
-  customerName: string;
-  customerPhone?: string;
-  service?: {
-    _id: string;
-    name: string;
-    duration: number;
-    price: number;
-  };
-  duration: number;
-  price: number;
-  status: string;
-}
-
 interface DashboardStats {
-  totalCustomers: number;
-  activeCustomers: number;
   totalServices: number;
   activeServices: number;
-  totalReviews: number;
-  pendingReviews: number;
-  averageRating: number;
-  totalAppointments: number | null;
-  todayAppointments: number | null;
-  pendingAppointments: number;
-  confirmedAppointments: number;
-  completedAppointments: number;
-  cancelledAppointments: number;
-  todayDate?: string;
-  totalGalleryPhotos?: number;
-  activeGalleryPhotos?: number;
-  totalBeauticians?: number;
-  activeBeauticians?: number;
-  totalCommunityPosts: number | null;
+  totalGalleryPhotos: number;
+  activeGalleryPhotos: number;
+  featuredGalleryPhotos: number;
+  totalBeauticians: number;
+  activeBeauticians: number;
+  googleReviewsEnabled: boolean;
+  externalBookingConfigured: boolean;
 }
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [todaySchedule, setTodaySchedule] = useState<AppointmentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,7 +42,6 @@ export default function AdminDashboardPage() {
 
         if (res.ok && data.success && isMounted) {
           setStats(data.stats);
-          setTodaySchedule(data.todaySchedule || []);
         } else if (isMounted) {
           setError(data.message || "Failed to load dashboard metrics");
         }
@@ -103,44 +68,20 @@ export default function AdminDashboardPage() {
       highlight: true,
     },
     {
-      title: "Manage Appointments",
-      description: "Review bookings, confirm requests, and manage salon calendar",
-      href: "/admin/appointments",
-      icon: CalendarIcon,
-    },
-    {
-      title: "Manage Customers",
-      description: "Inspect customer accounts, membership status, and permissions",
-      href: "/admin/customers",
-      icon: UserIcon,
-    },
-    {
-      title: "Review Guest Feedback",
-      description: "Moderate, approve, and filter client ratings and testimonials",
-      href: "/admin/reviews",
-      icon: StarIcon,
-    },
-    {
-      title: "Community Moderation",
-      description: "Oversee customer transformations and salon community posts",
-      href: "/admin/community",
-      icon: MessageCircleIcon,
-    },
-    {
-      title: "Manage Gallery",
-      description: "Upload and organize photos displayed on the public salon portfolio",
-      href: "/admin/gallery",
-      icon: ImageIcon,
-    },
-    {
-      title: "Manage Beauticians",
+      title: "Add Beautician Profile",
       description: "Update team profiles, bios, and specialties for the About page",
       href: "/admin/beauticians",
       icon: UsersIcon,
     },
     {
+      title: "Add Gallery Photo",
+      description: "Upload and organize photos displayed on the public salon portfolio",
+      href: "/admin/gallery",
+      icon: ImageIcon,
+    },
+    {
       title: "Website Settings",
-      description: "Update salon contact info, opening hours, and social media handles",
+      description: "Update salon contact info, opening hours, and external system links",
       href: "/admin/settings",
       icon: SettingsIcon,
     },
@@ -150,8 +91,8 @@ export default function AdminDashboardPage() {
     <div className="space-y-8 animate-fadeIn">
       {/* 1. Page Header */}
       <AdminPageHeader
-        title="Dashboard"
-        description="Welcome to your operational salon sanctuary. Monitor real customer registrations, live services, and client bookings."
+        title="Website Content Administration"
+        description="Manage the public website content, active treatments, beautician profiles, and photo gallery."
       />
 
       {/* Error banner if dashboard API failed */}
@@ -162,59 +103,19 @@ export default function AdminDashboardPage() {
       )}
 
       {/* 2. Key Statistics Grid */}
-      <section aria-label="Key metrics">
+      <section aria-label="Website content metrics">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Active Services (Real) */}
+          {/* Active Services */}
           <StatCard
             title="Active Services"
             value={loading ? "..." : stats?.activeServices}
             description={`Out of ${stats?.totalServices ?? 0} total services in catalog`}
             icon={ScissorsIcon}
             href="/admin/services"
-          />
-
-          {/* Total Customers (Real) */}
-          <StatCard
-            title="Total Customers"
-            value={loading ? "..." : stats?.totalCustomers}
-            description={`${stats?.activeCustomers ?? 0} verified active customer accounts`}
-            icon={UserIcon}
-            href="/admin/customers"
-          />
-
-          {/* Appointments Metric (Real) */}
-          <StatCard
-            title="Total Appointments"
-            value={loading ? "..." : stats?.totalAppointments ?? 0}
-            description={`${stats?.todayAppointments ?? 0} today (${stats?.pendingAppointments ?? 0} pending, ${stats?.confirmedAppointments ?? 0} confirmed)`}
-            icon={CalendarIcon}
-            href="/admin/appointments"
-          />
-
-          {/* Total Reviews & Rating (Real) */}
-          <StatCard
-            title="Guest Reviews"
-            value={loading ? "..." : stats?.totalReviews}
-            description={
-              stats?.averageRating
-                ? `Average rating: ${stats.averageRating} ★ (${stats.pendingReviews ?? 0} pending approval)`
-                : "No reviews submitted yet"
-            }
-            icon={StarIcon}
-            href="/admin/reviews"
-          />
-
-          {/* Gallery Photos (Real) */}
-          <StatCard
-            title="Gallery Photos"
-            value={loading ? "..." : stats?.totalGalleryPhotos ?? 0}
-            description={`${stats?.activeGalleryPhotos ?? 0} active portfolio photos published`}
-            icon={ImageIcon}
-            href="/admin/gallery"
             badge="Live"
           />
 
-          {/* Active Beauticians (Real) */}
+          {/* Active Beauticians */}
           <StatCard
             title="Active Beauticians"
             value={loading ? "..." : stats?.activeBeauticians ?? 0}
@@ -224,147 +125,65 @@ export default function AdminDashboardPage() {
             badge="Live"
           />
 
-          {/* Community Posts */}
+          {/* Gallery Photos */}
           <StatCard
-            title="Community Posts"
-            value={null}
-            description="Member transformation feed is currently in configuration"
-            icon={MessageCircleIcon}
-            href="/admin/community"
-            isUnavailable={true}
+            title="Gallery Photos"
+            value={loading ? "..." : stats?.totalGalleryPhotos ?? 0}
+            description={`${stats?.activeGalleryPhotos ?? 0} active portfolio photos published`}
+            icon={ImageIcon}
+            href="/admin/gallery"
+            badge="Live"
           />
 
-          {/* Operational Status Card */}
-          <div className="relative flex flex-col justify-between rounded-2xl border border-[#B7925A]/30 bg-white p-6 shadow-xs">
-            <div>
-              <div className="flex items-center justify-between gap-2 mb-4">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#B7925A]">
-                  System Status
-                </span>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200">
-                  <SparklesIcon className="h-5 w-5" />
-                </div>
-              </div>
+          {/* Featured Gallery Photos */}
+          <StatCard
+            title="Featured Works"
+            value={loading ? "..." : stats?.featuredGalleryPhotos ?? 0}
+            description="Highlighted photos showcased on the public gallery"
+            icon={SparklesIcon}
+            href="/admin/gallery"
+          />
 
-              <div className="flex items-baseline gap-2">
-                <span className="font-serif text-2xl font-bold text-stone-900">
-                  Online & Active
-                </span>
-              </div>
+          {/* Google Reviews Display */}
+          <StatCard
+            title="Google Reviews"
+            value={loading ? "..." : stats?.googleReviewsEnabled ? "Enabled" : "Disabled"}
+            description={
+              stats?.googleReviewsEnabled
+                ? "Live ratings displayed from Google Places"
+                : "Display disabled in Website Settings"
+            }
+            icon={StarIcon}
+            href="/admin/settings"
+          />
 
-              <p className="mt-2 text-xs text-stone-500 leading-relaxed">
-                MongoDB database connected with live booking engine &amp; JWT sessions.
-              </p>
-            </div>
-
-            <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-400">
-              <span>Environment</span>
-              <span className="font-mono text-[11px] text-stone-600">Production Ready</span>
-            </div>
-          </div>
+          {/* External Booking Link Status */}
+          <StatCard
+            title="External Booking"
+            value={loading ? "..." : stats?.externalBookingConfigured ? "Connected" : "Not Set"}
+            description={
+              stats?.externalBookingConfigured
+                ? "Public CTA buttons route to external booking system"
+                : "Configure booking URL in Website Settings"
+            }
+            icon={ExternalLinkIcon}
+            href="/admin/settings"
+          />
         </div>
       </section>
 
-      {/* 3. Today's Appointments Section */}
-      <section aria-label="Today's Appointments" className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="font-serif text-xl font-bold text-stone-900">
-              Today&apos;s Appointments
-            </h2>
-            <p className="text-xs text-stone-500 mt-0.5">
-              Scheduled client appointments and treatments for today ({stats?.todayDate || "Today"})
-            </p>
-          </div>
-
-          <Link
-            href="/admin/appointments"
-            className="text-xs font-semibold text-[#B7925A] hover:underline"
-          >
-            View all appointments &rarr;
-          </Link>
-        </div>
-
-        {loading ? (
-          <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center text-xs text-stone-500">
-            Loading today&apos;s schedule...
-          </div>
-        ) : todaySchedule.length === 0 ? (
-          <EmptyState
-            icon={ClockIcon}
-            title="No appointments scheduled for today"
-            description="There are currently no customer bookings scheduled for today. New bookings made by customers will automatically appear here."
-            actionText="View All Appointments"
-            actionHref="/admin/appointments"
-          />
-        ) : (
-          <div className="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-xs">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs sm:text-sm">
-                <thead className="bg-[#FAF7F2] text-stone-600 uppercase text-[11px] tracking-wider border-b border-stone-200">
-                  <tr>
-                    <th scope="col" className="px-5 py-3.5 font-semibold">Time</th>
-                    <th scope="col" className="px-5 py-3.5 font-semibold">Customer</th>
-                    <th scope="col" className="px-5 py-3.5 font-semibold">Service</th>
-                    <th scope="col" className="px-5 py-3.5 font-semibold">Status</th>
-                    <th scope="col" className="px-5 py-3.5 font-semibold text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-stone-100">
-                  {todaySchedule.map((appt) => (
-                    <tr key={appt._id} className="hover:bg-[#FAF7F2]/40 transition-colors">
-                      <td className="px-5 py-4 font-medium text-stone-900 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5 font-mono text-xs font-semibold">
-                          <ClockIcon className="h-3.5 w-3.5 text-[#B7925A]" />
-                          <span>{formatTime12Hour(appt.startTime)} - {formatTime12Hour(appt.endTime)}</span>
-                        </div>
-                      </td>
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        <div className="font-semibold text-stone-900">{appt.customerName}</div>
-                        {appt.customerPhone && (
-                          <div className="text-[11px] text-stone-500">{appt.customerPhone}</div>
-                        )}
-                      </td>
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        <div className="font-medium text-stone-900">
-                          {appt.service?.name || "Service"}
-                        </div>
-                        <div className="text-[11px] text-stone-500">
-                          {appt.duration} min • LKR {appt.price.toLocaleString()}
-                        </div>
-                      </td>
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        <StatusBadge status={appt.status} />
-                      </td>
-                      <td className="px-5 py-4 whitespace-nowrap text-right">
-                        <Link
-                          href="/admin/appointments"
-                          className="text-xs font-medium text-[#B7925A] hover:underline"
-                        >
-                          Manage &rarr;
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* 4. Quick Actions Section */}
+      {/* 3. Quick Actions Section */}
       <section aria-label="Quick Actions" className="space-y-4">
         <div>
           <h2 className="font-serif text-xl font-bold text-stone-900">
             Quick Actions
           </h2>
           <p className="text-xs text-stone-500 mt-0.5">
-            Operational shortcuts to manage salon services, clientele, and settings
+            Content management shortcuts for your public salon website
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {quickActions.map((action) => {
             const Icon = action.icon;
             return (

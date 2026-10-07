@@ -1,7 +1,6 @@
 export const CLOUDINARY_FOLDERS = {
   SERVICES: "salon-management/services",
   PROFILES: "salon-management/profiles",
-  COMMUNITY: "salon-management/community",
   SALON: "salon-management/salon",
   GALLERY: "salon-management/gallery",
   BEAUTICIANS: "salon-management/beauticians",

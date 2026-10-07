@@ -6,7 +6,11 @@ import {
   CheckIcon,
 } from "@/components/ui/icons";
 
-export default function BookingCTA() {
+interface BookingCTAProps {
+  bookingUrl?: string;
+}
+
+export default function BookingCTA({ bookingUrl = "" }: BookingCTAProps) {
   const perks = [
     "Instant Confirmation",
     "No Pre-payment Required",
@@ -42,13 +46,25 @@ export default function BookingCTA() {
 
         {/* Action Buttons */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link
-            href="/appointments"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-full bg-[#B7925A] px-9 py-4 text-sm font-semibold text-stone-950 shadow-lg shadow-[#B7925A]/25 transition-all duration-300 hover:bg-[#C5A46D] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A46D]"
-          >
-            <CalendarIcon className="h-4 w-4 text-stone-950" />
-            <span>Book Appointment</span>
-          </Link>
+          {bookingUrl ? (
+            <a
+              href={bookingUrl}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-full bg-[#B7925A] px-9 py-4 text-sm font-semibold text-stone-950 shadow-lg shadow-[#B7925A]/25 transition-all duration-300 hover:bg-[#C5A46D] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A46D]"
+            >
+              <CalendarIcon className="h-4 w-4 text-stone-950" />
+              <span>Book Appointment</span>
+            </a>
+          ) : (
+            <button
+              type="button"
+              disabled
+              title="Online booking link not yet configured"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-full bg-[#B7925A]/60 px-9 py-4 text-sm font-semibold text-stone-950/60 cursor-not-allowed shadow-none"
+            >
+              <CalendarIcon className="h-4 w-4 text-stone-950/50" />
+              <span>Book Appointment</span>
+            </button>
+          )}
 
           <Link
             href="/services"

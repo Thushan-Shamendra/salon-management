@@ -1,9 +1,9 @@
-import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
 import { connectDB } from "@/lib/mongodb";
 import Service from "@/models/Service";
+import SalonSettings from "@/models/SalonSettings";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +40,12 @@ async function getServices(): Promise<ServiceItemType[]> {
 }
 
 export default async function ServicesPage() {
-  const services = await getServices();
+  await connectDB();
+  const [services, settings] = await Promise.all([
+    getServices(),
+    SalonSettings.findOne().lean(),
+  ]);
+  const bookingUrl = settings?.externalSystem?.bookingUrl || "";
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1C1917]">
@@ -124,12 +129,22 @@ export default async function ServicesPage() {
                       </div>
                     </div>
 
-                    <Link
-                      href={`/appointments?service=${service._id}`}
-                      className="mt-6 block rounded-lg bg-stone-900 px-4 py-3 text-center font-medium text-white transition hover:bg-stone-800"
-                    >
-                      Book Appointment
-                    </Link>
+                    {bookingUrl ? (
+                      <a
+                        href={bookingUrl}
+                        className="mt-6 block rounded-lg bg-stone-900 px-4 py-3 text-center font-medium text-white transition hover:bg-stone-800"
+                      >
+                        Book Appointment
+                      </a>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled
+                        className="mt-6 block w-full rounded-lg bg-stone-900/60 px-4 py-3 text-center font-medium text-white/60 cursor-not-allowed"
+                      >
+                        Book Appointment
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

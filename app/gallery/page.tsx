@@ -30,6 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function PublicGalleryPage() {
   let photos: GalleryPhotoItem[] = [];
   let salonName = "Lumina Luxury Salon";
+  let bookingUrl = "";
 
   try {
     await connectDB();
@@ -43,6 +44,9 @@ export default async function PublicGalleryPage() {
 
     if (settings?.salonName) {
       salonName = settings.salonName;
+    }
+    if (settings?.externalSystem?.bookingUrl) {
+      bookingUrl = settings.externalSystem.bookingUrl;
     }
 
     photos = rawPhotos.map((p) => ({
@@ -68,7 +72,11 @@ export default async function PublicGalleryPage() {
       <Navbar />
 
       <main className="flex-1">
-        <GalleryClient initialPhotos={photos} salonName={salonName} />
+        <GalleryClient
+          initialPhotos={photos}
+          salonName={salonName}
+          bookingUrl={bookingUrl}
+        />
       </main>
 
       <Footer />

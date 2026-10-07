@@ -246,32 +246,25 @@ async function runAll12Tests() {
   }
 
   // -------------------------------------------------------------------------
-  // TEST 10: Customer attempts /admin/change-password -> Blocked / redirects to /
+  // TEST 10: Non-admin / Customer login is blocked by /api/auth/login
   // -------------------------------------------------------------------------
   try {
-    // Login as Customer
     const custRes = await fetch(`${BASE_URL}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: "customer@test.com", password: "Password123!" }),
     });
-    const custCookie = custRes.headers.get("set-cookie")?.split(";")[0];
-
-    const res = await fetch(`${BASE_URL}/admin/change-password`, {
-      headers: { Cookie: custCookie },
-      redirect: "manual",
-    });
-    const location = res.headers.get("location");
+    const custData = await custRes.json().catch(() => ({}));
     const pass10 =
-      (res.status === 307 || res.status === 302 || res.status === 308) &&
-      (location === "/" || location?.endsWith(":3001/"));
-    report("TEST 10: Customer accessing /admin/change-password is blocked (redirects to /)", pass10, `Status: ${res.status}, Location: ${location}`);
+      (custRes.status === 403 || custRes.status === 401) &&
+      (custData.message?.includes("Access restricted") || custData.message?.includes("Invalid"));
+    report("TEST 10: Non-admin login is blocked by admin-only auth", pass10, `Status: ${custRes.status}, Message: ${custData.message}`);
   } catch (err) {
-    report("TEST 10: Customer accessing /admin/change-password", false, err.message);
+    report("TEST 10: Non-admin login is blocked by admin-only auth", false, err.message);
   }
 
   // -------------------------------------------------------------------------
-  // TEST 11: Logged-out user attempts /admin/change-password -> Redirects to /login
+  // TEST 11: Logged-out user attempts /admin/change-password -> Redirects to /admin/login
   // -------------------------------------------------------------------------
   try {
     const res = await fetch(`${BASE_URL}/admin/change-password`, {
@@ -280,8 +273,8 @@ async function runAll12Tests() {
     const location = res.headers.get("location");
     const pass11 =
       (res.status === 307 || res.status === 302 || res.status === 308) &&
-      location?.includes("/login");
-    report("TEST 11: Logged-out user accessing /admin/change-password redirects to /login", pass11, `Status: ${res.status}, Location: ${location}`);
+      location?.includes("/admin/login");
+    report("TEST 11: Logged-out user accessing /admin/change-password redirects to /admin/login", pass11, `Status: ${res.status}, Location: ${location}`);
   } catch (err) {
     report("TEST 11: Logged-out user accessing /admin/change-password", false, err.message);
   }

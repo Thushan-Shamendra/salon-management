@@ -14,28 +14,30 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }>) {
   const user = await getCurrentUser();
-
-  // Access rules:
-  // 1. Logged out -> redirect to /login
-  if (!user) {
-    redirect("/login");
-  }
-
-  // 2. Logged in customer -> redirect to /
-  if (user.role !== "admin") {
-    redirect("/");
-  }
-
-  // 3. Admin with mustChangePassword flag MUST change temporary password first
   const headersList = await headers();
   const rawPath = headersList.get("x-pathname") || "";
   const currentPath = rawPath.replace(/\/$/, "");
 
+  // If viewing the admin login page
+  if (currentPath === "/admin/login") {
+    if (user && user.role === "admin") {
+      redirect("/admin");
+    }
+    return <>{children}</>;
+  }
+
+  // Access rules:
+  // 1. Logged out or non-admin -> redirect to /admin/login
+  if (!user || user.role !== "admin") {
+    redirect("/admin/login");
+  }
+
+  // 2. Admin with mustChangePassword flag MUST change temporary password first
   if (user.mustChangePassword && currentPath !== "/admin/change-password") {
     redirect("/admin/change-password");
   }
 
-  // 4. Render Admin Portal layout
+  // 3. Render Admin Portal layout with sidebar & header
   return (
     <AdminLayoutClient
       user={{

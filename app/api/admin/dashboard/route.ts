@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
-import User from "@/models/User";
 import Service from "@/models/Service";
-import Review from "@/models/Review";
-import Appointment from "@/models/Appointment";
 import Gallery from "@/models/Gallery";
 import Beautician from "@/models/Beautician";
-import { getSriLankaNow, normalizeAppointmentDate } from "@/lib/appointments";
+import SalonSettings from "@/models/SalonSettings";
 
-// GET /api/admin/dashboard - ADMIN ONLY
+// GET /api/admin/dashboard - ADMIN ONLY: Website Content Metrics
 export async function GET() {
   try {
     const user = await getCurrentUser();
@@ -30,92 +27,39 @@ export async function GET() {
 
     await connectDB();
 
-    const { dateStr: todayStr } = getSriLankaNow();
-    const todayDate = normalizeAppointmentDate(todayStr);
-
-    // Query REAL database statistics for all implemented models
     const [
-      totalCustomers,
-      activeCustomers,
       totalServices,
       activeServices,
-      totalReviews,
-      pendingReviews,
-      allReviews,
-      totalAppointments,
-      todayAppointments,
-      pendingAppointments,
-      confirmedAppointments,
-      completedAppointments,
-      cancelledAppointments,
       totalGalleryPhotos,
       activeGalleryPhotos,
+      featuredGalleryPhotos,
       totalBeauticians,
       activeBeauticians,
-      todaySchedule,
+      settings,
     ] = await Promise.all([
-      User.countDocuments({ role: "customer" }),
-      User.countDocuments({ role: "customer", isActive: true }),
       Service.countDocuments(),
       Service.countDocuments({ isActive: true }),
-      Review.countDocuments(),
-      Review.countDocuments({ status: "pending" }),
-      Review.find({}, "rating").lean(),
-      Appointment.countDocuments(),
-      Appointment.countDocuments({ appointmentDate: todayDate }),
-      Appointment.countDocuments({ status: "pending" }),
-      Appointment.countDocuments({ status: "confirmed" }),
-      Appointment.countDocuments({ status: "completed" }),
-      Appointment.countDocuments({ status: "cancelled" }),
       Gallery.countDocuments(),
       Gallery.countDocuments({ isActive: true }),
+      Gallery.countDocuments({ isActive: true, isFeatured: true }),
       Beautician.countDocuments(),
       Beautician.countDocuments({ isActive: true }),
-      Appointment.find({ appointmentDate: todayDate })
-        .populate("service", "name duration price")
-        .populate("customer", "name phone email")
-        .sort({ startTime: 1 })
-        .lean(),
+      SalonSettings.findOne().lean(),
     ]);
-
-    const averageRating =
-      allReviews.length > 0
-        ? Number(
-            (
-              allReviews.reduce((sum, r) => sum + (r.rating || 0), 0) /
-              allReviews.length
-            ).toFixed(1)
-          )
-        : 0;
 
     return NextResponse.json({
       success: true,
       stats: {
-        totalCustomers,
-        activeCustomers,
         totalServices,
         activeServices,
-        totalReviews,
-        pendingReviews,
-        averageRating,
-        // Real Gallery statistics
         totalGalleryPhotos,
         activeGalleryPhotos,
-        // Real Beauticians statistics
+        featuredGalleryPhotos,
         totalBeauticians,
         activeBeauticians,
-        // Real Appointment statistics
-        totalAppointments,
-        todayAppointments,
-        pendingAppointments,
-        confirmedAppointments,
-        completedAppointments,
-        cancelledAppointments,
-        todayDate: todayStr,
-        // Unimplemented modules explicitly marked as null
-        totalCommunityPosts: null,
+        googleReviewsEnabled: Boolean(settings?.googleReviews?.enabled),
+        externalBookingConfigured: Boolean(settings?.externalSystem?.bookingUrl?.trim()),
       },
-      todaySchedule,
     });
   } catch (error) {
     console.error("Admin dashboard stats error:", error);

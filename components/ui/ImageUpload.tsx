@@ -32,7 +32,7 @@ export interface ImageUploadProps {
   circular?: boolean;
   disabled?: boolean;
   className?: string;
-  // Multiple mode support for Community preparation
+  // Multiple mode support
   multiple?: boolean;
   maxFiles?: number;
   onMultipleChange?: (results: UploadResult[]) => void;

@@ -30,11 +30,13 @@ export interface GalleryPhotoItem {
 interface GalleryClientProps {
   initialPhotos: GalleryPhotoItem[];
   salonName?: string;
+  bookingUrl?: string;
 }
 
 export default function GalleryClient({
   initialPhotos,
   salonName = "Lumina Luxury Salon",
+  bookingUrl = "",
 }: GalleryClientProps) {
   const [photos] = useState<GalleryPhotoItem[]>(initialPhotos);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -513,13 +515,25 @@ export default function GalleryClient({
           </p>
 
           <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/appointments"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-[#B7925A] px-8 py-3.5 text-sm font-semibold text-stone-950 transition-all hover:bg-[#C5A46D] hover:shadow-lg hover:shadow-[#B7925A]/25 active:scale-95"
-            >
-              <CalendarIcon className="h-4 w-4 text-stone-950" />
-              <span>Book Appointment</span>
-            </Link>
+            {bookingUrl ? (
+              <a
+                href={bookingUrl}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-[#B7925A] px-8 py-3.5 text-sm font-semibold text-stone-950 transition-all hover:bg-[#C5A46D] hover:shadow-lg hover:shadow-[#B7925A]/25 active:scale-95"
+              >
+                <CalendarIcon className="h-4 w-4 text-stone-950" />
+                <span>Book Appointment</span>
+              </a>
+            ) : (
+              <button
+                type="button"
+                disabled
+                title="Online booking link not yet configured"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-[#B7925A]/60 px-8 py-3.5 text-sm font-semibold text-stone-950/60 cursor-not-allowed"
+              >
+                <CalendarIcon className="h-4 w-4 text-stone-950/50" />
+                <span>Book Appointment</span>
+              </button>
+            )}
 
             <Link
               href="/services"
@@ -624,14 +638,16 @@ export default function GalleryClient({
                 )}
               </div>
 
-              <Link
-                href="/appointments"
-                onClick={handleCloseLightbox}
-                className="inline-flex items-center gap-1.5 rounded-full bg-[#B7925A] px-4 py-2 text-xs font-semibold text-stone-950 hover:bg-[#C5A46D] transition shrink-0"
-              >
-                <span>Book This Look</span>
-                <CalendarIcon className="h-3.5 w-3.5" />
-              </Link>
+              {bookingUrl ? (
+                <a
+                  href={bookingUrl}
+                  onClick={handleCloseLightbox}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#B7925A] px-4 py-2 text-xs font-semibold text-stone-950 hover:bg-[#C5A46D] transition shrink-0"
+                >
+                  <span>Book This Look</span>
+                  <CalendarIcon className="h-3.5 w-3.5" />
+                </a>
+              ) : null}
             </div>
           </div>
         </div>

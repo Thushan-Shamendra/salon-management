@@ -19,6 +19,7 @@ export default async function Footer() {
 
   let salonName = "LUMINA";
   let logo = "";
+  let bookingUrl = "";
 
   try {
     await connectDB();
@@ -26,20 +27,24 @@ export default async function Footer() {
     if (settings) {
       if (settings.salonName) salonName = settings.salonName;
       if (settings.logo) logo = settings.logo;
+      if (settings.externalSystem?.bookingUrl) {
+        bookingUrl = settings.externalSystem.bookingUrl;
+      }
     }
   } catch {
     // Graceful fallback
   }
 
-  const quickLinks = [
+  const quickLinks: { name: string; href: string; isExternal?: boolean }[] = [
     { name: "Home", href: "/" },
     { name: "About Us", href: "/about" },
     { name: "Services", href: "/services" },
     { name: "Gallery", href: "/gallery" },
-    { name: "Community Hub", href: "/community" },
     { name: "Reviews", href: "/reviews" },
     { name: "Contact", href: "/contact" },
-    { name: "Book Appointment", href: "/appointments" },
+    ...(bookingUrl
+      ? [{ name: "Book Appointment", href: bookingUrl, isExternal: true }]
+      : []),
   ];
 
   const serviceLinks = [
@@ -65,12 +70,22 @@ export default async function Footer() {
                 Experience Luxury Hair & Beauty Care in Colombo
               </h3>
             </div>
-            <Link
-              href="/appointments"
-              className="inline-flex items-center justify-center rounded-full bg-[#B7925A] px-6 py-2.5 text-sm font-medium text-stone-950 transition-all hover:bg-[#C5A46D] hover:shadow-lg hover:shadow-[#B7925A]/20 shrink-0"
-            >
-              Book Your Visit
-            </Link>
+            {bookingUrl ? (
+              <a
+                href={bookingUrl}
+                className="inline-flex items-center justify-center rounded-full bg-[#B7925A] px-6 py-2.5 text-sm font-medium text-stone-950 transition-all hover:bg-[#C5A46D] hover:shadow-lg hover:shadow-[#B7925A]/20 shrink-0"
+              >
+                Book Your Visit
+              </a>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="inline-flex items-center justify-center rounded-full bg-[#B7925A]/60 px-6 py-2.5 text-sm font-medium text-stone-950/60 cursor-not-allowed shrink-0"
+              >
+                Book Your Visit
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -164,13 +179,23 @@ export default async function Footer() {
             <ul className="space-y-2.5 text-sm">
               {quickLinks.map((link) => (
                 <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-stone-400 hover:text-white transition-colors flex items-center gap-1.5"
-                  >
-                    <span className="text-[#B7925A] text-xs">›</span>
-                    <span>{link.name}</span>
-                  </Link>
+                  {link.isExternal ? (
+                    <a
+                      href={link.href}
+                      className="text-stone-400 hover:text-white transition-colors flex items-center gap-1.5"
+                    >
+                      <span className="text-[#B7925A] text-xs">›</span>
+                      <span>{link.name}</span>
+                    </a>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      className="text-stone-400 hover:text-white transition-colors flex items-center gap-1.5"
+                    >
+                      <span className="text-[#B7925A] text-xs">›</span>
+                      <span>{link.name}</span>
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

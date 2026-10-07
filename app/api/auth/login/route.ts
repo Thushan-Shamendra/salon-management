@@ -64,6 +64,16 @@ export async function POST(request: Request) {
       );
     }
 
+    if (user.role !== "admin") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Access restricted. Administrator account required.",
+        },
+        { status: 403 }
+      );
+    }
+
     const token = generateToken({
       userId: user._id.toString(),
       email: user.email,
