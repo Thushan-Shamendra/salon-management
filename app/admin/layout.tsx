@@ -4,8 +4,8 @@ import { getCurrentUser } from "@/lib/auth";
 import AdminLayoutClient from "@/components/admin/AdminLayoutClient";
 
 export const metadata = {
-  title: "Admin Portal | LUMINA Luxury Salon",
-  description: "Operations and administration management portal.",
+  title: "Admin Portal | INVORA Salon",
+  description: "Website content administration portal.",
 };
 
 export default async function AdminLayout({

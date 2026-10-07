@@ -33,12 +33,11 @@ export default function AdminLayoutClient({
   }, [user.mustChangePassword, pathname, router]);
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#1C1917] flex">
+    <div className="min-h-screen bg-[#F8F9FA] text-stone-900 flex">
       {/* Sidebar (Desktop sticky + Mobile drawer) */}
       <AdminSidebar
         isOpen={mobileNavOpen}
         onClose={() => setMobileNavOpen(false)}
-        mustChangePassword={user.mustChangePassword}
       />
 
       {/* Main Viewport Content Area */}

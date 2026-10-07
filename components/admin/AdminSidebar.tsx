@@ -1,47 +1,32 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  HomeIcon,
   ScissorsIcon,
-  LayoutDashboardIcon,
+  UsersIcon,
+  ImageIcon,
   SettingsIcon,
   ExternalLinkIcon,
+  LockIcon,
   LogOutIcon,
   XIcon,
-  LockIcon,
-  ImageIcon,
-  UsersIcon,
 } from "@/components/ui/icons";
 
 interface AdminSidebarProps {
   isOpen: boolean;
   onClose: () => void;
-  mustChangePassword?: boolean;
 }
 
-export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
+export default function AdminSidebar({
+  isOpen,
+  onClose,
+}: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [salonLogo, setSalonLogo] = useState<string>("");
-  const [salonName, setSalonName] = useState<string>("LUMINA");
-
-  useEffect(() => {
-    let isMounted = true;
-    fetch("/api/settings")
-      .then((res) => res.json())
-      .then((data) => {
-        if (isMounted && data?.success && data?.settings) {
-          if (data.settings.logo) setSalonLogo(data.settings.logo);
-          if (data.settings.salonName) setSalonName(data.settings.salonName);
-        }
-      })
-      .catch(() => {});
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const handleLogout = async () => {
     try {
@@ -59,7 +44,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
     {
       name: "Dashboard",
       href: "/admin",
-      icon: LayoutDashboardIcon,
+      icon: HomeIcon,
       exact: true,
     },
     {
@@ -82,43 +67,30 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       href: "/admin/settings",
       icon: SettingsIcon,
     },
-    {
-      name: "Change Password",
-      href: "/admin/change-password",
-      icon: LockIcon,
-    },
   ];
 
   const sidebarContent = (
-    <div className="flex h-full flex-col justify-between bg-[#1C1917] text-stone-300">
+    <div className="flex h-full flex-col justify-between bg-[#12101C] text-stone-300 select-none">
       <div>
-        {/* Brand Header */}
-        <div className="flex h-20 items-center justify-between px-6 border-b border-stone-800">
+        {/* Top Branding Section (Matches Mockup) */}
+        <div className="flex h-20 items-center justify-between px-6 border-b border-white/5">
           <Link
             href="/admin"
             onClick={onClose}
-            className="flex items-center gap-3 focus:outline-none"
+            className="flex items-center gap-3 focus:outline-none group"
           >
-            {salonLogo ? (
-              <div className="relative h-10 max-w-[120px] flex items-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={salonLogo}
-                  alt={salonName}
-                  className="max-h-10 w-auto object-contain"
+            <div className="flex flex-col">
+              <div className="relative h-8 w-32">
+                <Image
+                  src="/images/invora-logo-light-trimmed.png"
+                  alt="INVORA Salon"
+                  fill
+                  className="object-contain object-left"
+                  priority
                 />
               </div>
-            ) : (
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-800 text-[#C5A46D] border border-stone-700/80 shadow-xs">
-                <ScissorsIcon className="h-5 w-5" />
-              </div>
-            )}
-            <div className="flex flex-col">
-              <span className="font-serif text-lg font-bold tracking-wider text-white">
-                {salonName.toUpperCase()}
-              </span>
-              <span className="text-[10px] uppercase tracking-[0.25em] text-[#C5A46D] font-medium -mt-0.5">
-                Admin Portal
+              <span className="text-[9px] uppercase tracking-[0.25em] text-[#A78BFA] font-bold -mt-0.5">
+                WEBSITE ADMIN
               </span>
             </div>
           </Link>
@@ -128,7 +100,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
             type="button"
             onClick={onClose}
             aria-label="Close admin menu"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 md:hidden"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-400 hover:text-white hover:bg-white/10 md:hidden cursor-pointer"
           >
             <XIcon className="h-5 w-5" />
           </button>
@@ -136,10 +108,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
         {/* Main Navigation Links */}
         <div className="px-3 py-6">
-          <p className="px-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-400 mb-2">
-            Operations
-          </p>
-          <nav className="space-y-1" aria-label="Admin navigation">
+          <nav className="space-y-1.5" aria-label="Admin navigation">
             {navItems.map((item) => {
               const isActive = item.exact
                 ? pathname === item.href
@@ -151,17 +120,15 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                   key={item.name}
                   href={item.href}
                   onClick={onClose}
-                  className={`group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-medium transition-all duration-150 ${
+                  className={`group flex items-center gap-3.5 rounded-xl px-4 py-3 text-xs sm:text-sm font-semibold transition-all duration-150 ${
                     isActive
-                      ? "bg-[#B7925A] text-stone-950 font-semibold shadow-xs"
-                      : "text-stone-300 hover:bg-stone-800/80 hover:text-white"
+                      ? "bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] text-white shadow-md shadow-purple-950/50"
+                      : "text-stone-400 hover:bg-white/5 hover:text-white"
                   }`}
                 >
                   <Icon
-                    className={`h-4 w-4 shrink-0 transition-colors ${
-                      isActive
-                        ? "text-stone-950"
-                        : "text-stone-400 group-hover:text-[#C5A46D]"
+                    className={`h-4.5 w-4.5 shrink-0 transition-colors ${
+                      isActive ? "text-white" : "text-stone-400 group-hover:text-purple-300"
                     }`}
                   />
                   <span>{item.name}</span>
@@ -169,24 +136,43 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
               );
             })}
           </nav>
+
+          {/* Divider */}
+          <div className="my-5 border-t border-white/5" />
+
+          {/* View Website Link */}
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onClose}
+            className="group flex items-center gap-3.5 rounded-xl px-4 py-3 text-xs sm:text-sm font-semibold text-stone-400 hover:bg-white/5 hover:text-white transition-colors"
+          >
+            <ExternalLinkIcon className="h-4.5 w-4.5 text-stone-400 group-hover:text-[#A78BFA]" />
+            <span>View Website</span>
+          </a>
         </div>
       </div>
 
-      {/* Bottom Footer Actions */}
-      <div className="p-4 border-t border-stone-800 space-y-1">
+      {/* Bottom Footer Actions (Change Password + Logout) */}
+      <div className="p-4 border-t border-white/5 space-y-1">
         <Link
-          href="/"
+          href="/admin/change-password"
           onClick={onClose}
-          className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-medium text-stone-300 hover:bg-stone-800 hover:text-white transition-colors"
+          className={`flex items-center gap-3.5 rounded-xl px-4 py-2.5 text-xs font-semibold transition-colors ${
+            pathname === "/admin/change-password"
+              ? "bg-white/10 text-white"
+              : "text-stone-400 hover:bg-white/5 hover:text-white"
+          }`}
         >
-          <ExternalLinkIcon className="h-4 w-4 text-[#C5A46D]" />
-          <span>View Website</span>
+          <LockIcon className="h-4 w-4 text-stone-400" />
+          <span>Change Password</span>
         </Link>
 
         <button
           type="button"
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-medium text-red-400 hover:bg-red-950/40 hover:text-red-300 transition-colors"
+          className="flex w-full items-center gap-3.5 rounded-xl px-4 py-2.5 text-xs font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors cursor-pointer"
         >
           <LogOutIcon className="h-4 w-4 text-red-400" />
           <span>Logout</span>
@@ -198,7 +184,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   return (
     <>
       {/* Desktop Sticky Sidebar (~260px wide) */}
-      <aside className="hidden md:flex md:w-64 md:shrink-0 md:flex-col sticky top-0 h-screen border-r border-stone-800 shadow-md">
+      <aside className="hidden md:flex md:w-64 md:shrink-0 md:flex-col sticky top-0 h-screen border-r border-stone-800 shadow-xl z-20">
         {sidebarContent}
       </aside>
 

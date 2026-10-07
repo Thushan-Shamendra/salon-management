@@ -129,7 +129,7 @@ export default function AdminChangePasswordPage() {
           <div>
             <p className="font-semibold text-amber-950">Security Requirement</p>
             <p className="mt-1 leading-relaxed text-amber-800">
-              You are currently authenticated with an initial bootstrap password. Access to Service Management, Customer Lists, and Settings will be automatically unlocked once you establish a strong custom password below.
+              You are currently authenticated with an initial bootstrap password. Access to Service Management, Beauticians, Gallery, and Settings will be automatically unlocked once you establish a strong custom password below.
             </p>
           </div>
         </div>
@@ -166,13 +166,13 @@ export default function AdminChangePasswordPage() {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Enter current password"
-                className="w-full rounded-xl border border-stone-200 px-4 py-2.5 pr-11 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A] focus:ring-2 focus:ring-[#B7925A]/20"
+                className="w-full rounded-xl border border-stone-200 px-4 py-2.5 pr-11 text-xs sm:text-sm text-stone-900 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
               />
               <button
                 type="button"
                 onClick={() => setShowCurrent(!showCurrent)}
                 aria-label={showCurrent ? "Hide current password" : "Show current password"}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 cursor-pointer"
               >
                 {showCurrent ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
               </button>
@@ -191,13 +191,13 @@ export default function AdminChangePasswordPage() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="At least 8 chars, uppercase, lowercase, number"
-                className="w-full rounded-xl border border-stone-200 px-4 py-2.5 pr-11 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A] focus:ring-2 focus:ring-[#B7925A]/20"
+                className="w-full rounded-xl border border-stone-200 px-4 py-2.5 pr-11 text-xs sm:text-sm text-stone-900 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
               />
               <button
                 type="button"
                 onClick={() => setShowNew(!showNew)}
                 aria-label={showNew ? "Hide new password" : "Show new password"}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 cursor-pointer"
               >
                 {showNew ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
               </button>
@@ -216,13 +216,13 @@ export default function AdminChangePasswordPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Re-enter new password"
-                className="w-full rounded-xl border border-stone-200 px-4 py-2.5 pr-11 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#B7925A] focus:ring-2 focus:ring-[#B7925A]/20"
+                className="w-full rounded-xl border border-stone-200 px-4 py-2.5 pr-11 text-xs sm:text-sm text-stone-900 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
                 aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 cursor-pointer"
               >
                 {showConfirm ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
               </button>
@@ -230,7 +230,7 @@ export default function AdminChangePasswordPage() {
           </div>
 
           {/* Password Policy Hints */}
-          <div className="rounded-xl border border-stone-100 bg-[#FAF7F2]/60 p-4 space-y-1.5 text-[11px] sm:text-xs text-stone-500">
+          <div className="rounded-xl border border-stone-100 bg-stone-50/70 p-4 space-y-1.5 text-[11px] sm:text-xs text-stone-500">
             <p className="font-semibold text-stone-700">Password Requirements:</p>
             <ul className="list-disc list-inside space-y-0.5 text-stone-600">
               <li>Minimum 8 characters in length</li>
@@ -245,9 +245,9 @@ export default function AdminChangePasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-stone-900 py-3 text-xs sm:text-sm font-semibold text-white hover:bg-stone-800 disabled:opacity-50 transition-colors border border-[#B7925A]/30 shadow-xs flex items-center justify-center gap-2"
+            className="w-full rounded-xl bg-[#7C3AED] py-3 text-xs sm:text-sm font-semibold text-white hover:bg-[#6D28D9] disabled:opacity-50 transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 cursor-pointer"
           >
-            <ShieldCheckIcon className="h-4 w-4 text-[#C5A46D]" />
+            <ShieldCheckIcon className="h-4 w-4 text-purple-200" />
             <span>{loading ? "Updating Password..." : "Update Password & Unlock Portal"}</span>
           </button>
         </form>

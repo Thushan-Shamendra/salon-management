@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { PlusIcon } from "@/components/ui/icons";
 
 interface EmptyStateProps {
   icon?: React.ComponentType<{ className?: string }>;
@@ -22,15 +23,15 @@ export default function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
-      className={`rounded-2xl border border-dashed border-stone-300 bg-white p-8 sm:p-12 text-center ${className}`}
+      className={`rounded-2xl border border-dashed border-stone-300 bg-white p-8 sm:p-12 text-center shadow-2xs ${className}`}
     >
       {Icon && (
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FAF7F2] text-[#B7925A] border border-[#B7925A]/25 mb-4">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-50 text-[#7C3AED] border border-purple-100 shadow-2xs mb-4">
           <Icon className="h-7 w-7" />
         </div>
       )}
 
-      <h3 className="font-serif text-lg font-medium text-stone-900">
+      <h3 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
         {title}
       </h3>
 
@@ -42,8 +43,9 @@ export default function EmptyState({
         <div className="mt-6">
           <Link
             href={actionHref}
-            className="inline-flex items-center gap-2 rounded-xl bg-stone-900 px-5 py-2.5 text-xs font-medium text-white hover:bg-stone-800 transition-colors border border-[#B7925A]/30 shadow-xs"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#7C3AED] px-5 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-[#6D28D9] transition-all shadow-xs cursor-pointer"
           >
+            <PlusIcon className="h-4 w-4" />
             <span>{actionText}</span>
           </Link>
         </div>
@@ -54,8 +56,9 @@ export default function EmptyState({
           <button
             type="button"
             onClick={onAction}
-            className="inline-flex items-center gap-2 rounded-xl bg-stone-900 px-5 py-2.5 text-xs font-medium text-white hover:bg-stone-800 transition-colors border border-[#B7925A]/30 shadow-xs"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#7C3AED] px-5 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-[#6D28D9] transition-all shadow-xs cursor-pointer"
           >
+            <PlusIcon className="h-4 w-4" />
             <span>{actionText}</span>
           </button>
         </div>

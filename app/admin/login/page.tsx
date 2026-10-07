@@ -1,8 +1,9 @@
 "use client";
 
 import { FormEvent, useState, Suspense } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { EyeIcon, EyeOffIcon, ScissorsIcon, LockIcon } from "@/components/ui/icons";
+import { EyeIcon, EyeOffIcon, LockIcon } from "@/components/ui/icons";
 
 function AdminLoginForm() {
   const router = useRouter();
@@ -76,20 +77,26 @@ function AdminLoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl border border-stone-200/90">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-900 text-[#C5A46D] border border-[#B7925A]/40 mb-4 shadow-sm">
-        <ScissorsIcon className="h-6 w-6" />
-      </div>
-
-      <div className="text-center">
-        <span className="text-[10px] uppercase tracking-[0.25em] text-[#B7925A] font-semibold">
-          LUMINA Luxury Salon
+    <div className="w-full max-w-md rounded-3xl bg-white p-8 sm:p-10 shadow-xl border border-stone-200/90">
+      <div className="flex flex-col items-center text-center">
+        {/* INVORA Branding */}
+        <div className="relative h-10 w-36 mb-2">
+          <Image
+            src="/images/invora-logo-dark-trimmed.png"
+            alt="INVORA Salon"
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
+        <span className="text-[10px] uppercase tracking-[0.25em] text-[#7C3AED] font-bold">
+          WEBSITE ADMIN PORTAL
         </span>
-        <h1 className="text-2xl sm:text-3xl font-serif text-stone-900 mt-1">
-          Admin Portal Login
+        <h1 className="text-2xl font-extrabold text-stone-900 mt-3 tracking-tight">
+          Admin Sign In
         </h1>
-        <p className="mt-2 text-stone-500 text-xs sm:text-sm">
-          Enter your administrator credentials to access salon operations.
+        <p className="mt-1.5 text-stone-500 text-xs sm:text-sm max-w-xs">
+          Sign in to manage your salon website content, services, and gallery.
         </p>
       </div>
 
@@ -101,7 +108,7 @@ function AdminLoginForm() {
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
+          <label className="mb-1.5 block text-xs font-semibold text-stone-700">
             Admin Email
           </label>
 
@@ -110,13 +117,13 @@ function AdminLoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            placeholder="admin@example.com"
-            className="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm text-stone-900 outline-none focus:border-[#B7925A] focus:ring-2 focus:ring-[#B7925A]/20"
+            placeholder="admin@invora.lk"
+            className="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm text-stone-900 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
+          <label className="mb-1.5 block text-xs font-semibold text-stone-700">
             Password
           </label>
 
@@ -127,13 +134,13 @@ function AdminLoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="••••••••••••"
-              className="w-full rounded-xl border border-stone-300 px-4 py-2.5 pr-11 text-sm text-stone-900 outline-none focus:border-[#B7925A] focus:ring-2 focus:ring-[#B7925A]/20"
+              className="w-full rounded-xl border border-stone-300 px-4 py-2.5 pr-11 text-sm text-stone-900 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               aria-label={showPassword ? "Hide password" : "Show password"}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-400 hover:text-stone-700 focus:outline-none transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-400 hover:text-stone-700 focus:outline-none transition-colors cursor-pointer"
             >
               {showPassword ? (
                 <EyeOffIcon className="h-4 w-4" />
@@ -147,9 +154,9 @@ function AdminLoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-stone-900 py-3 text-sm font-semibold text-white hover:bg-stone-800 disabled:opacity-50 transition-colors border border-[#B7925A]/30 shadow-sm"
+          className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#7C3AED] py-3 text-sm font-semibold text-white hover:bg-[#6D28D9] disabled:opacity-50 transition-all shadow-md shadow-purple-600/20 active:scale-[0.99] cursor-pointer mt-2"
         >
-          <LockIcon className="h-4 w-4 text-[#C5A46D]" />
+          <LockIcon className="h-4 w-4 text-purple-200" />
           <span>{loading ? "Authenticating..." : "Sign In to Admin Portal"}</span>
         </button>
       </form>
@@ -159,7 +166,7 @@ function AdminLoginForm() {
 
 export default function AdminLoginPage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#FAF7F2] px-4 py-12">
+    <main className="min-h-screen flex items-center justify-center bg-[#F8F9FA] px-4 py-12">
       <Suspense
         fallback={
           <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg text-center text-stone-500 text-sm">
