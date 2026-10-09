@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import {
   SettingsIcon,
@@ -18,6 +19,7 @@ import {
   ExternalLinkIcon,
   UploadCloudIcon,
   TrashIcon,
+  EditIcon,
   CheckCircleIcon,
   AlertCircleIcon,
   XIcon,
@@ -46,16 +48,29 @@ interface ExternalSystemData {
   bookingUrl: string;
 }
 
+interface SalonBranch {
+  _id?: string;
+  name: string;
+  address: string;
+  phone: string;
+  email?: string;
+  mapUrl?: string;
+  isMain?: boolean;
+}
+
 interface SalonSettingsData {
   salonName: string;
   logo: string;
   logoPublicId?: string;
+  footerLogo?: string;
+  footerLogoPublicId?: string;
   aboutDescription: string;
   phone: string;
   phoneSecondary: string;
   whatsapp: string;
   email: string;
   address: string;
+  branches?: SalonBranch[];
   openingHours: OpeningHour[];
   socialMedia: {
     facebook: string;
@@ -79,6 +94,7 @@ const DEFAULT_DAYS = [
 
 const SECTIONS = [
   { id: "salon-profile", label: "Salon Profile", icon: StoreIcon },
+  { id: "branches", label: "Salon Branches", icon: MapPinIcon },
   { id: "opening-hours", label: "Opening Hours", icon: ClockIcon },
   { id: "social-media", label: "Social Media", icon: ExternalLinkIcon },
   { id: "google-reviews", label: "Google Reviews", icon: StarIcon },
@@ -86,16 +102,20 @@ const SECTIONS = [
 ];
 
 export default function AdminSettingsPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState<SalonSettingsData>({
     salonName: "",
     logo: "",
     logoPublicId: "",
+    footerLogo: "",
+    footerLogoPublicId: "",
     aboutDescription: "",
     phone: "",
     phoneSecondary: "",
     whatsapp: "",
     email: "",
     address: "",
+    branches: [],
     openingHours: DEFAULT_DAYS.map((day) => ({
       day,
       open: "09:00",
@@ -126,10 +146,15 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [activeSection, setActiveSection] = useState("salon-profile");
 
-  // Logo state: "upload" or "url"
+  // Header Logo state: "upload" or "url"
   const [logoTab, setLogoTab] = useState<"upload" | "url">("upload");
   const [urlInput, setUrlInput] = useState<string>("");
   const [urlError, setUrlError] = useState<string | null>(null);
+
+  // Footer Logo state: "upload" or "url"
+  const [footerLogoTab, setFooterLogoTab] = useState<"upload" | "url">("upload");
+  const [footerUrlInput, setFooterUrlInput] = useState<string>("");
+  const [footerUrlError, setFooterUrlError] = useState<string | null>(null);
 
   // Toast feedback
   const [notification, setNotification] = useState<{
@@ -168,16 +193,33 @@ export default function AdminSettingsPage() {
             setUrlInput("");
           }
 
+          const hasFooterPublicId = Boolean(s.footerLogoPublicId && s.footerLogoPublicId.trim());
+          const hasFooterLogo = Boolean(s.footerLogo && s.footerLogo.trim());
+
+          if (hasFooterPublicId) {
+            setFooterLogoTab("upload");
+            setFooterUrlInput("");
+          } else if (hasFooterLogo) {
+            setFooterLogoTab("url");
+            setFooterUrlInput(s.footerLogo);
+          } else {
+            setFooterLogoTab("upload");
+            setFooterUrlInput("");
+          }
+
           const normalized: SalonSettingsData = {
             salonName: s.salonName || "",
             logo: s.logo || "",
             logoPublicId: s.logoPublicId || "",
+            footerLogo: s.footerLogo || "",
+            footerLogoPublicId: s.footerLogoPublicId || "",
             aboutDescription: s.aboutDescription || "",
             phone: s.phone || "",
             phoneSecondary: s.phoneSecondary || "",
             whatsapp: s.whatsapp || "",
             email: s.email || "",
             address: s.address || "",
+            branches: Array.isArray(s.branches) ? s.branches : [],
             openingHours:
               Array.isArray(s.openingHours) && s.openingHours.length > 0
                 ? s.openingHours
@@ -328,6 +370,52 @@ export default function AdminSettingsPage() {
     return trimmed.startsWith("https://") || (trimmed.startsWith("/") && !trimmed.startsWith("//"));
   };
 
+  const saveSettingsPayload = async (
+    dataToSave: SalonSettingsData,
+    successMsg = "Website settings saved successfully."
+  ) => {
+    if (!dataToSave.salonName.trim()) {
+      showNotification("error", "Salon Brand Name is required.");
+      return false;
+    }
+
+    setSaving(true);
+    try {
+      const payload = {
+        ...dataToSave,
+        salonName: dataToSave.salonName.trim(),
+        aboutDescription: dataToSave.aboutDescription.trim(),
+        phone: dataToSave.phone.trim(),
+        phoneSecondary: dataToSave.phoneSecondary.trim(),
+        whatsapp: dataToSave.whatsapp.trim(),
+        email: dataToSave.email.trim(),
+        address: dataToSave.address.trim(),
+      };
+
+      const res = await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showNotification("success", successMsg);
+        setInitialData(JSON.parse(JSON.stringify(dataToSave)));
+        router.refresh();
+        return true;
+      } else {
+        showNotification("error", data.message || "Failed to save website settings");
+        return false;
+      }
+    } catch {
+      showNotification("error", "Network error saving website settings");
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleUrlChange = (val: string) => {
     setUrlInput(val);
     if (val.trim() && !validateImageUrl(val)) {
@@ -342,24 +430,135 @@ export default function AdminSettingsPage() {
     }
   };
 
-  const handleLogoUpload = (result: UploadResult) => {
-    setFormData((prev) => ({
-      ...prev,
+  const handleLogoUpload = async (result: UploadResult) => {
+    const updated: SalonSettingsData = {
+      ...formData,
       logo: result.url,
       logoPublicId: result.publicId,
-    }));
+    };
+    setFormData(updated);
     setUrlInput("");
     setUrlError(null);
+    await saveSettingsPayload(updated, "Header logo uploaded and applied successfully!");
   };
 
-  const handleRemoveLogo = () => {
-    setFormData((prev) => ({
-      ...prev,
+  const handleRemoveLogo = async () => {
+    const updated: SalonSettingsData = {
+      ...formData,
       logo: "",
       logoPublicId: "",
-    }));
+    };
+    setFormData(updated);
     setUrlInput("");
     setUrlError(null);
+    await saveSettingsPayload(updated, "Header logo removed and saved.");
+  };
+
+  const handleFooterUrlChange = (val: string) => {
+    setFooterUrlInput(val);
+    if (val.trim() && !validateImageUrl(val)) {
+      setFooterUrlError("Please enter a valid image URL (must begin with https:// or /)");
+    } else {
+      setFooterUrlError(null);
+      setFormData((prev) => ({
+        ...prev,
+        footerLogo: val.trim(),
+        footerLogoPublicId: "",
+      }));
+    }
+  };
+
+  const handleFooterLogoUpload = async (result: UploadResult) => {
+    const updated: SalonSettingsData = {
+      ...formData,
+      footerLogo: result.url,
+      footerLogoPublicId: result.publicId,
+    };
+    setFormData(updated);
+    setFooterUrlInput("");
+    setFooterUrlError(null);
+    await saveSettingsPayload(updated, "Footer logo uploaded and applied successfully!");
+  };
+
+  const handleRemoveFooterLogo = async () => {
+    const updated: SalonSettingsData = {
+      ...formData,
+      footerLogo: "",
+      footerLogoPublicId: "",
+    };
+    setFormData(updated);
+    setFooterUrlInput("");
+    setFooterUrlError(null);
+    await saveSettingsPayload(updated, "Footer logo removed and saved.");
+  };
+
+  // Branch handlers
+  const handleAddBranch = () => {
+    const isFirst = (!formData.branches || formData.branches.length === 0);
+    const newBranch: SalonBranch = {
+      name: "",
+      address: "",
+      phone: formData.phone || "",
+      email: formData.email || "",
+      mapUrl: "",
+      isMain: isFirst,
+    };
+    setFormData((prev) => ({
+      ...prev,
+      branches: [...(prev.branches || []), newBranch],
+    }));
+  };
+
+  const handleUpdateBranch = (
+    index: number,
+    field: keyof SalonBranch,
+    val: string | boolean
+  ) => {
+    setFormData((prev) => {
+      const list = [...(prev.branches || [])];
+      list[index] = {
+        ...list[index],
+        [field]: val,
+      };
+      return { ...prev, branches: list };
+    });
+  };
+
+  const handleRemoveBranch = (index: number) => {
+    setFormData((prev) => {
+      const list = [...(prev.branches || [])];
+      list.splice(index, 1);
+      if (list.length > 0 && !list.some((b) => b.isMain)) {
+        list[0].isMain = true;
+      }
+      return { ...prev, branches: list };
+    });
+  };
+
+  const handleSetMainBranch = (index: number) => {
+    setFormData((prev) => {
+      const list = (prev.branches || []).map((b, i) => ({
+        ...b,
+        isMain: i === index,
+      }));
+      return { ...prev, branches: list };
+    });
+  };
+
+  const handleImportCurrentAddressAsBranch = () => {
+    const defaultBranch: SalonBranch = {
+      name: formData.salonName ? `${formData.salonName} Main Branch` : "Main Flagship Branch",
+      address: formData.address || "123 Beauty Street, Colombo 07",
+      phone: formData.phone || "+94 11 234 5678",
+      email: formData.email || "",
+      mapUrl: formData.googleReviews?.businessUrl || "",
+      isMain: true,
+    };
+    setFormData((prev) => ({
+      ...prev,
+      branches: [defaultBranch],
+    }));
+    showNotification("success", "Imported current salon address as primary branch.");
   };
 
   // Opening Hours handlers
@@ -410,6 +609,19 @@ export default function AdminSettingsPage() {
       setUrlInput(initialData.logo);
     }
     setUrlError(null);
+
+    if (initialData.footerLogoPublicId) {
+      setFooterLogoTab("upload");
+      setFooterUrlInput("");
+    } else if (initialData.footerLogo) {
+      setFooterLogoTab("url");
+      setFooterUrlInput(initialData.footerLogo);
+    } else {
+      setFooterLogoTab("upload");
+      setFooterUrlInput("");
+    }
+    setFooterUrlError(null);
+
     showNotification("success", "Restored last saved settings.");
   };
 
@@ -428,11 +640,35 @@ export default function AdminSettingsPage() {
       return;
     }
 
+    if (footerLogoTab === "url" && footerUrlInput.trim() && !validateImageUrl(footerUrlInput)) {
+      showNotification("error", "Please provide a valid https:// image URL for the footer logo.");
+      return;
+    }
+
     if (formData.email.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email.trim())) {
         showNotification("error", "Please provide a valid concierge email address.");
         return;
+      }
+    }
+
+    // Validate branches if added
+    if (formData.branches && formData.branches.length > 0) {
+      for (let i = 0; i < formData.branches.length; i++) {
+        const b = formData.branches[i];
+        if (!b.name.trim()) {
+          showNotification("error", `Branch #${i + 1} must have a name.`);
+          return;
+        }
+        if (!b.phone.trim()) {
+          showNotification("error", `Branch "${b.name || `#${i + 1}`}" must have a phone number.`);
+          return;
+        }
+        if (!b.address.trim()) {
+          showNotification("error", `Branch "${b.name || `#${i + 1}`}" must have an address.`);
+          return;
+        }
       }
     }
 
@@ -467,39 +703,7 @@ export default function AdminSettingsPage() {
       return;
     }
 
-    setSaving(true);
-
-    try {
-      const payload = {
-        ...formData,
-        salonName: formData.salonName.trim(),
-        aboutDescription: formData.aboutDescription.trim(),
-        phone: formData.phone.trim(),
-        phoneSecondary: formData.phoneSecondary.trim(),
-        whatsapp: formData.whatsapp.trim(),
-        email: formData.email.trim(),
-        address: formData.address.trim(),
-      };
-
-      const res = await fetch("/api/admin/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        showNotification("success", "Website settings saved successfully.");
-        setInitialData(JSON.parse(JSON.stringify(formData)));
-      } else {
-        showNotification("error", data.message || "Failed to save website settings");
-      }
-    } catch {
-      showNotification("error", "Network error saving website settings");
-    } finally {
-      setSaving(false);
-    }
+    await saveSettingsPayload(formData, "Website settings saved successfully.");
   };
 
   // Google Reviews status calculation
@@ -518,6 +722,19 @@ export default function AdminSettingsPage() {
         title="Website Settings"
         description="Manage the information and integrations displayed across the INVORA website."
         breadcrumbs={[{ label: "Website Settings" }]}
+        action={
+          <button
+            type="button"
+            disabled={!hasUnsavedChanges || saving}
+            onClick={() => handleSubmit()}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#7C3AED] px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-[#6D28D9] transition-all disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+          >
+            {saving && (
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            )}
+            <span>{saving ? "Saving..." : "Save Changes"}</span>
+          </button>
+        }
       />
 
       {/* Floating Notification */}
@@ -796,12 +1013,17 @@ export default function AdminSettingsPage() {
                     />
                   </div>
 
-                  {/* Salon Logo Section */}
+                  {/* Salon Logo (Header & Admin) */}
                   <div className="rounded-xl border border-stone-200 bg-stone-50/40 p-4 space-y-4">
                     <div>
-                      <h4 className="text-xs font-bold text-stone-800">Salon Logo</h4>
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-bold text-stone-800">Salon Logo (Header & Admin)</h4>
+                        <span className="text-[10px] font-semibold text-purple-700 bg-purple-100/80 px-2 py-0.5 rounded-full">
+                          Navbar & Admin
+                        </span>
+                      </div>
                       <p className="text-[11px] text-stone-500 mt-0.5">
-                        Choose how you want to add the salon logo.
+                        Displayed on the website header navbar and admin dashboard sidebar.
                       </p>
                     </div>
 
@@ -836,26 +1058,13 @@ export default function AdminSettingsPage() {
 
                     {/* Mode 1: Upload Logo */}
                     {logoTab === "upload" && (
-                      <div className="space-y-3">
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-stone-500">
-                          Current Logo
-                        </p>
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                          <div className="h-20 w-40 rounded-xl border border-stone-200 bg-white p-2 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
-                            {formData.logo ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={formData.logo}
-                                alt="Current Salon Logo"
-                                className="max-h-full max-w-full object-contain"
-                              />
-                            ) : (
-                              <span className="text-xs text-stone-400 italic">No logo configured</span>
-                            )}
-                          </div>
-
-                          <div className="space-y-1.5">
-                            {formData.logo && (
+                      <div className="space-y-3 w-full max-w-full">
+                        {formData.logo ? (
+                          <div className="space-y-2.5">
+                            <div className="flex items-center justify-between">
+                              <p className="text-[11px] font-bold uppercase tracking-wider text-stone-500">
+                                Current Header Logo
+                              </p>
                               <button
                                 type="button"
                                 onClick={handleRemoveLogo}
@@ -864,21 +1073,63 @@ export default function AdminSettingsPage() {
                                 <TrashIcon className="h-3.5 w-3.5" />
                                 <span>Remove Logo</span>
                               </button>
-                            )}
+                            </div>
 
-                            <div>
-                              <ImageUpload
-                                folder={CLOUDINARY_FOLDERS.SALON}
-                                value={formData.logo}
-                                publicId={formData.logoPublicId}
-                                label=""
-                                description="Recommended size: 400 x 200px. PNG, JPG, or WebP (Max 5MB)"
-                                onChange={handleLogoUpload}
-                                onRemove={handleRemoveLogo}
-                              />
+                            <div className="rounded-xl border border-stone-200 bg-white p-3 shadow-2xs space-y-3 w-full">
+                              {/* Logo preview with object-contain to preserve aspect ratio */}
+                              <div className="h-24 w-full rounded-lg border border-stone-100 bg-stone-50/50 p-2.5 flex items-center justify-center overflow-hidden">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={formData.logo}
+                                  alt="Current Header Logo"
+                                  className="max-h-full max-w-full object-contain"
+                                />
+                              </div>
+
+                              {/* Footer with status label and Replace Image trigger */}
+                              <div className="flex items-center justify-between gap-2 pt-2 border-t border-stone-100">
+                                <span className="text-[11px] text-stone-500 truncate max-w-[150px]">
+                                  {formData.logo.split("/").pop()}
+                                </span>
+
+                                <ImageUpload
+                                  folder={CLOUDINARY_FOLDERS.SALON}
+                                  value={formData.logo}
+                                  publicId={formData.logoPublicId}
+                                  label=""
+                                  onChange={handleLogoUpload}
+                                  onRemove={handleRemoveLogo}
+                                  renderTrigger={(open, isButtonDisabled) => (
+                                    <button
+                                      type="button"
+                                      onClick={() => open()}
+                                      disabled={isButtonDisabled}
+                                      className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 shadow-xs hover:border-[#7C3AED] hover:text-[#7C3AED] disabled:opacity-50 transition cursor-pointer"
+                                    >
+                                      <EditIcon className="h-3.5 w-3.5" />
+                                      <span>Replace Image</span>
+                                    </button>
+                                  )}
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-stone-500">
+                              Upload Logo
+                            </p>
+                            <ImageUpload
+                              folder={CLOUDINARY_FOLDERS.SALON}
+                              value=""
+                              publicId=""
+                              label=""
+                              description="Recommended: PNG or WebP with transparent background (Max 5MB)"
+                              onChange={handleLogoUpload}
+                              onRemove={handleRemoveLogo}
+                            />
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -888,15 +1139,25 @@ export default function AdminSettingsPage() {
                         <label className="block text-xs font-semibold text-stone-700">
                           Logo Image URL
                         </label>
-                        <div className="relative">
-                          <LinkIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
-                          <input
-                            type="url"
-                            value={urlInput}
-                            onChange={(e) => handleUrlChange(e.target.value)}
-                            placeholder="https://example.com/logo.png"
-                            className="w-full rounded-xl border border-stone-200 bg-white pl-10 pr-3.5 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
-                          />
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <LinkIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
+                            <input
+                              type="url"
+                              value={urlInput}
+                              onChange={(e) => handleUrlChange(e.target.value)}
+                              placeholder="https://example.com/logo.png"
+                              className="w-full rounded-xl border border-stone-200 bg-white pl-10 pr-3.5 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            disabled={!urlInput.trim() || saving || Boolean(urlError)}
+                            onClick={() => handleSubmit()}
+                            className="shrink-0 px-3 py-2 rounded-xl text-xs font-semibold bg-[#7C3AED] text-white hover:bg-[#6D28D9] disabled:opacity-40 transition cursor-pointer"
+                          >
+                            Apply URL
+                          </button>
                         </div>
 
                         {urlError && (
@@ -911,6 +1172,174 @@ export default function AdminSettingsPage() {
                               <img
                                 src={formData.logo}
                                 alt="Logo URL Preview"
+                                className="max-h-full max-w-full object-contain"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer Logo (Dark Footer) */}
+                  <div className="rounded-xl border border-stone-200 bg-stone-50/40 p-4 space-y-4">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-bold text-stone-800">Footer Logo</h4>
+                        <span className="text-[10px] font-semibold text-stone-300 bg-stone-900 px-2 py-0.5 rounded-full">
+                          Dark Footer
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-stone-500 mt-0.5">
+                        Displayed on the dark website footer. If not set, the header logo will be used.
+                      </p>
+                    </div>
+
+                    {/* Mode Toggle Buttons */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFooterLogoTab("upload")}
+                        className={`inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                          footerLogoTab === "upload"
+                            ? "bg-[#7C3AED] text-white shadow-xs"
+                            : "border border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
+                        }`}
+                      >
+                        <UploadCloudIcon className="h-3.5 w-3.5" />
+                        <span>Upload Logo</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setFooterLogoTab("url")}
+                        className={`inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                          footerLogoTab === "url"
+                            ? "bg-[#7C3AED] text-white shadow-xs"
+                            : "border border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
+                        }`}
+                      >
+                        <LinkIcon className="h-3.5 w-3.5" />
+                        <span>Use Image URL</span>
+                      </button>
+                    </div>
+
+                    {/* Mode 1: Upload Footer Logo */}
+                    {footerLogoTab === "upload" && (
+                      <div className="space-y-3 w-full max-w-full">
+                        {formData.footerLogo ? (
+                          <div className="space-y-2.5">
+                            <div className="flex items-center justify-between">
+                              <p className="text-[11px] font-bold uppercase tracking-wider text-stone-500">
+                                Current Footer Logo
+                              </p>
+                              <button
+                                type="button"
+                                onClick={handleRemoveFooterLogo}
+                                className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700 transition-colors cursor-pointer"
+                              >
+                                <TrashIcon className="h-3.5 w-3.5" />
+                                <span>Remove Logo</span>
+                              </button>
+                            </div>
+
+                            <div className="rounded-xl border border-stone-200 bg-white p-3 shadow-2xs space-y-3 w-full">
+                              {/* Dark preview container for footer logo */}
+                              <div className="h-24 w-full rounded-lg border border-stone-800 bg-[#0A0812] p-2.5 flex items-center justify-center overflow-hidden">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={formData.footerLogo}
+                                  alt="Current Footer Logo"
+                                  className="max-h-full max-w-full object-contain"
+                                />
+                              </div>
+
+                              {/* Footer with status label and Replace Image trigger */}
+                              <div className="flex items-center justify-between gap-2 pt-2 border-t border-stone-100">
+                                <span className="text-[11px] text-stone-500 truncate max-w-[150px]">
+                                  {formData.footerLogo.split("/").pop()}
+                                </span>
+
+                                <ImageUpload
+                                  folder={CLOUDINARY_FOLDERS.SALON}
+                                  value={formData.footerLogo}
+                                  publicId={formData.footerLogoPublicId}
+                                  label=""
+                                  onChange={handleFooterLogoUpload}
+                                  onRemove={handleRemoveFooterLogo}
+                                  renderTrigger={(open, isButtonDisabled) => (
+                                    <button
+                                      type="button"
+                                      onClick={() => open()}
+                                      disabled={isButtonDisabled}
+                                      className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 shadow-xs hover:border-[#7C3AED] hover:text-[#7C3AED] disabled:opacity-50 transition cursor-pointer"
+                                    >
+                                      <EditIcon className="h-3.5 w-3.5" />
+                                      <span>Replace Image</span>
+                                    </button>
+                                  )}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-stone-500">
+                              Upload Logo
+                            </p>
+                            <ImageUpload
+                              folder={CLOUDINARY_FOLDERS.SALON}
+                              value=""
+                              publicId=""
+                              label=""
+                              description="Recommended for dark footer: White/light PNG with transparent background (Max 5MB)"
+                              onChange={handleFooterLogoUpload}
+                              onRemove={handleRemoveFooterLogo}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Mode 2: Use Image URL for Footer Logo */}
+                    {footerLogoTab === "url" && (
+                      <div className="space-y-3">
+                        <label className="block text-xs font-semibold text-stone-700">
+                          Footer Logo Image URL
+                        </label>
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <LinkIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
+                            <input
+                              type="url"
+                              value={footerUrlInput}
+                              onChange={(e) => handleFooterUrlChange(e.target.value)}
+                              placeholder="https://example.com/footer-logo-white.png"
+                              className="w-full rounded-xl border border-stone-200 bg-white pl-10 pr-3.5 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            disabled={!footerUrlInput.trim() || saving || Boolean(footerUrlError)}
+                            onClick={() => handleSubmit()}
+                            className="shrink-0 px-3 py-2 rounded-xl text-xs font-semibold bg-[#7C3AED] text-white hover:bg-[#6D28D9] disabled:opacity-40 transition cursor-pointer"
+                          >
+                            Apply URL
+                          </button>
+                        </div>
+
+                        {footerUrlError && (
+                          <p className="text-xs text-rose-600 font-medium">{footerUrlError}</p>
+                        )}
+
+                        {formData.footerLogo && (
+                          <div className="mt-2 space-y-1.5">
+                            <p className="text-[11px] font-semibold text-stone-500">Live URL Preview (Dark Footer)</p>
+                            <div className="h-16 w-36 rounded-xl border border-stone-800 bg-[#0A0812] p-2 flex items-center justify-center overflow-hidden shadow-2xs">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={formData.footerLogo}
+                                alt="Footer Logo URL Preview"
                                 className="max-h-full max-w-full object-contain"
                               />
                             </div>
@@ -1021,6 +1450,9 @@ export default function AdminSettingsPage() {
                         className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
                       />
                     </div>
+                    <p className="mt-1.5 text-[11px] text-stone-400">
+                      Displayed on your footer and contact pages, and automatically updates the interactive Google Map location on the website.
+                    </p>
                   </div>
 
                   {/* About Description */}
@@ -1047,7 +1479,248 @@ export default function AdminSettingsPage() {
             </div>
 
             {/* ---------------------------------------------------- */}
-            {/* CARD 2: SALON OPENING HOURS                          */}
+            {/* CARD: SALON BRANCHES & LOCATIONS                     */}
+            {/* ---------------------------------------------------- */}
+            <div
+              id="branches"
+              className="rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-6"
+            >
+              {/* Card Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-100 pb-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100">
+                    <MapPinIcon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
+                      Salon Branches & Locations
+                    </h3>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      Manage multiple branches for your salon. These will be displayed in the website footer.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {(!formData.branches || formData.branches.length === 0) && (
+                    <button
+                      type="button"
+                      onClick={handleImportCurrentAddressAsBranch}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-stone-200 bg-white text-xs font-semibold text-stone-700 hover:bg-stone-50 transition cursor-pointer"
+                    >
+                      <span>Import Profile Address</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleAddBranch}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-purple-200 bg-purple-50 text-xs font-semibold text-[#7C3AED] hover:bg-purple-100 transition cursor-pointer"
+                  >
+                    <span>+ Add Branch</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={saving}
+                    onClick={() => handleSubmit()}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#7C3AED] text-xs font-semibold text-white shadow-xs hover:bg-[#6D28D9] transition cursor-pointer disabled:opacity-50"
+                  >
+                    {saving && (
+                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    )}
+                    <span>{saving ? "Saving..." : "Save Branches"}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Branches List */}
+              {(!formData.branches || formData.branches.length === 0) ? (
+                <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/50 p-8 text-center space-y-3">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 text-[#7C3AED]">
+                    <MapPinIcon className="h-6 w-6" />
+                  </div>
+                  <div className="max-w-md mx-auto space-y-1">
+                    <h4 className="text-sm font-bold text-stone-800">
+                      No Branches Configured
+                    </h4>
+                    <p className="text-xs text-stone-500">
+                      If you have multiple branches, add them here so customers can find each location and phone number in the footer.
+                    </p>
+                  </div>
+                  <div className="pt-2 flex flex-wrap items-center justify-center gap-2.5">
+                    <button
+                      type="button"
+                      onClick={handleImportCurrentAddressAsBranch}
+                      className="px-3.5 py-2 rounded-xl border border-stone-300 bg-white text-xs font-semibold text-stone-700 hover:bg-stone-50 transition cursor-pointer"
+                    >
+                      Use Profile Address as Branch 1
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleAddBranch}
+                      className="px-4 py-2 rounded-xl bg-[#7C3AED] text-xs font-semibold text-white hover:bg-[#6D28D9] transition cursor-pointer"
+                    >
+                      + Add New Branch
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {formData.branches.map((branch, index) => (
+                    <div
+                      key={index}
+                      className="rounded-xl border border-stone-200 bg-stone-50/40 p-4 sm:p-5 space-y-4 relative transition-all hover:border-purple-300"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200/70 pb-3">
+                        <div className="flex items-center gap-2.5">
+                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100 text-[#7C3AED] text-xs font-bold">
+                            {index + 1}
+                          </span>
+                          <span className="text-xs sm:text-sm font-bold text-stone-900">
+                            {branch.name.trim() || `Branch #${index + 1}`}
+                          </span>
+                          {branch.isMain && (
+                            <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200">
+                              Main Branch
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <label className="flex items-center gap-2 text-xs font-medium text-stone-600 cursor-pointer select-none">
+                            <input
+                              type="radio"
+                              name="mainBranchSelection"
+                              checked={Boolean(branch.isMain)}
+                              onChange={() => handleSetMainBranch(index)}
+                              className="text-[#7C3AED] focus:ring-[#7C3AED]"
+                            />
+                            <span>Set as Main Branch</span>
+                          </label>
+
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveBranch(index)}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700 transition cursor-pointer"
+                          >
+                            <TrashIcon className="h-3.5 w-3.5" />
+                            <span>Remove</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Branch Inputs Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-700 mb-1">
+                            Branch Name <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={branch.name}
+                            onChange={(e) => handleUpdateBranch(index, "name", e.target.value)}
+                            placeholder="e.g. Nugegoda Branch"
+                            className="w-full rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-700 mb-1">
+                            Phone Number <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <PhoneIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400 pointer-events-none" />
+                            <input
+                              type="tel"
+                              required
+                              value={branch.phone}
+                              onChange={(e) => handleUpdateBranch(index, "phone", e.target.value)}
+                              placeholder="+94 11 234 5678"
+                              className="w-full rounded-xl border border-stone-200 bg-white pl-9 pr-3.5 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-700 mb-1">
+                            Branch Email (Optional)
+                          </label>
+                          <div className="relative">
+                            <MailIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400 pointer-events-none" />
+                            <input
+                              type="email"
+                              value={branch.email || ""}
+                              onChange={(e) => handleUpdateBranch(index, "email", e.target.value)}
+                              placeholder="nugegoda@salvora.lk"
+                              className="w-full rounded-xl border border-stone-200 bg-white pl-9 pr-3.5 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="sm:col-span-2">
+                          <label className="block text-xs font-semibold text-stone-700 mb-1">
+                            Physical Address <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <MapPinIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400 pointer-events-none" />
+                            <input
+                              type="text"
+                              required
+                              value={branch.address}
+                              onChange={(e) => handleUpdateBranch(index, "address", e.target.value)}
+                              placeholder="No 06 Pagoda Rd, Nugegoda 10250"
+                              className="w-full rounded-xl border border-stone-200 bg-white pl-9 pr-3.5 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-700 mb-1">
+                            Google Maps Link (Optional)
+                          </label>
+                          <div className="relative">
+                            <LinkIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400 pointer-events-none" />
+                            <input
+                              type="url"
+                              value={branch.mapUrl || ""}
+                              onChange={(e) => handleUpdateBranch(index, "mapUrl", e.target.value)}
+                              placeholder="https://maps.google.com/..."
+                              className="w-full rounded-xl border border-stone-200 bg-white pl-9 pr-3.5 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  <div className="pt-3 flex flex-wrap items-center justify-between gap-3 border-t border-stone-200/80">
+                    <button
+                      type="button"
+                      onClick={handleAddBranch}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-purple-200 bg-purple-50/70 hover:bg-purple-100 text-xs font-semibold text-[#7C3AED] transition cursor-pointer"
+                    >
+                      <span>+ Add Another Branch</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={saving}
+                      onClick={() => handleSubmit()}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-xs font-semibold text-white shadow-xs transition cursor-pointer disabled:opacity-50"
+                    >
+                      {saving && (
+                        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      )}
+                      <span>{saving ? "Saving..." : "Save Branches"}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* ---------------------------------------------------- */}
+            {/* CARD 3: SALON OPENING HOURS                          */}
             {/* ---------------------------------------------------- */}
             <div
               id="opening-hours"

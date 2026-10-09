@@ -12,9 +12,9 @@ import SalonSettings from "@/models/SalonSettings";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Client Reviews | INVORA Salon",
+  title: "Client Reviews | salvora",
   description:
-    "Read real Google client reviews and feedback from guests who have experienced salon services at Invora.",
+    "Read real Google client reviews and feedback from guests who have experienced salon services at salvora.",
 };
 
 async function getBookingUrl(): Promise<string> {

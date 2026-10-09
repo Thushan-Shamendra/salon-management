@@ -14,9 +14,9 @@ import SalonSettings from "@/models/SalonSettings";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "About Us | INVORA Salon",
+  title: "About Us | salvora",
   description:
-    "Learn about Invora Salon, our story, values, modern space, and our dedicated beauty experts in Colombo.",
+    "Learn about salvora, our story, values, modern space, and our dedicated beauty experts in Colombo.",
 };
 
 async function getAboutData(): Promise<{

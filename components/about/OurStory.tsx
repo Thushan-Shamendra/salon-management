@@ -2,7 +2,6 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  PlayIcon,
   HeartIcon,
   SparklesIcon,
   ShieldCheckIcon,
@@ -25,19 +24,11 @@ export default function OurStory() {
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-stone-100 shadow-md group">
               <Image
                 src="/images/about-salon.jpg"
-                alt="Invora Salon interior and styling chairs"
+                alt="Salon interior and styling chairs"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/5" />
-
-              {/* Centered Play / Explore Button Emblem */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 text-[#7C3AED] shadow-xl backdrop-blur-sm transition-transform duration-300 group-hover:scale-110">
-                  <PlayIcon className="h-5 w-5 ml-0.5" />
-                </div>
-              </div>
             </div>
           </div>
 

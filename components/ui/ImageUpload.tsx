@@ -36,6 +36,9 @@ export interface ImageUploadProps {
   multiple?: boolean;
   maxFiles?: number;
   onMultipleChange?: (results: UploadResult[]) => void;
+  // Fit and custom trigger support
+  objectFit?: "cover" | "contain";
+  renderTrigger?: (open: () => void, isButtonDisabled: boolean) => React.ReactNode;
 }
 
 export default function ImageUpload({
@@ -51,6 +54,8 @@ export default function ImageUpload({
   multiple = false,
   maxFiles = 5,
   onMultipleChange,
+  objectFit = "cover",
+  renderTrigger,
 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -175,7 +180,18 @@ export default function ImageUpload({
         onClose={() => setIsUploading(false)}
       >
         {({ open, isLoading: widgetLoading }) => {
-          const isButtonDisabled = disabled || isUploading || widgetLoading;
+          const isButtonDisabled = Boolean(disabled || isUploading || widgetLoading);
+
+          /* ============================================================== */
+          /* CUSTOM TRIGGER MODE                                            */
+          /* ============================================================== */
+          if (renderTrigger) {
+            return (
+              <div className="w-full">
+                {renderTrigger(open, isButtonDisabled)}
+              </div>
+            );
+          }
 
           /* ============================================================== */
           /* CIRCULAR MODE (For Customer Profile / Stylist Avatars)        */
@@ -249,19 +265,23 @@ export default function ImageUpload({
           /* RECTANGULAR MODE (For Services / Catalog / Community)          */
           /* ============================================================== */
           return (
-            <div className="space-y-3">
+            <div className="space-y-3 w-full max-w-full">
               {hasImage ? (
                 /* Preview State with Replace & Delete buttons */
-                <div className="relative overflow-hidden rounded-2xl border border-stone-200 bg-[#FAF7F2] p-3 shadow-xs transition hover:border-[#7C3AED]/60">
+                <div className="relative overflow-hidden rounded-2xl border border-stone-200 bg-[#FAF7F2] p-3 shadow-xs transition hover:border-[#7C3AED]/60 w-full max-w-full">
                   <div className="flex flex-col sm:flex-row items-center gap-4">
                     {/* Thumbnail */}
-                    <div className="relative h-32 w-full sm:w-44 sm:h-28 shrink-0 overflow-hidden rounded-xl border border-stone-200/80 bg-stone-100">
+                    <div className="relative h-32 w-full sm:w-44 sm:h-28 shrink-0 overflow-hidden rounded-xl border border-stone-200/80 bg-white p-2 flex items-center justify-center">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={currentUrl}
                         alt="Uploaded preview"
                         onError={() => setFailedUrl(currentUrl)}
-                        className="h-full w-full object-cover"
+                        className={`max-h-full max-w-full ${
+                          objectFit === "contain"
+                            ? "object-contain"
+                            : "h-full w-full object-cover"
+                        }`}
                       />
                     </div>
 

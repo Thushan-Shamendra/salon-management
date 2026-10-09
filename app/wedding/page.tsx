@@ -16,7 +16,7 @@ import { WeddingPackageCardData } from "@/components/wedding/WeddingPackageCard"
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Wedding Beauty Services | INVORA Salon",
+  title: "Wedding Beauty Services | salvora",
   description:
     "Bridal makeup, hair styling, nail care, facials, and complete wedding packages designed to make you look and feel your best for your special day.",
 };

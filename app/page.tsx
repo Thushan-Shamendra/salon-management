@@ -11,7 +11,7 @@ import BookingCTA from "@/components/home/BookingCTA";
 import ContactPreview from "@/components/home/ContactPreview";
 import Footer from "@/components/layout/Footer";
 import { connectDB } from "@/lib/mongodb";
-import SalonSettings from "@/models/SalonSettings";
+import SalonSettings, { IOpeningHour } from "@/models/SalonSettings";
 import Service from "@/models/Service";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +19,7 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   let bookingUrl = "";
   let serviceCount = 0;
+  let initialSettings = undefined;
 
   try {
     await connectDB();
@@ -26,8 +27,25 @@ export default async function HomePage() {
       SalonSettings.findOne().lean(),
       Service.countDocuments({ isActive: { $ne: false } }),
     ]);
-    if (settings?.externalSystem?.bookingUrl) {
-      bookingUrl = settings.externalSystem.bookingUrl;
+    if (settings) {
+      if (settings.externalSystem?.bookingUrl) {
+        bookingUrl = settings.externalSystem.bookingUrl;
+      }
+      initialSettings = {
+        salonName: settings.salonName || undefined,
+        phone: settings.phone || undefined,
+        email: settings.email || undefined,
+        address: settings.address || undefined,
+        businessUrl: settings.googleReviews?.businessUrl || undefined,
+        openingHours: Array.isArray(settings.openingHours)
+          ? settings.openingHours.map((h: IOpeningHour) => ({
+              day: String(h.day),
+              open: String(h.open),
+              close: String(h.close),
+              isClosed: Boolean(h.isClosed),
+            }))
+          : undefined,
+      };
     }
     serviceCount = count;
   } catch {
@@ -68,7 +86,7 @@ export default async function HomePage() {
         <BookingCTA bookingUrl={bookingUrl} />
 
         {/* 10. Contact / opening hours preview */}
-        <ContactPreview />
+        <ContactPreview initialSettings={initialSettings} />
       </main>
 
       {/* 11. Footer */}

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import SalonSettings from "@/models/SalonSettings";
@@ -72,12 +73,15 @@ export async function PUT(request: Request) {
       salonName,
       logo,
       logoPublicId,
+      footerLogo,
+      footerLogoPublicId,
       aboutDescription,
       phone,
       phoneSecondary,
       whatsapp,
       email,
       address,
+      branches,
       openingHours,
       socialMedia,
       externalSystem,
@@ -118,15 +122,53 @@ export async function PUT(request: Request) {
       }
     }
 
+    // Validate footerLogo URL if provided
+    if (footerLogo !== undefined && footerLogo !== null && typeof footerLogo === "string" && footerLogo.trim() !== "") {
+      const trimmedFooterLogo = footerLogo.trim();
+      const isHttps = trimmedFooterLogo.startsWith("https://");
+      const isLocal = trimmedFooterLogo.startsWith("/") && !trimmedFooterLogo.startsWith("//");
+      if (!isHttps && !isLocal) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Please enter a valid footer image URL (must begin with https:// or /)",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate footerLogoPublicId if provided
+    if (
+      footerLogoPublicId !== undefined &&
+      footerLogoPublicId !== null &&
+      typeof footerLogoPublicId === "string" &&
+      footerLogoPublicId.trim() !== ""
+    ) {
+      const trimmedPublicId = footerLogoPublicId.trim();
+      if (!trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.SALON)) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: `Footer logo must belong to ${CLOUDINARY_FOLDERS.SALON}`,
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     await connectDB();
     const settings = await getOrCreateSettings();
 
     const oldPublicId = settings.logoPublicId ? settings.logoPublicId.trim() : "";
     let shouldDeleteOldCloudinary = false;
 
+    const oldFooterPublicId = settings.footerLogoPublicId ? settings.footerLogoPublicId.trim() : "";
+    let shouldDeleteOldFooterCloudinary = false;
+
     if (salonName !== undefined) settings.salonName = salonName.trim();
 
-    // Update logo and logoPublicId
+    // Update logo and logoPublicId (Header Logo)
     if (logo !== undefined) {
       const newLogo = typeof logo === "string" ? logo.trim() : "";
       settings.logo = newLogo;
@@ -152,12 +194,75 @@ export async function PUT(request: Request) {
       }
     }
 
+    // Update footerLogo and footerLogoPublicId (Footer Logo)
+    if (footerLogo !== undefined) {
+      const newFooterLogo = typeof footerLogo === "string" ? footerLogo.trim() : "";
+      settings.footerLogo = newFooterLogo;
+    }
+
+    if (footerLogoPublicId !== undefined) {
+      const newFooterPublicId = typeof footerLogoPublicId === "string" ? footerLogoPublicId.trim() : "";
+      settings.footerLogoPublicId = newFooterPublicId;
+
+      if (
+        oldFooterPublicId &&
+        oldFooterPublicId.startsWith(CLOUDINARY_FOLDERS.SALON) &&
+        oldFooterPublicId !== newFooterPublicId
+      ) {
+        shouldDeleteOldFooterCloudinary = true;
+      }
+    } else if (footerLogo !== undefined && !footerLogo) {
+      if (oldFooterPublicId && oldFooterPublicId.startsWith(CLOUDINARY_FOLDERS.SALON)) {
+        settings.footerLogoPublicId = "";
+        shouldDeleteOldFooterCloudinary = true;
+      }
+    }
+
     if (aboutDescription !== undefined) settings.aboutDescription = aboutDescription.trim();
     if (phone !== undefined) settings.phone = phone.trim();
     if (phoneSecondary !== undefined) settings.phoneSecondary = phoneSecondary.trim();
     if (whatsapp !== undefined) settings.whatsapp = whatsapp.trim();
     if (email !== undefined) settings.email = email.trim();
     if (address !== undefined) settings.address = address.trim();
+
+    if (branches !== undefined) {
+      if (!Array.isArray(branches)) {
+        return NextResponse.json(
+          { success: false, message: "Branches must be an array" },
+          { status: 400 }
+        );
+      }
+      for (const branch of branches) {
+        if (!branch.name || typeof branch.name !== "string" || !branch.name.trim()) {
+          return NextResponse.json(
+            { success: false, message: "Each branch must have a name" },
+            { status: 400 }
+          );
+        }
+        if (!branch.address || typeof branch.address !== "string" || !branch.address.trim()) {
+          return NextResponse.json(
+            { success: false, message: "Each branch must have an address" },
+            { status: 400 }
+          );
+        }
+        if (!branch.phone || typeof branch.phone !== "string" || !branch.phone.trim()) {
+          return NextResponse.json(
+            { success: false, message: "Each branch must have a phone number" },
+            { status: 400 }
+          );
+        }
+      }
+      settings.branches = branches.map((b) => ({
+        name: b.name.trim(),
+        address: b.address.trim(),
+        phone: b.phone.trim(),
+        email: typeof b.email === "string" ? b.email.trim() : "",
+        mapUrl: typeof b.mapUrl === "string" ? b.mapUrl.trim() : "",
+        isMain: Boolean(b.isMain),
+      }));
+      settings.markModified("branches");
+    }
+
     if (Array.isArray(openingHours)) settings.openingHours = openingHours;
     if (socialMedia && typeof socialMedia === "object") {
       settings.socialMedia = {
@@ -248,12 +353,34 @@ export async function PUT(request: Request) {
     // 1. Save to MongoDB successfully first
     await settings.save();
 
+    // Revalidate website pages so footer, contact page, and header update immediately
+    try {
+      revalidatePath("/", "layout");
+      revalidatePath("/");
+      revalidatePath("/contact");
+      revalidatePath("/about");
+      revalidatePath("/services");
+      revalidatePath("/wedding");
+      revalidatePath("/gallery");
+      revalidatePath("/reviews");
+    } catch {
+      // In standalone tests or scripts next/cache context may be absent
+    }
+
     // 2. ONLY AFTER successful DB save, delete old Cloudinary image
     if (shouldDeleteOldCloudinary && oldPublicId) {
       try {
         await deleteCloudinaryImage(oldPublicId);
       } catch (cldErr) {
         console.error("Failed to delete previous salon logo from Cloudinary:", cldErr);
+      }
+    }
+
+    if (shouldDeleteOldFooterCloudinary && oldFooterPublicId) {
+      try {
+        await deleteCloudinaryImage(oldFooterPublicId);
+      } catch (cldErr) {
+        console.error("Failed to delete previous salon footer logo from Cloudinary:", cldErr);
       }
     }
 

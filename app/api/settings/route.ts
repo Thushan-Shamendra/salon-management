@@ -23,14 +23,18 @@ export async function GET() {
       settings: {
         salonName: settings.salonName || "LUMINA Luxury Salon",
         logo: settings.logo || "",
+        headerLogo: settings.logo || "",
+        footerLogo: settings.footerLogo || "",
         aboutDescription: settings.aboutDescription || "",
         phone: settings.phone || "",
         phoneSecondary: settings.phoneSecondary || "",
         whatsapp: settings.whatsapp || "",
         email: settings.email || "",
         address: settings.address || "",
+        branches: settings.branches || [],
         openingHours: settings.openingHours || [],
         socialMedia: settings.socialMedia || {},
+        businessUrl: settings.googleReviews?.businessUrl || "",
         externalSystem: settings.externalSystem || {
           loginUrl: "",
           registerUrl: "",

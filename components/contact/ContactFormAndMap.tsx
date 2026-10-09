@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/icons";
 
 interface ContactFormAndMapProps {
+  salonName?: string;
   address?: string;
   email?: string;
   phone?: string;
@@ -16,6 +17,7 @@ interface ContactFormAndMapProps {
 }
 
 export default function ContactFormAndMap({
+  salonName = "Invora Salon",
   address = "",
   email = "info@invora.lk",
   businessUrl = "",
@@ -78,11 +80,19 @@ export default function ContactFormAndMap({
   };
 
   const hasAddress = Boolean(address && address.trim());
+  const isEmbedBusinessUrl = Boolean(businessUrl && businessUrl.includes("/maps/embed"));
   const mapDirectionsUrl =
-    businessUrl ||
-    (hasAddress
+    businessUrl && !isEmbedBusinessUrl
+      ? businessUrl
+      : hasAddress
       ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
-      : "");
+      : "";
+
+  const mapEmbedUrl = isEmbedBusinessUrl
+    ? businessUrl
+    : `https://maps.google.com/maps?q=${encodeURIComponent(
+        address
+      )}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
 
   return (
     <section className="bg-[#FAF8F5] py-16 sm:py-20 lg:py-24 border-b border-stone-200/60">
@@ -286,10 +296,9 @@ export default function ContactFormAndMap({
               <div className="relative w-full h-full min-h-[420px] rounded-3xl overflow-hidden border border-stone-200/90 shadow-md bg-stone-100 flex flex-col">
                 {/* Responsive Iframe Embed Centered on Salon Address */}
                 <iframe
-                  title="Invora Salon Location Map"
-                  src={`https://maps.google.com/maps?q=${encodeURIComponent(
-                    address
-                  )}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                  key={mapEmbedUrl}
+                  title={`${salonName || "Invora Salon"} Location Map`}
+                  src={mapEmbedUrl}
                   className="w-full h-full flex-1 border-0 min-h-[380px]"
                   loading="lazy"
                   allowFullScreen
@@ -301,7 +310,7 @@ export default function ContactFormAndMap({
                     <MapPinIcon className="h-5 w-5 text-[#7C3AED] shrink-0 mt-0.5" />
                     <div>
                       <h4 className="text-xs sm:text-sm font-bold text-stone-900">
-                        Invora Salon
+                        {salonName || "Invora Salon"}
                       </h4>
                       <p className="text-xs text-stone-500 line-clamp-1">{address}</p>
                     </div>

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lumina Salon | Look Beautiful. Feel Confident.",
+  title: "salvora | Look Beautiful. Feel Confident.",
   description:
     "Experience professional beauty and hair care services designed to help you look and feel your best. Premium styling, treatments, and bridal care.",
 };

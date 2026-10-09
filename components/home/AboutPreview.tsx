@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRightIcon, PlayIcon, SparklesIcon, HeartIcon } from "@/components/ui/icons";
+import { ArrowRightIcon, SparklesIcon, HeartIcon } from "@/components/ui/icons";
 
 export default function AboutPreview() {
   return (
@@ -26,19 +26,11 @@ export default function AboutPreview() {
             <div className="relative aspect-[16/11] w-full overflow-hidden rounded-3xl bg-stone-200 shadow-md shadow-stone-900/5 group">
               <Image
                 src="/images/about-salon.jpg"
-                alt="Invora Salon modern interior and styling stations"
+                alt="Salon modern interior and styling stations"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-black/15 transition-opacity group-hover:bg-black/25" />
-
-              {/* Centered Tour Badge Overlay */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 text-[#7C3AED] shadow-xl backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:bg-[#7C3AED] group-hover:text-white">
-                  <PlayIcon className="h-6 w-6 ml-0.5" />
-                </div>
-              </div>
             </div>
           </div>
 

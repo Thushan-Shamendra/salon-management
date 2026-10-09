@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import AdminLayoutClient from "@/components/admin/AdminLayoutClient";
 
 export const metadata = {
-  title: "Admin Portal | INVORA Salon",
+  title: "Admin Portal | salvora",
   description: "Website content administration portal.",
 };
 

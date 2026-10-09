@@ -20,9 +20,9 @@ import { ServiceCardData } from "@/components/ui/ServiceCard";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Our Services | INVORA Salon",
+  title: "Our Services | salvora",
   description:
-    "Explore professional salon treatments created to help you look and feel your best at Invora.",
+    "Explore professional salon treatments created to help you look and feel your best at salvora.",
 };
 
 async function getServices(): Promise<ServiceCardData[]> {

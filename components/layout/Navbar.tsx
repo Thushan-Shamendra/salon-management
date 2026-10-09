@@ -21,24 +21,34 @@ export default function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [headerLogo, setHeaderLogo] = useState<string>("");
+  const [salonName, setSalonName] = useState<string>("Invora");
   const [externalSystem, setExternalSystem] = useState<ExternalSystemLinks>({
     loginUrl: "",
     registerUrl: "",
     bookingUrl: "",
   });
 
-  // Fetch external system links from Website Settings
+  // Fetch external system links and branding from Website Settings
   useEffect(() => {
     let isMounted = true;
     fetch("/api/settings")
       .then((res) => res.json())
       .then((data) => {
-        if (isMounted && data?.success && data?.settings?.externalSystem) {
-          setExternalSystem({
-            loginUrl: data.settings.externalSystem.loginUrl || "",
-            registerUrl: data.settings.externalSystem.registerUrl || "",
-            bookingUrl: data.settings.externalSystem.bookingUrl || "",
-          });
+        if (isMounted && data?.success && data?.settings) {
+          if (data.settings.headerLogo || data.settings.logo) {
+            setHeaderLogo(data.settings.headerLogo || data.settings.logo);
+          }
+          if (data.settings.salonName) {
+            setSalonName(data.settings.salonName);
+          }
+          if (data.settings.externalSystem) {
+            setExternalSystem({
+              loginUrl: data.settings.externalSystem.loginUrl || "",
+              registerUrl: data.settings.externalSystem.registerUrl || "",
+              bookingUrl: data.settings.externalSystem.bookingUrl || "",
+            });
+          }
         }
       })
       .catch(() => {});
@@ -80,9 +90,18 @@ export default function Navbar() {
         <Link
           href="/"
           className="group flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] rounded-lg transition-transform hover:opacity-90"
-          aria-label="Invora Home"
+          aria-label={`${salonName} Home`}
         >
-          <InvoraLogo theme="light" className="h-10 sm:h-11 w-auto" />
+          {headerLogo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={headerLogo}
+              alt={salonName}
+              className="h-10 sm:h-11 w-auto max-w-[220px] object-contain"
+            />
+          ) : (
+            <InvoraLogo theme="light" className="h-10 sm:h-11 w-auto object-contain" />
+          )}
         </Link>
 
         {/* Desktop Navigation Links */}

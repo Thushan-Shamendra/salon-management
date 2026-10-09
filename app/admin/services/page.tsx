@@ -508,28 +508,13 @@ export default function AdminServicesPage() {
       </div>
 
       {/* ========================================================== */}
-      {/* 4. MAIN CONTENT AREA: SERVICES GRID + ADD/EDIT PANEL       */}
+      {/* 4. MAIN CONTENT AREA: SERVICES GRID                        */}
       {/* ========================================================== */}
-      <div
-        className={
-          isFormOpen
-            ? "grid grid-cols-1 lg:grid-cols-12 gap-7 items-start"
-            : "block"
-        }
-      >
-        {/* ======================================================== */}
-        {/* LEFT / CENTER: SERVICES GRID                            */}
-        {/* ======================================================== */}
-        <div className={isFormOpen ? "lg:col-span-7 xl:col-span-8" : "w-full"}>
+      <div className="w-full">
+        <div className="w-full">
           {loading ? (
             /* Loading skeletons */
-            <div
-              className={`grid gap-5 ${
-                isFormOpen
-                  ? "grid-cols-1 sm:grid-cols-2"
-                  : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-              }`}
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {[1, 2, 3, 4, 5, 6].map((idx) => (
                 <div
                   key={idx}
@@ -572,13 +557,7 @@ export default function AdminServicesPage() {
             )
           ) : (
             /* Services Cards Grid */
-            <div
-              className={`grid gap-5 ${
-                isFormOpen
-                  ? "grid-cols-1 sm:grid-cols-2"
-                  : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-              }`}
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {filteredServices.map((service) => (
                 <div
                   key={service._id}
@@ -687,11 +666,17 @@ export default function AdminServicesPage() {
         </div>
 
         {/* ======================================================== */}
-        {/* RIGHT: ADD / EDIT SERVICE PANEL (MATCHES MOCKUP)         */}
+        {/* POPUP MODAL: ADD / EDIT SERVICE (CENTERED IN MIDDLE)     */}
         {/* ======================================================== */}
         {isFormOpen && (
-          <div className="lg:col-span-5 xl:col-span-4 sticky top-24">
-            <div className="rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-md transition-all">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs overflow-y-auto animate-fadeIn">
+            {/* Backdrop click to close */}
+            <div
+              className="fixed inset-0"
+              onClick={handleCloseForm}
+              aria-hidden="true"
+            />
+            <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-2xl transition-all z-10 my-auto">
               {/* Panel Header */}
               <div className="flex items-start justify-between gap-3 border-b border-stone-100 pb-4">
                 <div>

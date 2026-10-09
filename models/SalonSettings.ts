@@ -20,16 +20,29 @@ export interface IExternalSystemSettings {
   bookingUrl: string;
 }
 
+export interface ISalonBranch {
+  _id?: string;
+  name: string;
+  address: string;
+  phone: string;
+  email?: string;
+  mapUrl?: string;
+  isMain?: boolean;
+}
+
 export interface ISalonSettings extends Document {
   salonName: string;
   logo: string;
   logoPublicId?: string;
+  footerLogo?: string;
+  footerLogoPublicId?: string;
   aboutDescription: string;
   phone: string;
   phoneSecondary: string;
   whatsapp: string;
   email: string;
   address: string;
+  branches?: ISalonBranch[];
   openingHours: IOpeningHour[];
   socialMedia: {
     facebook: string;
@@ -70,6 +83,16 @@ const SalonSettingsSchema = new Schema<ISalonSettings>(
       default: "",
       trim: true,
     },
+    footerLogo: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    footerLogoPublicId: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     aboutDescription: {
       type: String,
       default:
@@ -100,6 +123,19 @@ const SalonSettingsSchema = new Schema<ISalonSettings>(
       type: String,
       default: "42 Horton Place, Cinnamon Gardens, Colombo 07, Sri Lanka",
       trim: true,
+    },
+    branches: {
+      type: [
+        {
+          name: { type: String, required: true, trim: true },
+          address: { type: String, required: true, trim: true },
+          phone: { type: String, required: true, trim: true },
+          email: { type: String, default: "", trim: true },
+          mapUrl: { type: String, default: "", trim: true },
+          isMain: { type: Boolean, default: false },
+        },
+      ],
+      default: [],
     },
     openingHours: {
       type: [

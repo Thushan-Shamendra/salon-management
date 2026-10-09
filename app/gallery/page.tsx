@@ -12,9 +12,9 @@ import SalonSettings from "@/models/SalonSettings";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Gallery | INVORA Salon",
+  title: "Gallery | salvora",
   description:
-    "Explore our gallery of real salon moments, treatments, styling and client transformations at Invora.",
+    "Explore our gallery of real salon moments, treatments, styling and client transformations at salvora.",
 };
 
 async function getGalleryData(): Promise<{

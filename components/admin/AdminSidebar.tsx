@@ -28,6 +28,29 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [headerLogo, setHeaderLogo] = React.useState<string>("");
+  const [salonName, setSalonName] = React.useState<string>("INVORA Salon");
+
+  React.useEffect(() => {
+    let isMounted = true;
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (isMounted && data?.success && data?.settings) {
+          if (data.settings.headerLogo || data.settings.logo) {
+            setHeaderLogo(data.settings.headerLogo || data.settings.logo);
+          }
+          if (data.settings.salonName) {
+            setSalonName(data.settings.salonName);
+          }
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -86,16 +109,27 @@ export default function AdminSidebar({
             className="flex items-center gap-3 focus:outline-none group"
           >
             <div className="flex flex-col">
-              <div className="relative h-8 w-32">
-                <Image
-                  src="/images/invora-logo-light-trimmed.png"
-                  alt="INVORA Salon"
-                  fill
-                  className="object-contain object-left"
-                  priority
-                />
-              </div>
-              <span className="text-[9px] uppercase tracking-[0.25em] text-[#A78BFA] font-bold -mt-0.5">
+              {headerLogo ? (
+                <div className="relative h-8 max-w-[140px] flex items-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={headerLogo}
+                    alt={salonName}
+                    className="h-8 w-auto max-w-[140px] object-contain object-left"
+                  />
+                </div>
+              ) : (
+                <div className="relative h-8 w-32">
+                  <Image
+                    src="/images/invora-logo-light-trimmed.png"
+                    alt={salonName}
+                    fill
+                    className="object-contain object-left"
+                    priority
+                  />
+                </div>
+              )}
+              <span className="text-[9px] uppercase tracking-[0.25em] text-[#A78BFA] font-bold mt-0.5">
                 WEBSITE ADMIN
               </span>
             </div>

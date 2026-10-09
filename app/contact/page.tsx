@@ -13,12 +13,13 @@ import SalonSettings from "@/models/SalonSettings";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Contact Us | INVORA Salon",
+  title: "Contact Us | salvora",
   description:
-    "Get in touch with Invora Salon in Colombo for inquiries, guidance, and beauty appointments.",
+    "Get in touch with salvora for inquiries, guidance, and beauty appointments.",
 };
 
 interface ContactSettingsData {
+  salonName: string;
   phone: string;
   email: string;
   address: string;
@@ -34,6 +35,7 @@ async function getContactSettings(): Promise<ContactSettingsData> {
     const settings = await SalonSettings.findOne().lean();
 
     return {
+      salonName: settings?.salonName || "Invora Salon",
       phone: settings?.phone || "",
       email: settings?.email || "",
       address: settings?.address || "",
@@ -51,6 +53,7 @@ async function getContactSettings(): Promise<ContactSettingsData> {
   } catch (error) {
     console.error("Failed to load contact settings:", error);
     return {
+      salonName: "Invora Salon",
       phone: "",
       email: "",
       address: "",
@@ -62,7 +65,7 @@ async function getContactSettings(): Promise<ContactSettingsData> {
 }
 
 export default async function ContactPage() {
-  const { phone, email, address, openingHours, bookingUrl, businessUrl } =
+  const { salonName, phone, email, address, openingHours, bookingUrl, businessUrl } =
     await getContactSettings();
 
   return (
@@ -84,6 +87,7 @@ export default async function ContactPage() {
 
         {/* 4. Contact Form + Map */}
         <ContactFormAndMap
+          salonName={salonName}
           address={address}
           email={email}
           phone={phone}
