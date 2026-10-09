@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   HomeIcon,
   ScissorsIcon,
+  SparklesIcon,
   UsersIcon,
   ImageIcon,
   SettingsIcon,
@@ -51,6 +52,11 @@ export default function AdminSidebar({
       name: "Services",
       href: "/admin/services",
       icon: ScissorsIcon,
+    },
+    {
+      name: "Wedding",
+      href: "/admin/wedding",
+      icon: SparklesIcon,
     },
     {
       name: "Beauticians",

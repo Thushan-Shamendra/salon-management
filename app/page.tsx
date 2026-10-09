@@ -2,6 +2,7 @@ import Navbar from "@/components/layout/Navbar";
 import HeroSection from "@/components/home/HeroSection";
 import AboutPreview from "@/components/home/AboutPreview";
 import FeaturedServices from "@/components/home/FeaturedServices";
+import WeddingPreview from "@/components/home/WeddingPreview";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
 import BeauticiansPreview from "@/components/home/BeauticiansPreview";
 import GalleryPreview from "@/components/home/GalleryPreview";
@@ -48,7 +49,10 @@ export default async function HomePage() {
         {/* 4. Featured Services */}
         <FeaturedServices bookingUrl={bookingUrl} />
 
-        {/* 5. Why Choose Invora */}
+        {/* 5. Wedding Beauty Promotional Section */}
+        <WeddingPreview />
+
+        {/* 6. Why Choose Invora */}
         <WhyChooseUs />
 
         {/* 6. Meet Our Beauty Experts */}

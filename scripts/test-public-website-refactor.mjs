@@ -40,7 +40,7 @@ async function runRefactorVerificationSuite() {
   }
 
   // 1. Verify Public Pages return 200 OK
-  const publicRoutes = ["/", "/about", "/services", "/gallery", "/reviews", "/contact"];
+  const publicRoutes = ["/", "/about", "/services", "/wedding", "/gallery", "/reviews", "/contact"];
   for (const route of publicRoutes) {
     try {
       const res = await fetch(`${BASE_URL}${route}`);

@@ -13,6 +13,7 @@ import {
   AlertCircleIcon,
   ArrowRightIcon,
   SettingsIcon,
+  SparklesIcon,
   StoreIcon,
   PhoneIcon,
   MailIcon,
@@ -28,6 +29,10 @@ interface DashboardStats {
   featuredGalleryPhotos: number;
   totalBeauticians: number;
   activeBeauticians: number;
+  totalWeddingServices?: number;
+  activeWeddingServices?: number;
+  totalWeddingPackages?: number;
+  activeWeddingPackages?: number;
   googleReviewsEnabled: boolean;
   externalBookingConfigured: boolean;
 }
@@ -339,7 +344,7 @@ export default function AdminDashboardPage() {
           Manage your website content with these quick actions.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {/* Action 1: Add Service */}
           <Link
             href="/admin/services"
@@ -361,7 +366,32 @@ export default function AdminDashboardPage() {
             </div>
           </Link>
 
-          {/* Action 2: Add Beautician */}
+          {/* Action 2: Manage Wedding */}
+          <Link
+            href="/admin/wedding"
+            className="group flex items-center justify-between p-4 rounded-2xl border border-purple-200/90 bg-purple-50/30 hover:bg-purple-50/70 hover:border-purple-400 transition-all duration-200"
+          >
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-[#7C3AED] border border-purple-200 group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
+                <SparklesIcon className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-xs sm:text-sm font-bold text-stone-900 group-hover:text-[#7C3AED] transition-colors">
+                  Manage Wedding
+                </h3>
+                <p className="text-[11px] text-purple-700 font-medium">
+                  {loading
+                    ? "..."
+                    : `${stats?.totalWeddingServices ?? 0} svc • ${stats?.totalWeddingPackages ?? 0} pkgs`}
+                </p>
+              </div>
+            </div>
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#7C3AED] text-white shadow-2xs group-hover:scale-105 transition-transform shrink-0 ml-2">
+              <ArrowRightIcon className="h-3.5 w-3.5" />
+            </div>
+          </Link>
+
+          {/* Action 3: Add Beautician */}
           <Link
             href="/admin/beauticians"
             className="group flex items-center justify-between p-4 rounded-2xl border border-stone-200/80 bg-stone-50/50 hover:bg-purple-50/40 hover:border-purple-300 transition-all duration-200"
@@ -382,7 +412,7 @@ export default function AdminDashboardPage() {
             </div>
           </Link>
 
-          {/* Action 3: Add Gallery Photo */}
+          {/* Action 4: Add Gallery Photo */}
           <Link
             href="/admin/gallery"
             className="group flex items-center justify-between p-4 rounded-2xl border border-stone-200/80 bg-stone-50/50 hover:bg-purple-50/40 hover:border-purple-300 transition-all duration-200"
@@ -403,7 +433,7 @@ export default function AdminDashboardPage() {
             </div>
           </Link>
 
-          {/* Action 4: Edit Website Settings */}
+          {/* Action 5: Edit Website Settings */}
           <Link
             href="/admin/settings"
             className="group flex items-center justify-between p-4 rounded-2xl border border-stone-200/80 bg-stone-50/50 hover:bg-purple-50/40 hover:border-purple-300 transition-all duration-200"

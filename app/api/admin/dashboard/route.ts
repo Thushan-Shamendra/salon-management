@@ -5,6 +5,8 @@ import Service from "@/models/Service";
 import Gallery from "@/models/Gallery";
 import Beautician from "@/models/Beautician";
 import SalonSettings from "@/models/SalonSettings";
+import WeddingService from "@/models/WeddingService";
+import WeddingPackage from "@/models/WeddingPackage";
 
 // GET /api/admin/dashboard - ADMIN ONLY: Website Content Metrics
 export async function GET() {
@@ -35,6 +37,10 @@ export async function GET() {
       featuredGalleryPhotos,
       totalBeauticians,
       activeBeauticians,
+      totalWeddingServices,
+      activeWeddingServices,
+      totalWeddingPackages,
+      activeWeddingPackages,
       settings,
       recentServicesDoc,
       recentBeauticiansDoc,
@@ -47,6 +53,10 @@ export async function GET() {
       Gallery.countDocuments({ isActive: true, isFeatured: true }),
       Beautician.countDocuments(),
       Beautician.countDocuments({ isActive: true }),
+      WeddingService.countDocuments(),
+      WeddingService.countDocuments({ isActive: true }),
+      WeddingPackage.countDocuments(),
+      WeddingPackage.countDocuments({ isActive: true }),
       SalonSettings.findOne().lean(),
       Service.find().sort({ createdAt: -1 }).limit(3).lean(),
       Beautician.find().sort({ createdAt: -1 }).limit(3).lean(),
@@ -117,6 +127,10 @@ export async function GET() {
         featuredGalleryPhotos,
         totalBeauticians,
         activeBeauticians,
+        totalWeddingServices,
+        activeWeddingServices,
+        totalWeddingPackages,
+        activeWeddingPackages,
         googleReviewsEnabled: isGoogleReviewsEnabled,
         externalBookingConfigured: hasBookingUrl,
       },
