@@ -1,0 +1,487 @@
+.hero {
+  background: #fff;
+  padding: 63px 16px 76px;
+}
+
+.header {
+  max-width: 768px;
+  margin: 0 auto 52px;
+  text-align: center;
+}
+
+.headerBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 5px 16px;
+  border: 1px solid rgba(196, 181, 253, 0.8);
+  border-radius: 999px;
+  background: rgba(245, 243, 255, 0.7);
+  color: #7c3aed;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.22em;
+}
+
+.badgeIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.heading {
+  margin: 18px 0 0;
+  color: #1c1917;
+  font-size: clamp(36px, 4.7vw, 60px);
+  font-weight: 700;
+  line-height: 1.14;
+  letter-spacing: -0.025em;
+}
+
+.heading span {
+  display: block;
+  margin-top: 6px;
+  color: #7c3aed;
+}
+/* Reference coordinates: 1156 x 473. Every desktop layer scales together. */
+.composition {
+  position: relative;
+  width: 100%;
+  max-width: 1156px;
+  aspect-ratio: 1156 / 473;
+  margin-inline: auto;
+  container-type: inline-size;
+  overflow: visible;
+}
+
+.salonImage {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  left: 8.3045%;
+  width: 81.6609%;
+  height: 100%;
+  filter: drop-shadow(0 10px 7px rgba(0, 0, 0, 0.24));
+}
+
+/* A single rounded SVG mask keeps the photo continuous at both concave steps. */
+.imageMask {
+  --salon-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 944 473' preserveAspectRatio='none'%3E%3Cpath fill='white' d='M308 0H909A35 35 0 0 1 944 35V263A35 35 0 0 1 909 298H523A35 35 0 0 0 488 333V438A35 35 0 0 1 453 473H35A35 35 0 0 1 0 438V204A35 35 0 0 1 35 169H238A35 35 0 0 0 273 134V35A35 35 0 0 1 308 0Z'/%3E%3C/svg%3E");
+  position: relative;
+  width: 100%;
+  height: 100%;
+  -webkit-mask-image: var(--salon-mask);
+  mask-image: var(--salon-mask);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.image {
+  object-fit: cover;
+  object-position: center;
+}
+
+.introCard {
+  position: absolute;
+  z-index: 20;
+  top: 0;
+  left: 8.3045%;
+  width: 22.4913%;
+  height: 32.3467%;
+  padding: 1.2111cqw 1.7301cqw;
+  border-radius: 2.4221cqw;
+  background: #131516;
+  color: #fff;
+  box-shadow: 0 10px 12px rgba(0, 0, 0, 0.18);
+}
+
+.eyebrow {
+  margin: 0;
+  color: #d9d9d9;
+  font-size: 0.692cqw;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.15em;
+}
+
+.introTitle {
+  margin: 0.346cqw 0 0.4325cqw;
+  font-size: 1.5571cqw;
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.025em;
+}
+
+.introTitle span {
+  display: block;
+}
+
+.introDescription {
+  margin: 0;
+  color: #d6d7d7;
+  font-size: 0.7785cqw;
+  line-height: 1.4;
+}
+
+.servicesLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.519cqw;
+  margin-top: 0.6055cqw;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 0.8651cqw;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.servicesLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.servicesLink:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+.arrow {
+  width: 1.0381cqw;
+  height: 1.0381cqw;
+}
+
+.glassCard {
+  position: absolute;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 18.4256%;
+  height: 28.1184%;
+  padding: 1.5571cqw;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 2.8547cqw;
+  background: rgba(255, 255, 255, 0.1);
+  color: #131516;
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.65);
+}
+
+.leftGlass {
+  top: 54.1226%;
+  left: 0;
+}
+
+.rightGlass {
+  top: 18.1818%;
+  right: 0;
+}
+
+.featureIcon {
+  width: 1.7301cqw;
+  height: 1.7301cqw;
+  margin-bottom: 0.6055cqw;
+  flex-shrink: 0;
+}
+
+.featureTitle {
+  margin: 0;
+  font-size: 1.1246cqw;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.featureDescription {
+  margin: 0.4325cqw 0 0;
+  font-size: 0.8651cqw;
+  line-height: 1.4;
+}
+
+.miniGrid {
+  position: absolute;
+  z-index: 15;
+  top: 69.1332%;
+  left: 52.3356%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.3841cqw;
+  width: 37.0242%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.miniCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 5.1903cqw;
+  padding-inline: 0.4325cqw;
+  border-radius: 0.8651cqw;
+  background: rgba(46, 39, 39, 0.2);
+  color: #332e2e;
+  box-shadow: 0 9px 14px rgba(0, 0, 0, 0.08);
+  font-size: 0.9948cqw;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .introDescription,
+  .featureDescription {
+    display: none;
+  }
+
+  .eyebrow {
+    font-size: 8px;
+  }
+
+  .introTitle {
+    margin-block: 6px;
+    font-size: 14px;
+  }
+
+  .servicesLink,
+  .miniCard {
+    font-size: 9px;
+  }
+
+  .featureTitle {
+    font-size: 11px;
+  }
+
+  .featureIcon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero {
+    padding: 32px 20px 48px;
+  }
+
+  .header {
+    margin-bottom: 32px;
+  }
+
+  .heading {
+    margin-top: 16px;
+    font-size: clamp(28px, 7.5vw, 36px);
+  }
+
+  .composition {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 540px;
+    aspect-ratio: auto;
+  }
+
+  .introCard,
+  .salonImage,
+  .glassCard,
+  .miniGrid {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: auto;
+  }
+
+  .introCard {
+    padding: 24px;
+    border-radius: 28px;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+  }
+
+  .introTitle {
+    margin: 10px 0 12px;
+    font-size: clamp(25px, 7cqw, 34px);
+    line-height: 1.15;
+  }
+
+  .introDescription {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .servicesLink {
+    gap: 8px;
+    margin-top: 18px;
+    font-size: 13px;
+  }
+
+  .arrow {
+    width: 16px;
+    height: 16px;
+  }
+
+  .salonImage {
+    aspect-ratio: 4 / 3;
+    filter: drop-shadow(0 8px 8px rgba(0, 0, 0, 0.13));
+  }
+
+  .imageMask {
+    overflow: hidden;
+    border-radius: 24px;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .glassCard {
+    min-height: 136px;
+    padding: 22px;
+    border-radius: 24px;
+  }
+
+  .featureIcon {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 10px;
+  }
+
+  .featureTitle {
+    font-size: 17px;
+  }
+
+  .featureDescription {
+    margin-top: 7px;
+    font-size: 13px;
+  }
+
+  .miniGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .miniCard {
+    height: auto;
+    min-height: 56px;
+    padding: 12px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+  }
+}
+
+/* Motion is limited to the image and cards; the heading and layout stay still. */
+@keyframes compositionReveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardFloat {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 var(--float-distance, -4px);
+  }
+}
+
+/* Reduced-motion users retain the default visible, static layout. */
+@media (prefers-reduced-motion: no-preference) {
+  .salonImage {
+    animation: compositionReveal 850ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .introCard,
+  .glassCard,
+  .miniCard {
+    animation: compositionReveal 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .introCard {
+    animation-delay: 100ms;
+  }
+
+  .leftGlass {
+    animation-delay: 220ms;
+  }
+
+  .rightGlass {
+    animation-delay: 320ms;
+  }
+
+  .miniCard {
+    transition: translate 200ms ease, box-shadow 200ms ease;
+  }
+
+  .miniCard:nth-child(1) {
+    animation-delay: 400ms;
+  }
+
+  .miniCard:nth-child(2) {
+    animation-delay: 460ms;
+  }
+
+  .miniCard:nth-child(3) {
+    animation-delay: 520ms;
+  }
+
+  .miniCard:nth-child(4) {
+    animation-delay: 580ms;
+  }
+
+  .miniCard:nth-child(5) {
+    animation-delay: 640ms;
+  }
+
+  .miniCard:nth-child(6) {
+    animation-delay: 700ms;
+  }
+}
+
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .introCard {
+    --float-distance: -3px;
+    animation:
+      compositionReveal 650ms cubic-bezier(0.22, 1, 0.36, 1) 100ms both,
+      cardFloat 7s ease-in-out 900ms infinite;
+  }
+
+  .leftGlass {
+    --float-distance: -5px;
+    animation:
+      compositionReveal 650ms cubic-bezier(0.22, 1, 0.36, 1) 220ms both,
+      cardFloat 7.5s ease-in-out 1s infinite;
+  }
+
+  .rightGlass {
+    --float-distance: 4px;
+    animation:
+      compositionReveal 650ms cubic-bezier(0.22, 1, 0.36, 1) 320ms both,
+      cardFloat 8s ease-in-out 1.2s infinite;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .miniCard:hover {
+    translate: 0 -3px;
+    box-shadow: 0 12px 18px rgba(0, 0, 0, 0.12);
+  }
+
+  .introCard:hover,
+  .introCard:focus-within,
+  .glassCard:hover {
+    animation-play-state: running, paused;
+  }
+}
