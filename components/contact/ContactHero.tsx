@@ -9,7 +9,7 @@ export default function ContactHero() {
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/contact-hero.jpg"
-          alt="Contact Invora Salon"
+          alt="Contact SALVORA Salon"
           fill
           priority
           sizes="100vw"
@@ -25,22 +25,18 @@ export default function ContactHero() {
           <div className="inline-flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
             <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#C4B5FD]">
-              CONTACT US
+              GET IN TOUCH
             </span>
           </div>
 
           {/* Heading */}
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
-            We&apos;re Here to Help{" "}
-            <span className="block bg-gradient-to-r from-[#C4B5FD] via-[#A78BFA] to-[#8B5CF6] bg-clip-text text-transparent">
-              Get In Touch
-            </span>
+            Contact Information
           </h1>
 
           {/* Short Description */}
           <p className="text-sm sm:text-base text-stone-200 leading-relaxed font-normal max-w-xl">
-            Have a question, need guidance, or want to know more about Invora?
-            We&apos;d love to hear from you.
+            Choose a SALVORA branch to view its contact details, opening hours, and location.
           </p>
 
           {/* Breadcrumb Navigation */}

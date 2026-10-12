@@ -12,19 +12,31 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { BranchProvider } from "@/components/context/BranchContext";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+
 export const metadata: Metadata = {
-  title: "salvora | Look Beautiful. Feel Confident.",
+  title: "SALVORA | Look Beautiful. Feel Confident.",
   description:
     "Experience professional beauty and hair care services designed to help you look and feel your best. Premium styling, treatments, and bridal care.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <BranchProvider>
+          {children}
+          <FloatingWhatsApp />
+        </BranchProvider>
+      </body>
     </html>
   );
 }

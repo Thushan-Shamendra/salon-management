@@ -20,7 +20,7 @@ export default function ContactFaq({ address = "" }: ContactFaqProps) {
     {
       question: "What services do you offer?",
       answer:
-        "Invora provides a complete suite of salon treatments including hair cuts, styling, advanced hair spa treatments, coloring, facial therapies, and bridal beauty services.",
+        "SALVORA provides a complete suite of salon treatments including hair cuts, styling, advanced hair spa treatments, coloring, facial therapies, and bridal beauty services.",
     },
     {
       question: "Where is the salon located?",
@@ -29,9 +29,9 @@ export default function ContactFaq({ address = "" }: ContactFaqProps) {
         : "Please reach out to our salon concierge team via phone or email for detailed location guidance.",
     },
     {
-      question: "How can I contact Invora?",
+      question: "How can I contact SALVORA?",
       answer:
-        "You can reach out to our team by phone, email, or through the message form on this page. We are always happy to answer your questions and assist with your visit.",
+        "You can reach out to our team by phone, email, WhatsApp, or through the message form on this page. We are always happy to answer your questions and assist with your visit.",
     },
   ];
 
@@ -48,7 +48,7 @@ export default function ContactFaq({ address = "" }: ContactFaqProps) {
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-stone-100 shadow-md group">
               <Image
                 src="/images/contact-faq.jpg"
-                alt="Invora Salon Styling Space and Interior"
+                alt="SALVORA Salon Styling Space and Interior"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-105"

@@ -11,6 +11,7 @@ import {
   UsersIcon,
   ImageIcon,
   SettingsIcon,
+  MapPinIcon,
   ExternalLinkIcon,
   LockIcon,
   LogOutIcon,
@@ -28,8 +29,8 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [headerLogo, setHeaderLogo] = React.useState<string>("");
-  const [salonName, setSalonName] = React.useState<string>("INVORA Salon");
+  const [headerLogo, setHeaderLogo] = React.useState<string>("" );
+  const [salonName, setSalonName] = React.useState<string>("SALVORA Salon");
 
   React.useEffect(() => {
     let isMounted = true;
@@ -64,37 +65,74 @@ export default function AdminSidebar({
     }
   };
 
-  const navItems = [
+  interface NavItem {
+    name: string;
+    href: string;
+    icon: React.ComponentType<{ className?: string }>;
+    exact?: boolean;
+  }
+
+  interface NavSection {
+    title: string | null;
+    items: NavItem[];
+  }
+
+  const navSections: NavSection[] = [
     {
-      name: "Dashboard",
-      href: "/admin",
-      icon: HomeIcon,
-      exact: true,
+      title: null,
+      items: [
+        {
+          name: "Dashboard",
+          href: "/admin",
+          icon: HomeIcon,
+          exact: true,
+        },
+      ],
     },
     {
-      name: "Services",
-      href: "/admin/services",
-      icon: ScissorsIcon,
+      title: "CONTENT",
+      items: [
+        {
+          name: "Services",
+          href: "/admin/services",
+          icon: ScissorsIcon,
+        },
+        {
+          name: "Beauticians",
+          href: "/admin/beauticians",
+          icon: UsersIcon,
+        },
+        {
+          name: "Gallery",
+          href: "/admin/gallery",
+          icon: ImageIcon,
+        },
+        {
+          name: "Wedding",
+          href: "/admin/wedding",
+          icon: SparklesIcon,
+        },
+      ],
     },
     {
-      name: "Wedding",
-      href: "/admin/wedding",
-      icon: SparklesIcon,
+      title: "LOCATIONS",
+      items: [
+        {
+          name: "Branches",
+          href: "/admin/branches",
+          icon: MapPinIcon,
+        },
+      ],
     },
     {
-      name: "Beauticians",
-      href: "/admin/beauticians",
-      icon: UsersIcon,
-    },
-    {
-      name: "Gallery",
-      href: "/admin/gallery",
-      icon: ImageIcon,
-    },
-    {
-      name: "Website Settings",
-      href: "/admin/settings",
-      icon: SettingsIcon,
+      title: null,
+      items: [
+        {
+          name: "Website Settings",
+          href: "/admin/settings",
+          icon: SettingsIcon,
+        },
+      ],
     },
   ];
 
@@ -147,34 +185,43 @@ export default function AdminSidebar({
         </div>
 
         {/* Main Navigation Links */}
-        <div className="px-3 py-6">
-          <nav className="space-y-1.5" aria-label="Admin navigation">
-            {navItems.map((item) => {
-              const isActive = item.exact
-                ? pathname === item.href
-                : pathname === item.href || pathname.startsWith(`${item.href}/`);
-              const Icon = item.icon;
+        <div className="px-3 py-4 space-y-4 overflow-y-auto max-h-[calc(100vh-180px)]">
+          <nav className="space-y-4" aria-label="Admin navigation">
+            {navSections.map((section, sIdx) => (
+              <div key={sIdx} className="space-y-1">
+                {section.title && (
+                  <p className="px-4 pt-1 pb-1 text-[10px] font-bold tracking-[0.2em] text-stone-500 uppercase">
+                    {section.title}
+                  </p>
+                )}
+                {section.items.map((item) => {
+                  const isActive = item.exact
+                    ? pathname === item.href
+                    : pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  const Icon = item.icon;
 
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={onClose}
-                  className={`group flex items-center gap-3.5 rounded-xl px-4 py-3 text-xs sm:text-sm font-semibold transition-all duration-150 ${
-                    isActive
-                      ? "bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] text-white shadow-md shadow-purple-950/50"
-                      : "text-stone-400 hover:bg-white/5 hover:text-white"
-                  }`}
-                >
-                  <Icon
-                    className={`h-4.5 w-4.5 shrink-0 transition-colors ${
-                      isActive ? "text-white" : "text-stone-400 group-hover:text-purple-300"
-                    }`}
-                  />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={onClose}
+                      className={`group flex items-center gap-3.5 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-150 ${
+                        isActive
+                          ? "bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] text-white shadow-md shadow-purple-950/50"
+                          : "text-stone-400 hover:bg-white/5 hover:text-white"
+                      }`}
+                    >
+                      <Icon
+                        className={`h-4.5 w-4.5 shrink-0 transition-colors ${
+                          isActive ? "text-white" : "text-stone-400 group-hover:text-purple-300"
+                        }`}
+                      />
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            ))}
           </nav>
 
           {/* Divider */}

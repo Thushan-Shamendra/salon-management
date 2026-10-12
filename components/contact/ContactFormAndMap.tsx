@@ -17,9 +17,9 @@ interface ContactFormAndMapProps {
 }
 
 export default function ContactFormAndMap({
-  salonName = "Invora Salon",
+  salonName = "SALVORA Salon",
   address = "",
-  email = "info@invora.lk",
+  email = "info@salvora.lk",
   businessUrl = "",
 }: ContactFormAndMapProps) {
   const [formData, setFormData] = useState({
@@ -60,7 +60,7 @@ export default function ContactFormAndMap({
 
     try {
       // Direct email dispatch to verified salon concierge email
-      const emailSubject = `[Invora Inquiry] ${formData.subject}: ${formData.name}`;
+      const emailSubject = `[SALVORA Inquiry] ${formData.subject}: ${formData.name}`;
       const emailBody = `Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${
         formData.phone || "Not provided"
       }\nSubject: ${formData.subject}\n\nMessage:\n${formData.message}\n`;
@@ -297,7 +297,7 @@ export default function ContactFormAndMap({
                 {/* Responsive Iframe Embed Centered on Salon Address */}
                 <iframe
                   key={mapEmbedUrl}
-                  title={`${salonName || "Invora Salon"} Location Map`}
+                  title={`${salonName || "SALVORA Salon"} Location Map`}
                   src={mapEmbedUrl}
                   className="w-full h-full flex-1 border-0 min-h-[380px]"
                   loading="lazy"
@@ -310,7 +310,7 @@ export default function ContactFormAndMap({
                     <MapPinIcon className="h-5 w-5 text-[#7C3AED] shrink-0 mt-0.5" />
                     <div>
                       <h4 className="text-xs sm:text-sm font-bold text-stone-900">
-                        {salonName || "Invora Salon"}
+                        {salonName || "SALVORA Salon"}
                       </h4>
                       <p className="text-xs text-stone-500 line-clamp-1">{address}</p>
                     </div>

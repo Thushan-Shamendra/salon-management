@@ -3,70 +3,113 @@ import type { Metadata } from "next";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ContactHero from "@/components/contact/ContactHero";
-import ContactInfoCards from "@/components/contact/ContactInfoCards";
+import BranchContactSection, {
+  BranchData,
+  FallbackSettingsData,
+} from "@/components/contact/BranchContactSection";
+import BranchOpeningHours from "@/components/contact/BranchOpeningHours";
 import ContactFormAndMap from "@/components/contact/ContactFormAndMap";
 import ContactFaq from "@/components/contact/ContactFaq";
 import BookingCTA from "@/components/home/BookingCTA";
 import { connectDB } from "@/lib/mongodb";
+import Branch from "@/models/Branch";
 import SalonSettings from "@/models/SalonSettings";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Contact Us | salvora",
+  title: "Contact Us | SALVORA",
   description:
-    "Get in touch with salvora for inquiries, guidance, and beauty appointments.",
+    "Get in touch with SALVORA salon locations for inquiries, guidance, and beauty appointments.",
 };
 
-interface ContactSettingsData {
-  salonName: string;
-  phone: string;
-  email: string;
-  address: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  openingHours: any[];
+async function getContactData(): Promise<{
+  branches: BranchData[];
+  fallbackSettings: FallbackSettingsData;
   bookingUrl: string;
-  businessUrl: string;
-}
-
-async function getContactSettings(): Promise<ContactSettingsData> {
+}> {
   try {
     await connectDB();
-    const settings = await SalonSettings.findOne().lean();
 
-    return {
-      salonName: settings?.salonName || "Invora Salon",
-      phone: settings?.phone || "",
-      email: settings?.email || "",
-      address: settings?.address || "",
-      openingHours: Array.isArray(settings?.openingHours)
-        ? settings.openingHours.map((h) => ({
-            day: h.day,
-            open: h.open,
-            close: h.close,
+    const [branchDocs, settingsDoc] = await Promise.all([
+      Branch.find({ isActive: true })
+        .sort({ displayOrder: 1, createdAt: 1 })
+        .lean(),
+      SalonSettings.findOne().lean(),
+    ]);
+
+    const branches: BranchData[] = Array.isArray(branchDocs)
+      ? branchDocs.map((b) => ({
+          _id: String(b._id),
+          name: b.name || "",
+          slug: b.slug || "",
+          phone: b.phone || "",
+          whatsappNumber: b.whatsappNumber || "",
+          email: b.email || "",
+          address: b.address || "",
+          latitude: typeof b.latitude === "number" ? b.latitude : undefined,
+          longitude: typeof b.longitude === "number" ? b.longitude : undefined,
+          googleMapsUrl: b.googleMapsUrl || "",
+          openingHours: Array.isArray(b.openingHours)
+            ? b.openingHours.map((h) => ({
+                day: String(h.day),
+                isClosed: Boolean(h.isClosed),
+                openTime: h.openTime || "",
+                closeTime: h.closeTime || "",
+              }))
+            : [],
+          displayOrder: typeof b.displayOrder === "number" ? b.displayOrder : 0,
+        }))
+      : [];
+
+    const fallbackSettings: FallbackSettingsData = {
+      salonName: settingsDoc?.salonName || "SALVORA Luxury Salon",
+      phone: settingsDoc?.phone || "",
+      whatsapp: settingsDoc?.whatsapp || settingsDoc?.phone || "",
+      email: settingsDoc?.email || "",
+      address: settingsDoc?.address || "",
+      openingHours: Array.isArray(settingsDoc?.openingHours)
+        ? settingsDoc.openingHours.map((h) => ({
+            day: String(h.day),
+            open: h.open || "",
+            close: h.close || "",
             isClosed: Boolean(h.isClosed),
           }))
         : [],
-      bookingUrl: settings?.externalSystem?.bookingUrl || "",
-      businessUrl: settings?.googleReviews?.businessUrl || "",
+      businessUrl: settingsDoc?.googleReviews?.businessUrl || "",
+    };
+
+    return {
+      branches,
+      fallbackSettings,
+      bookingUrl: settingsDoc?.externalSystem?.bookingUrl || "",
     };
   } catch (error) {
-    console.error("Failed to load contact settings:", error);
+    console.error("Failed to load contact data:", error);
     return {
-      salonName: "Invora Salon",
-      phone: "",
-      email: "",
-      address: "",
-      openingHours: [],
+      branches: [],
+      fallbackSettings: {
+        salonName: "SALVORA Luxury Salon",
+        phone: "",
+        email: "",
+        address: "",
+        openingHours: [],
+      },
       bookingUrl: "",
-      businessUrl: "",
     };
   }
 }
 
 export default async function ContactPage() {
-  const { salonName, phone, email, address, openingHours, bookingUrl, businessUrl } =
-    await getContactSettings();
+  const { branches, fallbackSettings, bookingUrl } = await getContactData();
+
+  // If branches exist, pick the first branch for auxiliary address/email props
+  const primaryAddress =
+    branches[0]?.address || fallbackSettings.address || "Colombo, Sri Lanka";
+  const primaryEmail =
+    branches[0]?.email || fallbackSettings.email || "info@salvora.lk";
+  const primaryPhone =
+    branches[0]?.phone || fallbackSettings.phone || "";
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-stone-900 selection:bg-purple-100 selection:text-[#7C3AED]">
@@ -77,25 +120,29 @@ export default async function ContactPage() {
         {/* 2. Contact Hero */}
         <ContactHero />
 
-        {/* 3. Contact Information Cards */}
-        <ContactInfoCards
-          phone={phone}
-          email={email}
-          address={address}
-          openingHours={openingHours}
+        {/* 3. Branch-Wise Location Selector & Details (Tabs, Quick Call, WhatsApp, Google Map) */}
+        <BranchContactSection
+          initialBranches={branches}
+          fallbackSettings={fallbackSettings}
         />
 
-        {/* 4. Contact Form + Map */}
+        {/* 4. Separate Branch-Wise Opening Hours Schedule */}
+        <BranchOpeningHours
+          branches={branches}
+          fallbackSettings={fallbackSettings}
+        />
+
+        {/* 5. Inquiry / Message Form */}
         <ContactFormAndMap
-          salonName={salonName}
-          address={address}
-          email={email}
-          phone={phone}
-          businessUrl={businessUrl}
+          salonName={fallbackSettings.salonName}
+          address={primaryAddress}
+          email={primaryEmail}
+          phone={primaryPhone}
+          businessUrl={fallbackSettings.businessUrl}
         />
 
         {/* 5. Quick Information / FAQ */}
-        <ContactFaq address={address} />
+        <ContactFaq address={primaryAddress} />
 
         {/* 6. Booking CTA */}
         <BookingCTA
