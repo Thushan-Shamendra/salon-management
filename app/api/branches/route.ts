@@ -19,6 +19,9 @@ export async function GET() {
         latitude: 1,
         longitude: 1,
         googleMapsUrl: 1,
+        googlePlaceId: 1,
+        googleReviewUrl: 1,
+        reviewsEnabled: 1,
         openingHours: 1,
         displayOrder: 1,
       })

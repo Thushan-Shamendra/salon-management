@@ -17,6 +17,9 @@ export interface IBranch extends Document {
   latitude?: number;
   longitude?: number;
   googleMapsUrl?: string;
+  googlePlaceId?: string;
+  googleReviewUrl?: string;
+  reviewsEnabled?: boolean;
   openingHours: IBranchOpeningHour[];
   isActive: boolean;
   displayOrder: number;
@@ -93,6 +96,20 @@ const BranchSchema = new Schema<IBranch>(
       trim: true,
       default: "",
     },
+    googlePlaceId: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    googleReviewUrl: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    reviewsEnabled: {
+      type: Boolean,
+      default: false,
+    },
     openingHours: {
       type: [BranchOpeningHourSchema],
       default: [],
@@ -111,6 +128,11 @@ const BranchSchema = new Schema<IBranch>(
     timestamps: true,
   }
 );
+
+// Avoid caching stale schema during Next.js hot module reloading
+if (process.env.NODE_ENV !== "production" && mongoose.models && mongoose.models.Branch) {
+  delete mongoose.models.Branch;
+}
 
 const Branch: Model<IBranch> =
   mongoose.models.Branch || mongoose.model<IBranch>("Branch", BranchSchema);

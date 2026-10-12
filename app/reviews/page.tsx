@@ -12,9 +12,9 @@ import SalonSettings from "@/models/SalonSettings";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Client Reviews | salvora",
+  title: "Client Reviews | SALVORA",
   description:
-    "Read real Google client reviews and feedback from guests who have experienced salon services at salvora.",
+    "Read real Google client reviews and feedback from guests who have experienced salon services at SALVORA.",
 };
 
 async function getBookingUrl(): Promise<string> {
@@ -49,7 +49,7 @@ export default async function ReviewsPage() {
         {/* 6. Booking CTA */}
         <BookingCTA
           tag="✦ READY FOR YOUR VISIT"
-          heading="Experience Invora for Yourself"
+          heading="Experience SALVORA for Yourself"
           description="Choose your preferred service and continue to our salon booking system."
           bookingUrl={bookingUrl}
         />

@@ -12,6 +12,7 @@ import {
   WhatsAppIcon,
   MailIcon,
   ClockIcon,
+  StarIcon,
   EditIcon,
   TrashIcon,
   EyeIcon,
@@ -42,6 +43,9 @@ interface Branch {
   latitude?: number;
   longitude?: number;
   googleMapsUrl?: string;
+  googlePlaceId?: string;
+  googleReviewUrl?: string;
+  reviewsEnabled?: boolean;
   openingHours: OpeningHour[];
   isActive: boolean;
   displayOrder: number;
@@ -58,6 +62,9 @@ interface BranchFormState {
   latitude: string;
   longitude: string;
   googleMapsUrl: string;
+  googlePlaceId: string;
+  googleReviewUrl: string;
+  reviewsEnabled: boolean;
   displayOrder: string;
   isActive: boolean;
   openingHours: OpeningHour[];
@@ -89,6 +96,9 @@ const emptyForm: BranchFormState = {
   latitude: "",
   longitude: "",
   googleMapsUrl: "",
+  googlePlaceId: "",
+  googleReviewUrl: "",
+  reviewsEnabled: false,
   displayOrder: "0",
   isActive: true,
   openingHours: defaultOpeningHours,
@@ -283,6 +293,9 @@ export default function AdminBranchesPage() {
       latitude: branch.latitude !== undefined && branch.latitude !== null ? branch.latitude.toString() : "",
       longitude: branch.longitude !== undefined && branch.longitude !== null ? branch.longitude.toString() : "",
       googleMapsUrl: branch.googleMapsUrl || "",
+      googlePlaceId: branch.googlePlaceId || "",
+      googleReviewUrl: branch.googleReviewUrl || "",
+      reviewsEnabled: Boolean(branch.reviewsEnabled),
       displayOrder: (branch.displayOrder ?? 0).toString(),
       isActive: branch.isActive,
       openingHours: completeHours,
@@ -368,6 +381,17 @@ export default function AdminBranchesPage() {
       }
     }
 
+    if (form.googleReviewUrl.trim()) {
+      try {
+        const u = new URL(form.googleReviewUrl.trim());
+        if (u.protocol !== "http:" && u.protocol !== "https:") {
+          errors.googleReviewUrl = "Google Review URL must start with http:// or https://";
+        }
+      } catch {
+        errors.googleReviewUrl = "Please enter a valid review URL";
+      }
+    }
+
     if (form.displayOrder.trim()) {
       const ord = Number(form.displayOrder);
       if (isNaN(ord) || ord < 0) {
@@ -411,6 +435,9 @@ export default function AdminBranchesPage() {
         latitude: form.latitude.trim() ? Number(form.latitude) : undefined,
         longitude: form.longitude.trim() ? Number(form.longitude) : undefined,
         googleMapsUrl: form.googleMapsUrl.trim(),
+        googlePlaceId: form.googlePlaceId.trim(),
+        googleReviewUrl: form.googleReviewUrl.trim(),
+        reviewsEnabled: form.reviewsEnabled,
         displayOrder: form.displayOrder.trim() ? Number(form.displayOrder) : 0,
         isActive: form.isActive,
         openingHours: form.openingHours,
@@ -773,6 +800,20 @@ export default function AdminBranchesPage() {
                         )}
                       </div>
                     )}
+
+                    {/* Google Reviews Badge */}
+                    <div className="pt-1 flex items-center gap-1.5 text-[11px]">
+                      {branch.reviewsEnabled && branch.googlePlaceId ? (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-700 border border-emerald-200">
+                          <StarIcon className="h-3 w-3 fill-amber-400 text-amber-400" />
+                          <span>Google Reviews Active</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-stone-100 px-2 py-0.5 font-medium text-stone-500">
+                          <span>Google Reviews Disabled</span>
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -1101,6 +1142,78 @@ export default function AdminBranchesPage() {
                     )}
                     <p className="text-[11px] text-stone-400 mt-0.5">
                       Optional: if coordinates are not provided, map will automatically embed using coordinates or address.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Google Reviews Configuration */}
+              <div className="space-y-4 pt-4 border-t border-stone-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-stone-400">
+                      Google Reviews Configuration
+                    </h3>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      Configure Google reviews and review submission link for this branch location.
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.reviewsEnabled}
+                      onChange={(e) => setForm({ ...form, reviewsEnabled: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-stone-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#7C3AED]" />
+                    <span className="ml-2.5 text-xs font-semibold text-stone-700">
+                      {form.reviewsEnabled ? "Enabled" : "Disabled"}
+                    </span>
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Google Place ID */}
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1">
+                      Google Place ID
+                    </label>
+                    <input
+                      type="text"
+                      value={form.googlePlaceId}
+                      onChange={(e) => setForm({ ...form, googlePlaceId: e.target.value })}
+                      placeholder="e.g. ChIJ..."
+                      className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-200/50"
+                    />
+                    <p className="text-[11px] text-stone-400 mt-0.5">
+                      Required to fetch Google ratings and reviews for this branch.
+                    </p>
+                  </div>
+
+                  {/* Google Review URL */}
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1">
+                      Write a Review URL
+                    </label>
+                    <input
+                      type="url"
+                      value={form.googleReviewUrl}
+                      onChange={(e) => {
+                        setForm({ ...form, googleReviewUrl: e.target.value });
+                        if (formErrors.googleReviewUrl) setFormErrors({ ...formErrors, googleReviewUrl: "" });
+                      }}
+                      placeholder="https://g.page/r/.../review"
+                      className={`w-full rounded-xl border px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all ${
+                        formErrors.googleReviewUrl
+                          ? "border-red-400 focus:ring-2 focus:ring-red-200"
+                          : "border-stone-300 focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-200/50"
+                      }`}
+                    />
+                    {formErrors.googleReviewUrl && (
+                      <p className="text-[11px] text-red-600 mt-1">{formErrors.googleReviewUrl}</p>
+                    )}
+                    <p className="text-[11px] text-stone-400 mt-0.5">
+                      Direct review URL used for the branch &quot;Write a Review&quot; button.
                     </p>
                   </div>
                 </div>

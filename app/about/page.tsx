@@ -5,32 +5,53 @@ import AboutHero from "@/components/about/AboutHero";
 import OurStory from "@/components/about/OurStory";
 import OurValues from "@/components/about/OurValues";
 import SalonExperience from "@/components/about/SalonExperience";
-import MeetBeauticians, { BeauticianData } from "@/components/about/MeetBeauticians";
+import MeetBeauticians, { BeauticianData, BranchData } from "@/components/about/MeetBeauticians";
+import ProductBrandsSection, { ProductBrandData } from "@/components/products/ProductBrandsSection";
 import BookingCTA from "@/components/home/BookingCTA";
 import { connectDB } from "@/lib/mongodb";
 import Beautician from "@/models/Beautician";
+import Branch from "@/models/Branch";
+import ProductBrand from "@/models/ProductBrand";
 import SalonSettings from "@/models/SalonSettings";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "About Us | salvora",
+  title: "About Us | SALVORA",
   description:
-    "Learn about salvora, our story, values, modern space, and our dedicated beauty experts in Colombo.",
+    "Learn about SALVORA, our story, values, modern space, and our dedicated beauty experts across Sri Lanka.",
 };
 
 async function getAboutData(): Promise<{
   beauticians: BeauticianData[];
+  branches: BranchData[];
+  products: ProductBrandData[];
   bookingUrl: string;
 }> {
   try {
     await connectDB();
-    const [rawBeauticians, settings] = await Promise.all([
+    void Branch;
+
+    const [rawBeauticians, rawBranches, rawProducts, settings] = await Promise.all([
       Beautician.find({ isActive: true })
+        .populate("branchId", "_id name slug")
+        .sort({ displayOrder: 1, createdAt: -1 })
+        .lean(),
+      Branch.find({ isActive: true })
+        .select("_id name slug")
+        .sort({ displayOrder: 1, createdAt: 1 })
+        .lean(),
+      ProductBrand.find({ isActive: true })
         .sort({ displayOrder: 1, createdAt: -1 })
         .lean(),
       SalonSettings.findOne().lean(),
     ]);
+
+    const branches: BranchData[] = rawBranches.map((br) => ({
+      _id: br._id.toString(),
+      name: br.name,
+      slug: br.slug,
+    }));
 
     const beauticians: BeauticianData[] = rawBeauticians.map((b) => ({
       _id: b._id.toString(),
@@ -43,19 +64,34 @@ async function getAboutData(): Promise<{
       instagram: b.instagram || "",
       facebook: b.facebook || "",
       isFeatured: b.isFeatured ?? false,
+      branchId: b.branchId
+        ? {
+            _id: ((b.branchId as { _id?: unknown })._id || b.branchId).toString(),
+            name: (b.branchId as { name?: string }).name || "",
+            slug: (b.branchId as { slug?: string }).slug || "",
+          }
+        : null,
+    }));
+
+    const products: ProductBrandData[] = rawProducts.map((p) => ({
+      _id: p._id.toString(),
+      name: p.name,
+      logo: p.logo,
+      description: p.description || "",
+      websiteUrl: p.websiteUrl || "",
     }));
 
     const bookingUrl = settings?.externalSystem?.bookingUrl || "";
 
-    return { beauticians, bookingUrl };
+    return { beauticians, branches, products, bookingUrl };
   } catch (error) {
     console.error("Failed to load About page data:", error);
-    return { beauticians: [], bookingUrl: "" };
+    return { beauticians: [], branches: [], products: [], bookingUrl: "" };
   }
 }
 
 export default async function AboutPage() {
-  const { beauticians, bookingUrl } = await getAboutData();
+  const { beauticians, branches, products, bookingUrl } = await getAboutData();
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-stone-900 selection:bg-purple-100 selection:text-[#7C3AED]">
@@ -76,18 +112,21 @@ export default async function AboutPage() {
         <SalonExperience />
 
         {/* 6. Meet Our Beauticians */}
-        <MeetBeauticians beauticians={beauticians} />
+        <MeetBeauticians beauticians={beauticians} branches={branches} />
 
-        {/* 7. Booking CTA */}
+        {/* 7. Products We Use */}
+        <ProductBrandsSection products={products} />
+
+        {/* 8. Booking CTA */}
         <BookingCTA
           tag="✦ READY FOR A CHANGE"
           heading="Let's Bring Out Your Best Look"
-          description="Book your appointment and experience professional care at Invora."
+          description="Book your appointment and experience professional care at SALVORA."
           bookingUrl={bookingUrl}
         />
       </main>
 
-      {/* 8. Footer */}
+      {/* 9. Footer */}
       <Footer />
     </div>
   );

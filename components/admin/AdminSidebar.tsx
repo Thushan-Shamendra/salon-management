@@ -12,6 +12,7 @@ import {
   ImageIcon,
   SettingsIcon,
   MapPinIcon,
+  PackageIcon,
   ExternalLinkIcon,
   LockIcon,
   LogOutIcon,
@@ -101,6 +102,11 @@ export default function AdminSidebar({
           name: "Beauticians",
           href: "/admin/beauticians",
           icon: UsersIcon,
+        },
+        {
+          name: "Products",
+          href: "/admin/products",
+          icon: PackageIcon,
         },
         {
           name: "Gallery",

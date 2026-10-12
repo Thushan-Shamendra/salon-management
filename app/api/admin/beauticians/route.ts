@@ -1,7 +1,9 @@
+import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import Beautician from "@/models/Beautician";
+import Branch from "@/models/Branch";
 import { CLOUDINARY_FOLDERS } from "@/lib/cloudinary-constants";
 
 function isValidHttpsUrl(urlString: string): boolean {
@@ -36,7 +38,10 @@ export async function GET() {
 
     const [beauticians, totalBeauticians, activeBeauticians, hiddenBeauticians, featuredBeauticians] =
       await Promise.all([
-        Beautician.find().sort({ displayOrder: 1, createdAt: -1 }).lean(),
+        Beautician.find()
+          .populate("branchId", "_id name slug")
+          .sort({ displayOrder: 1, createdAt: -1 })
+          .lean(),
         Beautician.countDocuments(),
         Beautician.countDocuments({ isActive: true }),
         Beautician.countDocuments({ isActive: false }),
@@ -92,6 +97,7 @@ export async function POST(request: Request) {
       imagePublicId,
       instagram,
       facebook,
+      branchId,
       isActive,
       isFeatured,
       displayOrder,
@@ -222,6 +228,25 @@ export async function POST(request: Request) {
 
     await connectDB();
 
+    // Validate branchId if provided
+    let parsedBranchId: mongoose.Types.ObjectId | null = null;
+    if (branchId !== undefined && branchId !== null && branchId !== "" && branchId !== "unassigned") {
+      if (!mongoose.Types.ObjectId.isValid(branchId)) {
+        return NextResponse.json(
+          { success: false, message: "Invalid branch ID" },
+          { status: 400 }
+        );
+      }
+      const branchExists = await Branch.findById(branchId);
+      if (!branchExists) {
+        return NextResponse.json(
+          { success: false, message: "Selected branch does not exist" },
+          { status: 400 }
+        );
+      }
+      parsedBranchId = new mongoose.Types.ObjectId(branchId);
+    }
+
     const beautician = await Beautician.create({
       name: name.trim(),
       jobTitle: jobTitle.trim(),
@@ -232,16 +257,22 @@ export async function POST(request: Request) {
       imagePublicId: trimmedPublicId,
       instagram: typeof instagram === "string" ? instagram.trim() : "",
       facebook: typeof facebook === "string" ? facebook.trim() : "",
+      branchId: parsedBranchId,
       isActive: isActive !== undefined ? Boolean(isActive) : true,
       isFeatured: isFeatured !== undefined ? Boolean(isFeatured) : false,
       displayOrder: parsedOrder,
     });
 
+    // Populate branch details in response
+    const populated = await Beautician.findById(beautician._id)
+      .populate("branchId", "_id name slug")
+      .lean();
+
     return NextResponse.json(
       {
         success: true,
         message: "Beautician added successfully",
-        beautician,
+        beautician: populated,
       },
       { status: 201 }
     );

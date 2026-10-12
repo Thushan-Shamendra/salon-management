@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import Beautician from "@/models/Beautician";
+import Branch from "@/models/Branch";
 import { deleteCloudinaryImage, CLOUDINARY_FOLDERS } from "@/lib/cloudinary";
 
 function isValidHttpsUrl(urlString: string): boolean {
@@ -49,7 +50,9 @@ export async function GET(request: Request, context: RouteContext) {
       );
     }
 
-    const beautician = await Beautician.findById(id).lean();
+    const beautician = await Beautician.findById(id)
+      .populate("branchId", "_id name slug")
+      .lean();
 
     if (!beautician) {
       return NextResponse.json(
@@ -227,6 +230,27 @@ export async function PATCH(request: Request, context: RouteContext) {
       updateData.displayOrder = isNaN(order) ? 0 : order;
     }
 
+    if (body.branchId !== undefined) {
+      if (body.branchId === null || body.branchId === "" || body.branchId === "unassigned") {
+        updateData.branchId = null;
+      } else {
+        if (!mongoose.Types.ObjectId.isValid(body.branchId)) {
+          return NextResponse.json(
+            { success: false, message: "Invalid branch ID" },
+            { status: 400 }
+          );
+        }
+        const branchExists = await Branch.findById(body.branchId);
+        if (!branchExists) {
+          return NextResponse.json(
+            { success: false, message: "Selected branch does not exist" },
+            { status: 400 }
+          );
+        }
+        updateData.branchId = new mongoose.Types.ObjectId(body.branchId);
+      }
+    }
+
     // Handle Image Replacement
     const oldPublicId = existingBeautician.imagePublicId;
     let isImageReplaced = false;
@@ -269,7 +293,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       id,
       { $set: updateData },
       { new: true, runValidators: true }
-    );
+    ).populate("branchId", "_id name slug");
 
     if (!updatedBeautician) {
       return NextResponse.json(

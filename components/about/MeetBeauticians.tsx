@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -9,6 +9,7 @@ import {
   InstagramIcon,
   FacebookIcon,
   SparklesIcon,
+  MapPinIcon,
 } from "@/components/ui/icons";
 
 export interface BeauticianData {
@@ -22,17 +23,39 @@ export interface BeauticianData {
   instagram?: string;
   facebook?: string;
   isFeatured?: boolean;
+  branchId?: string | { _id: string; name: string; slug: string } | null;
+}
+
+export interface BranchData {
+  _id: string;
+  name: string;
+  slug: string;
 }
 
 interface MeetBeauticiansProps {
   beauticians: BeauticianData[];
+  branches?: BranchData[];
 }
 
 const FALLBACK_PHOTO =
   "https://images.unsplash.com/photo-1595959183082-7b570b7e08e2?auto=format&fit=crop&w=800&q=80";
 
-export default function MeetBeauticians({ beauticians }: MeetBeauticiansProps) {
+export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeauticiansProps) {
   const [failedImageIds, setFailedImageIds] = useState<Record<string, boolean>>({});
+  const [selectedBranchId, setSelectedBranchId] = useState<string>("all");
+
+  const filteredBeauticians = useMemo(() => {
+    if (selectedBranchId === "all") return beauticians;
+    return beauticians.filter((b) => {
+      const bId =
+        typeof b.branchId === "object" && b.branchId
+          ? b.branchId._id
+          : typeof b.branchId === "string"
+          ? b.branchId
+          : null;
+      return bId === selectedBranchId;
+    });
+  }, [beauticians, selectedBranchId]);
 
   if (!beauticians || beauticians.length === 0) {
     return null; // Cleanly hide if no active beauticians
@@ -42,11 +65,22 @@ export default function MeetBeauticians({ beauticians }: MeetBeauticiansProps) {
     setFailedImageIds((prev) => ({ ...prev, [id]: true }));
   };
 
+  const getBranchName = (b: BeauticianData): string | null => {
+    if (typeof b.branchId === "object" && b.branchId?.name) {
+      return b.branchId.name;
+    }
+    if (typeof b.branchId === "string") {
+      const match = branches.find((br) => br._id === b.branchId);
+      if (match) return match.name;
+    }
+    return null;
+  };
+
   return (
     <section className="bg-white py-16 sm:py-20 lg:py-24 border-b border-stone-100">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-8">
           <div>
             <div className="inline-flex items-center gap-2 mb-2">
               <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
@@ -68,9 +102,63 @@ export default function MeetBeauticians({ beauticians }: MeetBeauticiansProps) {
           </Link>
         </div>
 
+        {/* Branch Filter Tabs (when multiple active branches exist) */}
+        {branches.length > 1 && (
+          <div className="flex flex-wrap items-center gap-2 mb-10">
+            <button
+              type="button"
+              onClick={() => setSelectedBranchId("all")}
+              className={`rounded-full px-4 py-2 text-xs font-semibold transition-all cursor-pointer ${
+                selectedBranchId === "all"
+                  ? "bg-[#7C3AED] text-white shadow-xs"
+                  : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+              }`}
+            >
+              All Branches
+            </button>
+            {branches.map((br) => {
+              const isSelected = selectedBranchId === br._id;
+              return (
+                <button
+                  key={br._id}
+                  type="button"
+                  onClick={() => setSelectedBranchId(br._id)}
+                  className={`rounded-full px-4 py-2 text-xs font-semibold transition-all cursor-pointer ${
+                    isSelected
+                      ? "bg-[#7C3AED] text-white shadow-xs"
+                      : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+                  }`}
+                >
+                  {br.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Empty State for Branch Filter */}
+        {filteredBeauticians.length === 0 && (
+          <div className="text-center py-12 rounded-3xl border border-dashed border-stone-200 p-8 max-w-md mx-auto">
+            <p className="text-sm font-semibold text-stone-700">
+              No beauticians found for this branch.
+            </p>
+            <p className="text-xs text-stone-400 mt-1">
+              Select another branch or view all branches to see our full team.
+            </p>
+            <button
+              type="button"
+              onClick={() => setSelectedBranchId("all")}
+              className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-[#7C3AED] hover:underline cursor-pointer"
+            >
+              View All Branches
+            </button>
+          </div>
+        )}
+
         {/* 1 Beautician: Horizontal Feature Card (Matches Mockup) */}
-        {beauticians.length === 1 && (() => {
-          const person = beauticians[0];
+        {filteredBeauticians.length === 1 && (() => {
+          const person = filteredBeauticians[0];
+          const branchName = getBranchName(person);
           const imageSrc =
             failedImageIds[person._id] || !person.image
               ? FALLBACK_PHOTO
@@ -111,6 +199,12 @@ export default function MeetBeauticians({ beauticians }: MeetBeauticiansProps) {
                     <p className="text-xs sm:text-sm font-semibold text-stone-500 capitalize mt-0.5">
                       {person.jobTitle || "Hair Stylist"}
                     </p>
+                    {branchName && (
+                      <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-purple-50 px-2.5 py-0.5 text-[11px] font-semibold text-[#7C3AED] border border-purple-100">
+                        <MapPinIcon className="h-3 w-3 text-[#7C3AED]" />
+                        <span>{branchName}</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Experience Badge */}
@@ -160,23 +254,23 @@ export default function MeetBeauticians({ beauticians }: MeetBeauticiansProps) {
         })()}
 
         {/* 2 Beauticians: 2 Centered Cards */}
-        {beauticians.length === 2 && (
+        {filteredBeauticians.length === 2 && (
           <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8">
-            {beauticians.map((person) => renderPortraitCard(person))}
+            {filteredBeauticians.map((person) => renderPortraitCard(person))}
           </div>
         )}
 
         {/* 3 Beauticians: Balanced 3-Column Grid */}
-        {beauticians.length === 3 && (
+        {filteredBeauticians.length === 3 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {beauticians.map((person) => renderPortraitCard(person))}
+            {filteredBeauticians.map((person) => renderPortraitCard(person))}
           </div>
         )}
 
         {/* 4+ Beauticians: Responsive 4-Column Grid */}
-        {beauticians.length >= 4 && (
+        {filteredBeauticians.length >= 4 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {beauticians.map((person) => renderPortraitCard(person))}
+            {filteredBeauticians.map((person) => renderPortraitCard(person))}
           </div>
         )}
       </div>
@@ -184,6 +278,7 @@ export default function MeetBeauticians({ beauticians }: MeetBeauticiansProps) {
   );
 
   function renderPortraitCard(person: BeauticianData) {
+    const branchName = getBranchName(person);
     const imageSrc =
       failedImageIds[person._id] || !person.image
         ? FALLBACK_PHOTO
@@ -220,6 +315,14 @@ export default function MeetBeauticians({ beauticians }: MeetBeauticiansProps) {
             <p className="text-xs font-semibold text-stone-500 capitalize mt-0.5">
               {person.jobTitle || "Beauty Specialist"}
             </p>
+
+            {/* Branch Label if Assigned */}
+            {branchName && (
+              <div className="mt-1.5 flex items-center gap-1 text-[11px] font-semibold text-purple-700">
+                <MapPinIcon className="h-3 w-3 text-purple-500 shrink-0" />
+                <span className="truncate">{branchName}</span>
+              </div>
+            )}
 
             {person.experienceYears ? (
               <p className="mt-2 text-xs font-medium text-stone-600">

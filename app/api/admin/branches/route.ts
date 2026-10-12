@@ -86,6 +86,9 @@ export async function POST(request: Request) {
       latitude,
       longitude,
       googleMapsUrl,
+      googlePlaceId,
+      googleReviewUrl,
+      reviewsEnabled,
       openingHours,
       isActive,
       displayOrder,
@@ -151,6 +154,14 @@ export async function POST(request: Request) {
     if (googleMapsUrl?.trim() && !isValidUrl(googleMapsUrl.trim())) {
       return NextResponse.json(
         { success: false, message: "Google Maps URL must be a valid HTTP or HTTPS URL" },
+        { status: 400 }
+      );
+    }
+
+    // Google Review URL validation
+    if (googleReviewUrl?.trim() && !isValidUrl(googleReviewUrl.trim())) {
+      return NextResponse.json(
+        { success: false, message: "Google Review URL must be a valid HTTP or HTTPS URL" },
         { status: 400 }
       );
     }
@@ -223,6 +234,9 @@ export async function POST(request: Request) {
       latitude: parsedLat,
       longitude: parsedLng,
       googleMapsUrl: googleMapsUrl?.trim() || "",
+      googlePlaceId: googlePlaceId?.trim() || "",
+      googleReviewUrl: googleReviewUrl?.trim() || "",
+      reviewsEnabled: Boolean(reviewsEnabled),
       openingHours: parsedHours,
       isActive: isActive !== undefined ? Boolean(isActive) : true,
       displayOrder: orderNum,

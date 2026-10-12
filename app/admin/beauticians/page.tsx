@@ -11,6 +11,7 @@ import {
   StarIcon,
   BriefcaseIcon,
   TagIcon,
+  MapPinIcon,
   EditIcon,
   TrashIcon,
   EyeIcon,
@@ -33,6 +34,7 @@ interface Beautician {
   imagePublicId: string;
   instagram?: string;
   facebook?: string;
+  branchId?: string | { _id: string; name: string; slug: string } | null;
   isActive: boolean;
   isFeatured: boolean;
   displayOrder: number;
@@ -48,6 +50,7 @@ interface BeauticianFormState {
   experienceYears: string;
   image: string;
   imagePublicId: string;
+  branchId: string;
   isActive: boolean;
   isFeatured: boolean;
   displayOrder: string;
@@ -73,6 +76,7 @@ const emptyForm: BeauticianFormState = {
   experienceYears: "",
   image: "",
   imagePublicId: "",
+  branchId: "",
   isActive: true,
   isFeatured: false,
   displayOrder: "0",
@@ -80,6 +84,7 @@ const emptyForm: BeauticianFormState = {
 
 export default function AdminBeauticiansPage() {
   const [beauticians, setBeauticians] = useState<Beautician[]>([]);
+  const [branches, setBranches] = useState<Array<{ _id: string; name: string; slug: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [form, setForm] = useState<BeauticianFormState>(emptyForm);
@@ -91,6 +96,7 @@ export default function AdminBeauticiansPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "hidden">("all");
   const [featuredFilter, setFeaturedFilter] = useState<"all" | "featured" | "not-featured">("all");
+  const [branchFilter, setBranchFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"order" | "newest" | "oldest" | "exp-desc">("order");
 
   // Toggle loading states
@@ -116,12 +122,21 @@ export default function AdminBeauticiansPage() {
 
   const loadBeauticians = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/beauticians");
+      const [res, branchRes] = await Promise.all([
+        fetch("/api/admin/beauticians"),
+        fetch("/api/admin/branches"),
+      ]);
       const data = await res.json();
+      const branchData = await branchRes.json();
+
       if (res.ok && data.success) {
         setBeauticians(data.beauticians || []);
       } else {
         showNotification("error", data.message || "Failed to load beauticians");
+      }
+
+      if (branchRes.ok && branchData.success) {
+        setBranches(branchData.branches || []);
       }
     } catch {
       showNotification("error", "Network error loading beauticians");
@@ -134,12 +149,21 @@ export default function AdminBeauticiansPage() {
     let isMounted = true;
     async function init() {
       try {
-        const res = await fetch("/api/admin/beauticians");
-        const data = await res.json();
-        if (isMounted && res.ok && data.success) {
+        const [beauticiansRes, branchesRes] = await Promise.all([
+          fetch("/api/admin/beauticians"),
+          fetch("/api/admin/branches"),
+        ]);
+        const data = await beauticiansRes.json();
+        const branchData = await branchesRes.json();
+
+        if (isMounted && beauticiansRes.ok && data.success) {
           setBeauticians(data.beauticians || []);
         } else if (isMounted) {
           showNotification("error", data.message || "Failed to load beauticians");
+        }
+
+        if (isMounted && branchesRes.ok && branchData.success) {
+          setBranches(branchData.branches || []);
         }
       } catch {
         if (isMounted) showNotification("error", "Network error loading beauticians");
@@ -174,6 +198,17 @@ export default function AdminBeauticiansPage() {
         // Featured filter
         if (featuredFilter === "featured" && !b.isFeatured) return false;
         if (featuredFilter === "not-featured" && b.isFeatured) return false;
+
+        // Branch filter
+        if (branchFilter === "unassigned") {
+          if (b.branchId) return false;
+        } else if (branchFilter !== "all") {
+          const bBranchId =
+            typeof b.branchId === "object" && b.branchId
+              ? b.branchId._id
+              : b.branchId;
+          if (bBranchId !== branchFilter) return false;
+        }
 
         // Search query (name, job title, specialties, bio)
         if (searchQuery.trim()) {
@@ -215,13 +250,14 @@ export default function AdminBeauticiansPage() {
         }
         return 0;
       });
-  }, [beauticians, statusFilter, featuredFilter, searchQuery, sortBy]);
+  }, [beauticians, statusFilter, featuredFilter, branchFilter, searchQuery, sortBy]);
 
   // Open Form for Create
   const handleOpenCreateForm = () => {
     setEditingId(null);
     setForm({
       ...emptyForm,
+      branchId: "",
       displayOrder: String(beauticians.length + 1),
     });
     setCustomSpecialty("");
@@ -231,6 +267,13 @@ export default function AdminBeauticiansPage() {
   // Open Form for Edit
   const handleOpenEditForm = (b: Beautician) => {
     setEditingId(b._id);
+    const currentBranchId =
+      typeof b.branchId === "object" && b.branchId
+        ? b.branchId._id
+        : typeof b.branchId === "string"
+        ? b.branchId
+        : "";
+
     setForm({
       name: b.name,
       jobTitle: b.jobTitle,
@@ -239,6 +282,7 @@ export default function AdminBeauticiansPage() {
       experienceYears: String(b.experienceYears ?? 0),
       image: b.image,
       imagePublicId: b.imagePublicId,
+      branchId: currentBranchId,
       isActive: b.isActive,
       isFeatured: b.isFeatured,
       displayOrder: String(b.displayOrder ?? 0),
@@ -327,6 +371,7 @@ export default function AdminBeauticiansPage() {
         imagePublicId: form.imagePublicId,
         instagram: "",
         facebook: "",
+        branchId: form.branchId ? form.branchId : null,
         isActive: form.isActive,
         isFeatured: form.isFeatured,
         displayOrder: Number(form.displayOrder) || 0,
@@ -611,6 +656,26 @@ export default function AdminBeauticiansPage() {
             </select>
           </div>
 
+          {/* Branch Dropdown Filter */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-stone-500 hidden lg:inline">
+              Branch
+            </span>
+            <select
+              value={branchFilter}
+              onChange={(e) => setBranchFilter(e.target.value)}
+              className="rounded-xl border border-stone-200 bg-stone-50/70 px-3.5 py-2 text-xs sm:text-sm font-medium text-stone-700 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20 cursor-pointer"
+            >
+              <option value="all">All Branches</option>
+              <option value="unassigned">Unassigned</option>
+              {branches.map((br) => (
+                <option key={br._id} value={br._id}>
+                  {br.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Featured Dropdown */}
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-stone-500 hidden lg:inline">
@@ -687,26 +752,27 @@ export default function AdminBeauticiansPage() {
             <EmptyState
               icon={UsersIcon}
               title={
-                searchQuery || statusFilter !== "all" || featuredFilter !== "all"
+                searchQuery || statusFilter !== "all" || featuredFilter !== "all" || branchFilter !== "all"
                   ? "No beauticians found matching criteria"
                   : "No beauticians added yet"
               }
               description={
-                searchQuery || statusFilter !== "all" || featuredFilter !== "all"
-                  ? "Try clearing your search query or reset your status filters."
+                searchQuery || statusFilter !== "all" || featuredFilter !== "all" || branchFilter !== "all"
+                  ? "Try clearing your search query or reset your filters."
                   : "Start creating your salon beauty professional profiles to showcase on the website."
               }
               actionText={
-                searchQuery || statusFilter !== "all" || featuredFilter !== "all"
+                searchQuery || statusFilter !== "all" || featuredFilter !== "all" || branchFilter !== "all"
                   ? "Clear All Filters"
                   : "+ Add Beautician"
               }
               onAction={
-                searchQuery || statusFilter !== "all" || featuredFilter !== "all"
+                searchQuery || statusFilter !== "all" || featuredFilter !== "all" || branchFilter !== "all"
                   ? () => {
                       setSearchQuery("");
                       setStatusFilter("all");
                       setFeaturedFilter("all");
+                      setBranchFilter("all");
                     }
                   : handleOpenCreateForm
               }
@@ -779,6 +845,19 @@ export default function AdminBeauticiansPage() {
                       <p className="text-xs font-medium text-stone-500 -mt-1.5">
                         {b.jobTitle}
                       </p>
+
+                      {/* Branch Badge */}
+                      {b.branchId && typeof b.branchId === "object" && b.branchId.name ? (
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-purple-700 bg-purple-50/80 px-2.5 py-1.5 rounded-xl border border-purple-100">
+                          <MapPinIcon className="h-3.5 w-3.5 text-purple-500 shrink-0" />
+                          <span className="truncate">Branch: {b.branchId.name}</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-amber-800 bg-amber-50/80 px-2.5 py-1.5 rounded-xl border border-amber-200/80">
+                          <MapPinIcon className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                          <span>Branch Not Assigned</span>
+                        </div>
+                      )}
 
                       {/* Experience */}
                       <div className="flex items-center gap-1.5 text-xs font-medium text-stone-600">
@@ -957,6 +1036,30 @@ export default function AdminBeauticiansPage() {
                     placeholder="e.g. Hair Stylist"
                     className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
                   />
+                </div>
+
+                {/* Branch Selection */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                    Branch
+                  </label>
+                  <select
+                    value={form.branchId}
+                    onChange={(e) =>
+                      setForm({ ...form, branchId: e.target.value })
+                    }
+                    className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20 cursor-pointer"
+                  >
+                    <option value="">Select Branch (Unassigned)</option>
+                    {branches.map((br) => (
+                      <option key={br._id} value={br._id}>
+                        {br.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-[11px] text-stone-400">
+                    Assign beautician to a specific branch or leave unassigned.
+                  </p>
                 </div>
 
                 {/* Bio */}

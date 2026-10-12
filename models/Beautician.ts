@@ -10,6 +10,7 @@ export interface IBeautician extends Document {
   imagePublicId: string;
   instagram?: string;
   facebook?: string;
+  branchId?: mongoose.Types.ObjectId | null;
   isActive: boolean;
   isFeatured: boolean;
   displayOrder: number;
@@ -72,6 +73,12 @@ const BeauticianSchema = new Schema<IBeautician>(
       trim: true,
       default: "",
     },
+    branchId: {
+      type: Schema.Types.ObjectId,
+      ref: "Branch",
+      default: null,
+      index: true,
+    },
     isActive: {
       type: Boolean,
       default: true,
@@ -95,6 +102,11 @@ const BeauticianSchema = new Schema<IBeautician>(
 
 // Compound index for public team listing
 BeauticianSchema.index({ isActive: 1, displayOrder: 1, createdAt: -1 });
+
+// Avoid caching stale schema during Next.js hot module reloading
+if (process.env.NODE_ENV !== "production" && mongoose.models && mongoose.models.Beautician) {
+  delete mongoose.models.Beautician;
+}
 
 const Beautician: Model<IBeautician> =
   mongoose.models.Beautician ||

@@ -104,6 +104,9 @@ export async function PATCH(request: Request, context: RouteContext) {
       latitude,
       longitude,
       googleMapsUrl,
+      googlePlaceId,
+      googleReviewUrl,
+      reviewsEnabled,
       openingHours,
       isActive,
       displayOrder,
@@ -226,6 +229,28 @@ export async function PATCH(request: Request, context: RouteContext) {
         );
       }
       updateData.googleMapsUrl = trimmedUrl;
+    }
+
+    // Google Place ID
+    if (googlePlaceId !== undefined) {
+      updateData.googlePlaceId = String(googlePlaceId).trim();
+    }
+
+    // Google Review URL
+    if (googleReviewUrl !== undefined) {
+      const trimmedReviewUrl = String(googleReviewUrl).trim();
+      if (trimmedReviewUrl && !isValidUrl(trimmedReviewUrl)) {
+        return NextResponse.json(
+          { success: false, message: "Google Review URL must be a valid HTTP or HTTPS URL" },
+          { status: 400 }
+        );
+      }
+      updateData.googleReviewUrl = trimmedReviewUrl;
+    }
+
+    // Reviews enabled
+    if (reviewsEnabled !== undefined) {
+      updateData.reviewsEnabled = Boolean(reviewsEnabled);
     }
 
     // Display order
