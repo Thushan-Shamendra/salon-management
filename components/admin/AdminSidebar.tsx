@@ -19,6 +19,8 @@ import {
   LogOutIcon,
   XIcon,
   DatabaseIcon,
+  ShoppingBagIcon,
+  TagIcon,
 } from "@/components/ui/icons";
 
 interface AdminSidebarProps {
@@ -32,29 +34,6 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [headerLogo, setHeaderLogo] = React.useState<string>("" );
-  const [salonName, setSalonName] = React.useState<string>("SALVORA Salon");
-
-  React.useEffect(() => {
-    let isMounted = true;
-    fetch("/api/settings")
-      .then((res) => res.json())
-      .then((data) => {
-        if (isMounted && data?.success && data?.settings) {
-          if (data.settings.headerLogo || data.settings.logo) {
-            setHeaderLogo(data.settings.headerLogo || data.settings.logo);
-          }
-          if (data.settings.salonName) {
-            setSalonName(data.settings.salonName);
-          }
-        }
-      })
-      .catch(() => {});
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const handleLogout = async () => {
     try {
@@ -101,6 +80,21 @@ export default function AdminSidebar({
           icon: ScissorsIcon,
         },
         {
+          name: "Selling Products",
+          href: "/admin/retail-products",
+          icon: ShoppingBagIcon,
+        },
+        {
+          name: "Promotions",
+          href: "/admin/promotions",
+          icon: TagIcon,
+        },
+        {
+          name: "Product Brands",
+          href: "/admin/products",
+          icon: PackageIcon,
+        },
+        {
           name: "Beauticians",
           href: "/admin/beauticians",
           icon: UsersIcon,
@@ -114,11 +108,6 @@ export default function AdminSidebar({
           name: "Wedding",
           href: "/admin/wedding",
           icon: SparklesIcon,
-        },
-        {
-          name: "Products",
-          href: "/admin/products",
-          icon: PackageIcon,
         },
         {
           name: "Vendors",
@@ -166,111 +155,93 @@ export default function AdminSidebar({
 
   const sidebarContent = (
     <div className="flex h-full flex-col justify-between bg-[#12101C] text-stone-300 select-none">
-      <div>
-        {/* Top Branding Section (Matches Mockup) */}
-        <div className="flex h-20 items-center justify-between px-6 border-b border-white/5">
-          <Link
-            href="/admin"
-            onClick={onClose}
-            className="flex items-center gap-3 focus:outline-none group"
-          >
-            <div className="flex flex-col">
-              {headerLogo ? (
-                <div className="relative h-8 max-w-[140px] flex items-center">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={headerLogo}
-                    alt={salonName}
-                    className="h-8 w-auto max-w-[140px] object-contain object-left"
-                  />
-                </div>
-              ) : (
-                <div className="relative h-8 w-32">
-                  <Image
-                    src="/images/salvora-logo-dark.png"
-                    alt={salonName}
-                    fill
-                    className="object-contain object-left"
-                    priority
-                  />
-                </div>
+      {/* Top Branding Section (Hardcoded Salvora Salon Management Suite Logo) */}
+      <div className="relative flex h-24 shrink-0 items-center justify-center px-4 border-b border-white/5">
+        <Link
+          href="/admin"
+          onClick={onClose}
+          className="flex flex-col items-center justify-center text-center focus:outline-none group"
+        >
+          <Image
+            src="/images/salvora-suite-logo.png"
+            alt="Salvora Salon Management Suite"
+            width={220}
+            height={88}
+            priority
+            unoptimized
+            className="w-[180px] sm:w-[195px] h-auto object-contain"
+          />
+        </Link>
+
+        {/* Close button for mobile drawer */}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close admin menu"
+          className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-lg text-stone-400 hover:text-white hover:bg-white/10 md:hidden cursor-pointer"
+        >
+          <XIcon className="h-5 w-5" />
+        </button>
+      </div>
+
+      {/* Main Navigation Links (Scrollable without visible white scrollbar) */}
+      <div className="flex-1 min-h-0 px-3 py-4 space-y-4 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <nav className="space-y-4" aria-label="Admin navigation">
+          {navSections.map((section, sIdx) => (
+            <div key={sIdx} className="space-y-1">
+              {section.title && (
+                <p className="px-4 pt-1 pb-1 text-[10px] font-bold tracking-[0.2em] text-stone-500 uppercase">
+                  {section.title}
+                </p>
               )}
-              <span className="text-[9px] uppercase tracking-[0.25em] text-[#A78BFA] font-bold mt-0.5">
-                WEBSITE ADMIN
-              </span>
-            </div>
-          </Link>
+              {section.items.map((item) => {
+                const isActive = item.exact
+                  ? pathname === item.href
+                  : pathname === item.href || pathname.startsWith(`${item.href}/`);
+                const Icon = item.icon;
 
-          {/* Close button for mobile drawer */}
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close admin menu"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-400 hover:text-white hover:bg-white/10 md:hidden cursor-pointer"
-          >
-            <XIcon className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* Main Navigation Links */}
-        <div className="px-3 py-4 space-y-4 overflow-y-auto max-h-[calc(100vh-180px)]">
-          <nav className="space-y-4" aria-label="Admin navigation">
-            {navSections.map((section, sIdx) => (
-              <div key={sIdx} className="space-y-1">
-                {section.title && (
-                  <p className="px-4 pt-1 pb-1 text-[10px] font-bold tracking-[0.2em] text-stone-500 uppercase">
-                    {section.title}
-                  </p>
-                )}
-                {section.items.map((item) => {
-                  const isActive = item.exact
-                    ? pathname === item.href
-                    : pathname === item.href || pathname.startsWith(`${item.href}/`);
-                  const Icon = item.icon;
-
-                  return (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      onClick={onClose}
-                      className={`group flex items-center gap-3.5 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-150 ${
-                        isActive
-                          ? "bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] text-white shadow-md shadow-purple-950/50"
-                          : "text-stone-400 hover:bg-white/5 hover:text-white"
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={onClose}
+                    className={`group flex items-center gap-3.5 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-150 ${
+                      isActive
+                        ? "bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] text-white shadow-md shadow-purple-950/50"
+                        : "text-stone-400 hover:bg-white/5 hover:text-white"
+                    }`}
+                  >
+                    <Icon
+                      className={`h-4.5 w-4.5 shrink-0 transition-colors ${
+                        isActive ? "text-white" : "text-stone-400 group-hover:text-purple-300"
                       }`}
-                    >
-                      <Icon
-                        className={`h-4.5 w-4.5 shrink-0 transition-colors ${
-                          isActive ? "text-white" : "text-stone-400 group-hover:text-purple-300"
-                        }`}
-                      />
-                      <span>{item.name}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-            ))}
-          </nav>
+                    />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
+        </nav>
 
-          {/* Divider */}
-          <div className="my-5 border-t border-white/5" />
+        {/* Divider */}
+        <div className="my-5 border-t border-white/5" />
 
-          {/* View Website Link */}
-          <a
-            href="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={onClose}
-            className="group flex items-center gap-3.5 rounded-xl px-4 py-3 text-xs sm:text-sm font-semibold text-stone-400 hover:bg-white/5 hover:text-white transition-colors"
-          >
-            <ExternalLinkIcon className="h-4.5 w-4.5 text-stone-400 group-hover:text-[#A78BFA]" />
-            <span>View Website</span>
-          </a>
-        </div>
+        {/* View Website Link */}
+        <a
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={onClose}
+          className="group flex items-center gap-3.5 rounded-xl px-4 py-3 text-xs sm:text-sm font-semibold text-stone-400 hover:bg-white/5 hover:text-white transition-colors"
+        >
+          <ExternalLinkIcon className="h-4.5 w-4.5 text-stone-400 group-hover:text-[#A78BFA]" />
+          <span>View Website</span>
+        </a>
       </div>
 
       {/* Bottom Footer Actions (Change Password + Logout) */}
-      <div className="p-4 border-t border-white/5 space-y-1">
+      <div className="p-4 shrink-0 border-t border-white/5 space-y-1">
         <Link
           href="/admin/change-password"
           onClick={onClose}

@@ -71,6 +71,8 @@ export default function Navbar() {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Services", href: "/services" },
+    { name: "Products", href: "/products" },
+    { name: "Promotions", href: "/promotions" },
     { name: "About", href: "/about" },
     { name: "Wedding", href: "/wedding" },
     { name: "Vendors", href: "/vendors" },
@@ -99,10 +101,10 @@ export default function Navbar() {
             <img
               src={headerLogo}
               alt={salonName}
-              className="h-10 sm:h-11 w-auto max-w-[220px] object-contain"
+              className="h-12 sm:h-13 lg:h-14 w-auto max-w-[260px] object-contain"
             />
           ) : (
-            <SalvoraLogo theme="light" className="h-10 sm:h-11 w-auto object-contain" />
+            <SalvoraLogo theme="light" className="h-12 sm:h-13 lg:h-14 w-auto object-contain" />
           )}
         </Link>
 

@@ -135,7 +135,7 @@ export default function FloatingWhatsApp() {
         aria-label="Chat with SALVORA on WhatsApp"
         className="flex h-13 w-13 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-emerald-900/30 hover:bg-[#20BD5A] hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-hidden focus:ring-4 focus:ring-emerald-400/40"
       >
-        <WhatsAppIcon className="h-7 w-7 text-white fill-current" />
+        <WhatsAppIcon className="h-7 w-7 sm:h-8 sm:w-8 text-white fill-current" />
       </a>
     </div>
   );

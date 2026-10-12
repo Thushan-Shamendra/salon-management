@@ -9,6 +9,7 @@ export const ANALYTICS_EVENT_TYPES = [
   "VENDOR_CLICK",
   "MAP_CLICK",
   "PRODUCT_CLICK",
+  "PROMOTION_CLICK",
   "BRANCH_VIEW",
 ] as const;
 

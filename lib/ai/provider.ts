@@ -3,7 +3,10 @@
  * 
  * Supports OpenAI and OpenAI-compatible providers (OpenRouter, local gateways, etc.)
  * via native fetch with strict timeout protection and zero secret leakage.
+ * Dynamically resolves database overrides and environment variable defaults.
  */
+
+import { getAiConfig as resolveAiConfig } from "@/lib/integrations/config";
 
 export interface AiChatMessage {
   role: "system" | "user" | "assistant";
@@ -14,6 +17,8 @@ export interface AiConfigInfo {
   configured: boolean;
   provider: string;
   model: string;
+  baseUrl?: string;
+  source?: "admin" | "environment" | "none";
 }
 
 export class AiProviderError extends Error {
@@ -26,7 +31,8 @@ export class AiProviderError extends Error {
 }
 
 /**
- * Check if the AI provider has been configured with an API key
+ * Check if the AI provider has been configured with an API key synchronously.
+ * Preserves compatibility with testing suites.
  */
 export function isAiConfigured(): boolean {
   const apiKey = process.env.OPENAI_API_KEY?.trim();
@@ -34,7 +40,16 @@ export function isAiConfigured(): boolean {
 }
 
 /**
- * Return safe public configuration details (never leaks keys)
+ * Asynchronously checks if the AI provider is configured including database overrides.
+ */
+export async function isAiConfiguredAsync(): Promise<boolean> {
+  const cfg = await resolveAiConfig();
+  return cfg.isConfigured;
+}
+
+/**
+ * Return safe public configuration details synchronously (never leaks keys).
+ * Preserves compatibility with testing suites.
  */
 export function getAiConfig(): AiConfigInfo {
   const provider = (process.env.AI_PROVIDER || "openai").toLowerCase();
@@ -43,6 +58,20 @@ export function getAiConfig(): AiConfigInfo {
     configured: isAiConfigured(),
     provider,
     model,
+  };
+}
+
+/**
+ * Return safe public configuration details asynchronously including database overrides.
+ */
+export async function getAiConfigAsync(): Promise<AiConfigInfo> {
+  const cfg = await resolveAiConfig();
+  return {
+    configured: cfg.isConfigured,
+    provider: cfg.provider,
+    model: cfg.model,
+    baseUrl: cfg.baseUrl,
+    source: cfg.source,
   };
 }
 
@@ -58,7 +87,9 @@ export async function generateAiChatCompletion(
     timeoutMs?: number;
   } = {}
 ): Promise<string> {
-  const apiKey = process.env.OPENAI_API_KEY?.trim();
+  const aiConfig = await resolveAiConfig();
+  const apiKey = aiConfig.apiKey?.trim();
+
   if (!apiKey) {
     throw new AiProviderError(
       "AI Assistant is not configured. Add your AI provider API key to enable SALVORA website insights.",
@@ -66,8 +97,8 @@ export async function generateAiChatCompletion(
     );
   }
 
-  const model = process.env.OPENAI_MODEL?.trim() || "gpt-4o-mini";
-  let baseUrl = process.env.OPENAI_BASE_URL?.trim() || "https://api.openai.com/v1";
+  const model = aiConfig.model || "gpt-4o-mini";
+  let baseUrl = aiConfig.baseUrl || "https://api.openai.com/v1";
   if (baseUrl.endsWith("/")) baseUrl = baseUrl.slice(0, -1);
 
   const timeoutMs = options.timeoutMs ?? 30000;

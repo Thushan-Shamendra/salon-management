@@ -8,6 +8,8 @@ export const CLOUDINARY_FOLDERS = {
   VENDORS: "salon-management/vendors",
   WEDDING_SERVICES: "salon-management/wedding/services",
   WEDDING_PACKAGES: "salon-management/wedding/packages",
+  RETAIL_PRODUCTS: "salon-management/retail-products",
+  PROMOTIONS: "salon-management/promotions",
 } as const;
 
 export type CloudinaryFolder =

@@ -22,6 +22,12 @@ import {
   AlertCircleIcon,
   XIcon,
   SparklesIcon,
+  ImageIcon,
+  GoogleIcon,
+  LockIcon,
+  ShieldCheckIcon,
+  EyeIcon,
+  EyeOffIcon,
 } from "@/components/ui/icons";
 import ImageUpload, { UploadResult } from "@/components/ui/ImageUpload";
 import { CLOUDINARY_FOLDERS } from "@/lib/cloudinary-constants";
@@ -127,6 +133,32 @@ const emptyBranchForm: MainBranchFormState = {
   openingHours: DEFAULT_BRANCH_HOURS,
 };
 
+export interface IntegrationSafeInfo {
+  cloudinary: {
+    cloudName: string;
+    apiKey: string;
+    apiSecretConfigured: boolean;
+    hasAdminOverride: boolean;
+    source: "admin" | "environment" | "none";
+    isConfigured: boolean;
+  };
+  googlePlaces: {
+    apiKeyConfigured: boolean;
+    hasAdminOverride: boolean;
+    source: "admin" | "environment" | "none";
+    isConfigured: boolean;
+  };
+  ai: {
+    provider: string;
+    model: string;
+    baseUrl: string;
+    apiKeyConfigured: boolean;
+    hasAdminOverride: boolean;
+    source: "admin" | "environment" | "none";
+    isConfigured: boolean;
+  };
+}
+
 const SECTIONS = [
   { id: "salon-branding", label: "Branding & Logo", icon: StoreIcon, group: "Global Website" },
   { id: "social-media", label: "Social Media", icon: ExternalLinkIcon, group: "Global Website" },
@@ -134,6 +166,9 @@ const SECTIONS = [
   { id: "main-branch-details", label: "Main Branch Details", icon: MapPinIcon, group: "Main Branch" },
   { id: "main-branch-hours", label: "Main Opening Hours", icon: ClockIcon, group: "Main Branch" },
   { id: "main-branch-reviews", label: "Main Google Reviews", icon: StarIcon, group: "Main Branch" },
+  { id: "integration-cloudinary", label: "Cloudinary", icon: ImageIcon, group: "Integrations" },
+  { id: "integration-google", label: "Google Places", icon: GoogleIcon, group: "Integrations" },
+  { id: "integration-ai", label: "AI Provider", icon: SparklesIcon, group: "Integrations" },
 ];
 
 export default function AdminSettingsPage() {
@@ -190,6 +225,42 @@ export default function AdminSettingsPage() {
   const [selectedBranchIdToMakeMain, setSelectedBranchIdToMakeMain] = useState<string>("");
   const [isDesignatingMain, setIsDesignatingMain] = useState(false);
   const [showCreateMainForm, setShowCreateMainForm] = useState(false);
+
+  // Integrations state
+  const [integrationsStatus, setIntegrationsStatus] = useState<IntegrationSafeInfo | null>(null);
+
+  // Cloudinary form state
+  const [cldCloudName, setCldCloudName] = useState("");
+  const [cldApiKey, setCldApiKey] = useState("");
+  const [cldApiSecret, setCldApiSecret] = useState("");
+  const [cldPassword, setCldPassword] = useState("");
+  const [showCldPassword, setShowCldPassword] = useState(false);
+  const [savingCld, setSavingCld] = useState(false);
+  const [clearingCld, setClearingCld] = useState(false);
+
+  // Google Places form state
+  const [googleApiKey, setGoogleApiKey] = useState("");
+  const [googlePassword, setGooglePassword] = useState("");
+  const [showGooglePassword, setShowGooglePassword] = useState(false);
+  const [savingGoogle, setSavingGoogle] = useState(false);
+  const [clearingGoogle, setClearingGoogle] = useState(false);
+
+  // AI Provider form state
+  const [aiProvider, setAiProvider] = useState("openai");
+  const [aiModel, setAiModel] = useState("gpt-4o-mini");
+  const [aiBaseUrl, setAiBaseUrl] = useState("");
+  const [aiApiKey, setAiApiKey] = useState("");
+  const [aiPassword, setAiPassword] = useState("");
+  const [showAiPassword, setShowAiPassword] = useState(false);
+  const [savingAi, setSavingAi] = useState(false);
+  const [clearingAi, setClearingAi] = useState(false);
+
+  // Clear confirmation modal state
+  const [confirmClearModal, setConfirmClearModal] = useState<{
+    target: "cloudinary" | "google" | "ai";
+    title: string;
+    message: string;
+  } | null>(null);
 
   // Helper to trigger toast notification
   const showNotification = (type: "success" | "error", message: string) => {
@@ -270,6 +341,27 @@ export default function AdminSettingsPage() {
       }
     } catch (err) {
       console.error("Failed to reload branches:", err);
+    }
+  };
+
+  // Reload integrations from Integrations API
+  const loadIntegrations = async (isMounted = true) => {
+    try {
+      const res = await fetch("/api/admin/integrations");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.integrations && isMounted) {
+          const info: IntegrationSafeInfo = data.integrations;
+          setIntegrationsStatus(info);
+          setCldCloudName(info.cloudinary.cloudName || "");
+          setCldApiKey(info.cloudinary.apiKey || "");
+          setAiProvider(info.ai.provider || "openai");
+          setAiModel(info.ai.model || "gpt-4o-mini");
+          setAiBaseUrl(info.ai.baseUrl || "");
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load integrations:", err);
     }
   };
 
@@ -373,6 +465,9 @@ export default function AdminSettingsPage() {
             }
           }
         }
+
+        // 3. Fetch Integrations
+        await loadIntegrations(isMounted);
       } catch (err) {
         console.error("Initialization error:", err);
         if (isMounted) showNotification("error", "Network error loading settings.");
@@ -708,6 +803,138 @@ export default function AdminSettingsPage() {
     }
   };
 
+  // ============================================================================
+  // INTEGRATION SETTINGS ACTIONS
+  // ============================================================================
+
+  const handleSaveCloudinary = async (e: FormEvent) => {
+    e.preventDefault();
+    if (cldApiSecret.trim() && !cldPassword.trim()) {
+      showNotification("error", "Current admin password is required to update the Cloudinary API secret.");
+      return;
+    }
+    setSavingCld(true);
+    try {
+      const res = await fetch("/api/admin/integrations/cloudinary", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cloudName: cldCloudName.trim(),
+          apiKey: cldApiKey.trim(),
+          apiSecret: cldApiSecret.trim() || undefined,
+          currentPassword: cldPassword.trim() || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to update Cloudinary settings");
+      }
+      setCldApiSecret("");
+      setCldPassword("");
+      showNotification("success", "Cloudinary settings saved successfully.");
+      await loadIntegrations();
+    } catch (err) {
+      showNotification("error", err instanceof Error ? err.message : "Unable to save Cloudinary settings.");
+    } finally {
+      setSavingCld(false);
+    }
+  };
+
+  const handleSaveGoogle = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!googleApiKey.trim()) {
+      showNotification("error", "Please enter a new Google Places API key to save.");
+      return;
+    }
+    if (!googlePassword.trim()) {
+      showNotification("error", "Current admin password is required to update the Google Places API key.");
+      return;
+    }
+    setSavingGoogle(true);
+    try {
+      const res = await fetch("/api/admin/integrations/google", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          apiKey: googleApiKey.trim(),
+          currentPassword: googlePassword.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to update Google Places settings");
+      }
+      setGoogleApiKey("");
+      setGooglePassword("");
+      showNotification("success", "Google Places API key saved successfully.");
+      await loadIntegrations();
+    } catch (err) {
+      showNotification("error", err instanceof Error ? err.message : "Unable to save Google Places settings.");
+    } finally {
+      setSavingGoogle(false);
+    }
+  };
+
+  const handleSaveAi = async (e: FormEvent) => {
+    e.preventDefault();
+    if (aiApiKey.trim() && !aiPassword.trim()) {
+      showNotification("error", "Current admin password is required to update the AI API key.");
+      return;
+    }
+    setSavingAi(true);
+    try {
+      const res = await fetch("/api/admin/integrations/ai", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          provider: aiProvider.trim(),
+          model: aiModel.trim(),
+          baseUrl: aiBaseUrl.trim() || undefined,
+          apiKey: aiApiKey.trim() || undefined,
+          currentPassword: aiPassword.trim() || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to update AI configuration");
+      }
+      setAiApiKey("");
+      setAiPassword("");
+      showNotification("success", "AI configuration saved successfully.");
+      await loadIntegrations();
+    } catch (err) {
+      showNotification("error", err instanceof Error ? err.message : "Unable to save AI configuration.");
+    } finally {
+      setSavingAi(false);
+    }
+  };
+
+  const handleClearOverride = async (target: "cloudinary" | "google" | "ai") => {
+    const isClearing =
+      target === "cloudinary"
+        ? setClearingCld
+        : target === "google"
+        ? setClearingGoogle
+        : setClearingAi;
+    isClearing(true);
+    try {
+      const res = await fetch(`/api/admin/integrations/${target}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || `Failed to clear ${target} override`);
+      }
+      showNotification("success", data.message || "Admin override cleared. Reverted to environment defaults.");
+      setConfirmClearModal(null);
+      await loadIntegrations();
+    } catch (err) {
+      showNotification("error", err instanceof Error ? err.message : "Unable to clear override.");
+    } finally {
+      isClearing(false);
+    }
+  };
+
   // Google Reviews badge status
   const googleStatus = useMemo(() => {
     if (!mainBranchForm.reviewsEnabled) return "disabled";
@@ -868,6 +1095,38 @@ export default function AdminSettingsPage() {
               </div>
             </div>
 
+            <div className="border-t border-stone-100 pt-2">
+              <div className="flex items-center justify-between px-3 py-1">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+                  Integrations
+                </p>
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-stone-100 text-stone-600">
+                  API Keys
+                </span>
+              </div>
+              <div className="space-y-1 mt-1">
+                {SECTIONS.filter((s) => s.group === "Integrations").map((sec) => {
+                  const Icon = sec.icon;
+                  const isActive = activeSection === sec.id;
+                  return (
+                    <button
+                      key={sec.id}
+                      type="button"
+                      onClick={() => scrollToSection(sec.id)}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-left cursor-pointer ${
+                        isActive
+                          ? "bg-purple-50 text-[#7C3AED] shadow-2xs"
+                          : "text-stone-600 hover:bg-stone-50 hover:text-stone-900"
+                      }`}
+                    >
+                      <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-[#7C3AED]" : "text-stone-400"}`} />
+                      <span>{sec.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="border-t border-stone-100 pt-2 px-1">
               <button
                 type="button"
@@ -979,7 +1238,7 @@ export default function AdminSettingsPage() {
                     <div className="flex items-center justify-between">
                       <h4 className="text-xs font-bold text-stone-800">Header Navbar Logo</h4>
                       <span className="text-[10px] font-semibold text-purple-700 bg-purple-100/80 px-2 py-0.5 rounded-full">
-                        Navbar & Admin
+                        Public Navbar
                       </span>
                     </div>
 
@@ -1863,8 +2122,524 @@ export default function AdminSettingsPage() {
               </div>
             )}
           </div>
+
+          {/* ==================================================== */}
+          {/* GROUP 3: INTEGRATIONS & API CONFIGURATION            */}
+          {/* ==================================================== */}
+          <div className="space-y-6 pt-6 border-t border-stone-200/80">
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
+                Integrations & API Configuration
+              </h2>
+              <p className="text-xs text-stone-500">
+                Server-side API keys and cloud storage configuration. Secret keys are encrypted with AES-256-GCM and never returned in plaintext.
+              </p>
+            </div>
+
+            {/* CARD 1: CLOUDINARY IMAGE MANAGEMENT */}
+            <div
+              id="integration-cloudinary"
+              className="rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-6"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100">
+                    <ImageIcon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-stone-900 tracking-tight">
+                      Cloudinary Image Management
+                    </h3>
+                    <p className="text-xs text-stone-500">
+                      Configure Cloudinary for signed image uploads used by SALVORA.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {integrationsStatus?.cloudinary.isConfigured ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <CheckCircleIcon className="h-3.5 w-3.5" />
+                      Configured
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                      <AlertCircleIcon className="h-3.5 w-3.5" />
+                      Not Configured
+                    </span>
+                  )}
+
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700 border border-stone-200">
+                    Source:{" "}
+                    <strong className="font-semibold text-stone-900">
+                      {integrationsStatus?.cloudinary.source === "admin"
+                        ? "Admin Override"
+                        : integrationsStatus?.cloudinary.source === "environment"
+                        ? "Environment Default"
+                        : "None"}
+                    </strong>
+                  </span>
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveCloudinary} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                      Cloud Name
+                    </label>
+                    <input
+                      type="text"
+                      value={cldCloudName}
+                      onChange={(e) => setCldCloudName(e.target.value)}
+                      placeholder="e.g. salvora-cloud"
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#7C3AED] focus:bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                      API Key
+                    </label>
+                    <input
+                      type="text"
+                      value={cldApiKey}
+                      onChange={(e) => setCldApiKey(e.target.value)}
+                      placeholder="e.g. 123456789012345"
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#7C3AED] focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-semibold text-stone-700">
+                      API Secret
+                    </label>
+                    {integrationsStatus?.cloudinary.apiSecretConfigured && (
+                      <span className="text-[11px] font-medium text-emerald-600 inline-flex items-center gap-1">
+                        <CheckCircleIcon className="h-3 w-3" />
+                        Secret Configured & Encrypted
+                      </span>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <LockIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
+                    <input
+                      type="password"
+                      value={cldApiSecret}
+                      onChange={(e) => setCldApiSecret(e.target.value)}
+                      placeholder="Enter a new API secret to replace the current value"
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#7C3AED] focus:bg-white placeholder:text-stone-400"
+                    />
+                  </div>
+                  <p className="mt-1 text-[11px] text-stone-400">
+                    Existing secrets are never displayed. Leave empty to preserve your current secret.
+                  </p>
+                </div>
+
+                {/* Password confirmation when changing secret */}
+                {cldApiSecret.trim().length > 0 && (
+                  <div className="rounded-xl border border-purple-200 bg-purple-50/60 p-3.5 space-y-2">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-purple-900">
+                      <ShieldCheckIcon className="h-4 w-4 text-[#7C3AED]" />
+                      <span>Admin Password Confirmation Required</span>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type={showCldPassword ? "text" : "password"}
+                        value={cldPassword}
+                        onChange={(e) => setCldPassword(e.target.value)}
+                        placeholder="Enter your current admin password"
+                        className="w-full rounded-xl border border-purple-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#7C3AED]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCldPassword(!showCldPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                      >
+                        {showCldPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={savingCld}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-xs font-semibold text-white shadow-2xs transition cursor-pointer disabled:opacity-40"
+                  >
+                    {savingCld && (
+                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    )}
+                    <span>{savingCld ? "Saving..." : "Save Cloudinary Settings"}</span>
+                  </button>
+
+                  {integrationsStatus?.cloudinary.hasAdminOverride && (
+                    <button
+                      type="button"
+                      disabled={clearingCld}
+                      onClick={() =>
+                        setConfirmClearModal({
+                          target: "cloudinary",
+                          title: "Clear Cloudinary Override",
+                          message:
+                            "Remove the saved override and return to the server environment configuration?",
+                        })
+                      }
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition cursor-pointer"
+                    >
+                      <span>Clear Admin Override</span>
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            {/* CARD 2: GOOGLE PLACES & REVIEWS */}
+            <div
+              id="integration-google"
+              className="rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-6"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
+                    <GoogleIcon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-stone-900 tracking-tight">
+                      Google Places & Reviews
+                    </h3>
+                    <p className="text-xs text-stone-500">
+                      Server-side API configuration used to display Google Business reviews.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {integrationsStatus?.googlePlaces.isConfigured ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <CheckCircleIcon className="h-3.5 w-3.5" />
+                      Configured
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                      <AlertCircleIcon className="h-3.5 w-3.5" />
+                      Not Configured
+                    </span>
+                  )}
+
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700 border border-stone-200">
+                    Source:{" "}
+                    <strong className="font-semibold text-stone-900">
+                      {integrationsStatus?.googlePlaces.source === "admin"
+                        ? "Admin Override"
+                        : integrationsStatus?.googlePlaces.source === "environment"
+                        ? "Environment Default"
+                        : "None"}
+                    </strong>
+                  </span>
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveGoogle} className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-semibold text-stone-700">
+                      Google Places API Key
+                    </label>
+                    {integrationsStatus?.googlePlaces.apiKeyConfigured && (
+                      <span className="text-[11px] font-medium text-emerald-600 inline-flex items-center gap-1">
+                        <CheckCircleIcon className="h-3 w-3" />
+                        API Key Configured
+                      </span>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <LockIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
+                    <input
+                      type="password"
+                      value={googleApiKey}
+                      onChange={(e) => setGoogleApiKey(e.target.value)}
+                      placeholder="Enter a new API key to replace the current key"
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#7C3AED] focus:bg-white placeholder:text-stone-400"
+                    />
+                  </div>
+                  <p className="mt-1 text-[11px] text-stone-400">
+                    Used strictly server-side by SALVORA to fetch customer reviews. Branch Place IDs and review links are configured separately in Branch Settings.
+                  </p>
+                </div>
+
+                {/* Password confirmation */}
+                {googleApiKey.trim().length > 0 && (
+                  <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-3.5 space-y-2">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-blue-900">
+                      <ShieldCheckIcon className="h-4 w-4 text-blue-600" />
+                      <span>Admin Password Confirmation Required</span>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type={showGooglePassword ? "text" : "password"}
+                        value={googlePassword}
+                        onChange={(e) => setGooglePassword(e.target.value)}
+                        placeholder="Enter your current admin password"
+                        className="w-full rounded-xl border border-blue-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-blue-600"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowGooglePassword(!showGooglePassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                      >
+                        {showGooglePassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={savingGoogle || !googleApiKey.trim()}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white shadow-2xs transition cursor-pointer disabled:opacity-40"
+                  >
+                    {savingGoogle && (
+                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    )}
+                    <span>{savingGoogle ? "Saving..." : "Save Google Settings"}</span>
+                  </button>
+
+                  {integrationsStatus?.googlePlaces.hasAdminOverride && (
+                    <button
+                      type="button"
+                      disabled={clearingGoogle}
+                      onClick={() =>
+                        setConfirmClearModal({
+                          target: "google",
+                          title: "Clear Google Places Override",
+                          message:
+                            "Remove the saved override and return to the server environment configuration?",
+                        })
+                      }
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition cursor-pointer"
+                    >
+                      <span>Clear Admin Override</span>
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            {/* CARD 3: AI PROVIDER */}
+            <div
+              id="integration-ai"
+              className="rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-6"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600 border border-violet-100">
+                    <SparklesIcon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-stone-900 tracking-tight">
+                      AI Provider
+                    </h3>
+                    <p className="text-xs text-stone-500">
+                      Configure your AI provider for the SALVORA AI Website Assistant.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {integrationsStatus?.ai.isConfigured ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <CheckCircleIcon className="h-3.5 w-3.5" />
+                      Configured
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                      <AlertCircleIcon className="h-3.5 w-3.5" />
+                      Not Configured
+                    </span>
+                  )}
+
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700 border border-stone-200">
+                    Source:{" "}
+                    <strong className="font-semibold text-stone-900">
+                      {integrationsStatus?.ai.source === "admin"
+                        ? "Admin Override"
+                        : integrationsStatus?.ai.source === "environment"
+                        ? "Environment Default"
+                        : "None"}
+                    </strong>
+                  </span>
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveAi} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                      Provider
+                    </label>
+                    <select
+                      value={aiProvider}
+                      onChange={(e) => setAiProvider(e.target.value)}
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#7C3AED] focus:bg-white"
+                    >
+                      <option value="openai">OpenAI</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                      Model
+                    </label>
+                    <input
+                      type="text"
+                      value={aiModel}
+                      onChange={(e) => setAiModel(e.target.value)}
+                      placeholder="e.g. gpt-4o-mini"
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#7C3AED] focus:bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                      Base URL (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={aiBaseUrl}
+                      onChange={(e) => setAiBaseUrl(e.target.value)}
+                      placeholder="https://api.openai.com/v1"
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#7C3AED] focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-semibold text-stone-700">
+                      API Key
+                    </label>
+                    {integrationsStatus?.ai.apiKeyConfigured && (
+                      <span className="text-[11px] font-medium text-emerald-600 inline-flex items-center gap-1">
+                        <CheckCircleIcon className="h-3 w-3" />
+                        API Key Configured
+                      </span>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <LockIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
+                    <input
+                      type="password"
+                      value={aiApiKey}
+                      onChange={(e) => setAiApiKey(e.target.value)}
+                      placeholder="Enter a new AI API key to replace the current key"
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#7C3AED] focus:bg-white placeholder:text-stone-400"
+                    />
+                  </div>
+                  <p className="mt-1 text-[11px] text-stone-400">
+                    Existing AI keys are never displayed. Leave empty to preserve your existing key.
+                  </p>
+                </div>
+
+                {/* Password confirmation */}
+                {aiApiKey.trim().length > 0 && (
+                  <div className="rounded-xl border border-violet-200 bg-violet-50/60 p-3.5 space-y-2">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-violet-900">
+                      <ShieldCheckIcon className="h-4 w-4 text-violet-600" />
+                      <span>Admin Password Confirmation Required</span>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type={showAiPassword ? "text" : "password"}
+                        value={aiPassword}
+                        onChange={(e) => setAiPassword(e.target.value)}
+                        placeholder="Enter your current admin password"
+                        className="w-full rounded-xl border border-violet-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-stone-900 outline-none focus:border-violet-600"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAiPassword(!showAiPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                      >
+                        {showAiPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={savingAi}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-xs font-semibold text-white shadow-2xs transition cursor-pointer disabled:opacity-40"
+                  >
+                    {savingAi && (
+                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    )}
+                    <span>{savingAi ? "Saving..." : "Save AI Configuration"}</span>
+                  </button>
+
+                  {integrationsStatus?.ai.hasAdminOverride && (
+                    <button
+                      type="button"
+                      disabled={clearingAi}
+                      onClick={() =>
+                        setConfirmClearModal({
+                          target: "ai",
+                          title: "Clear AI Provider Override",
+                          message:
+                            "Remove the saved override and return to the server environment configuration?",
+                        })
+                      }
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition cursor-pointer"
+                    >
+                      <span>Clear Admin Override</span>
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Confirm Clear Override Modal */}
+      {confirmClearModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-600 border border-rose-100">
+                <AlertCircleIcon className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-stone-900">{confirmClearModal.title}</h3>
+                <p className="mt-1 text-xs text-stone-600">{confirmClearModal.message}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-stone-100">
+              <button
+                type="button"
+                onClick={() => setConfirmClearModal(null)}
+                className="px-4 py-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 rounded-xl transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleClearOverride(confirmClearModal.target)}
+                className="px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-2xs transition cursor-pointer"
+              >
+                Clear Override
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

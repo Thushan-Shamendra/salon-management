@@ -6,6 +6,11 @@ import ProductBrand from "@/models/ProductBrand";
 import Vendor from "@/models/Vendor";
 import WeddingService from "@/models/WeddingService";
 import WeddingPackage from "@/models/WeddingPackage";
+import {
+  getCloudinaryConfig,
+  getGooglePlacesConfig,
+  getAiConfig,
+} from "@/lib/integrations/config";
 
 export interface HealthItem {
   id: string;
@@ -84,11 +89,11 @@ export async function getWebsiteHealth(): Promise<WebsiteHealthData> {
     }),
   ]);
 
-  const isCloudinaryConfigured = Boolean(
-    process.env.CLOUDINARY_CLOUD_NAME &&
-      process.env.CLOUDINARY_API_KEY &&
-      process.env.CLOUDINARY_API_SECRET
-  );
+  const [cldConfig, googleConfig, aiConfig] = await Promise.all([
+    getCloudinaryConfig(),
+    getGooglePlacesConfig(),
+    getAiConfig(),
+  ]);
 
   let branchesMissingPhone = 0;
   let branchesMissingWhatsApp = 0;
@@ -112,10 +117,26 @@ export async function getWebsiteHealth(): Promise<WebsiteHealthData> {
     {
       id: "cloudinary",
       title: "Cloudinary Media Storage",
-      status: isCloudinaryConfigured ? "ok" : "warning",
-      detail: isCloudinaryConfigured
-        ? "Configured for image delivery"
-        : "Missing Cloudinary environment credentials",
+      status: cldConfig.isConfigured ? "ok" : "warning",
+      detail: cldConfig.isConfigured
+        ? `Configured for image delivery (${cldConfig.source === "admin" ? "Admin Override" : "Environment Defaults"})`
+        : "Missing Cloudinary configuration",
+    },
+    {
+      id: "google_places",
+      title: "Google Places API",
+      status: googleConfig.isConfigured ? "ok" : "warning",
+      detail: googleConfig.isConfigured
+        ? `Configured for business reviews (${googleConfig.source === "admin" ? "Admin Override" : "Environment Defaults"})`
+        : "API key not configured",
+    },
+    {
+      id: "ai_assistant",
+      title: "AI Website Assistant",
+      status: aiConfig.isConfigured ? "ok" : "warning",
+      detail: aiConfig.isConfigured
+        ? `Configured with ${aiConfig.provider} (${aiConfig.source === "admin" ? "Admin Override" : "Environment Defaults"})`
+        : "API key not configured",
     },
   ];
 

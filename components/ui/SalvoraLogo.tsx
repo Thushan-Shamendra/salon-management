@@ -9,7 +9,7 @@ interface SalvoraLogoProps {
 
 export default function SalvoraLogo({
   theme = "light",
-  className = "h-9 sm:h-10 w-auto",
+  className = "h-12 sm:h-14 w-auto",
   showIconOnly = false,
 }: SalvoraLogoProps) {
   if (showIconOnly) {

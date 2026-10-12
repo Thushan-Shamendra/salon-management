@@ -25,7 +25,10 @@ export default function AboutHero() {
           <SparklesIcon className={styles.badgeIcon} />
           ABOUT SALVORA
         </p>
-        <h1 id="about-hero-title" className={styles.heading}>
+        <h1
+          id="about-hero-title"
+          className={`${styles.heading} text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight`}
+        >
           More Than a Salon
           <span>A Place for You</span>
         </h1>

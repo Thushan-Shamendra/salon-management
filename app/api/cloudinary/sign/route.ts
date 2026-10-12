@@ -5,16 +5,48 @@ import {
   CLOUDINARY_FOLDERS,
   CloudinaryFolder,
 } from "@/lib/cloudinary";
+import { getCloudinaryConfig } from "@/lib/integrations/config";
 
 const ADMIN_ONLY_FOLDERS: CloudinaryFolder[] = [
   CLOUDINARY_FOLDERS.SERVICES,
   CLOUDINARY_FOLDERS.SALON,
   CLOUDINARY_FOLDERS.GALLERY,
   CLOUDINARY_FOLDERS.BEAUTICIANS,
+  CLOUDINARY_FOLDERS.RETAIL_PRODUCTS,
+  CLOUDINARY_FOLDERS.PROMOTIONS,
 ];
 
 const ALLOWED_FOLDERS = Object.values(CLOUDINARY_FOLDERS);
 
+// GET /api/cloudinary/sign - Public/authenticated client config (never exposes apiSecret)
+export async function GET() {
+  try {
+    const user = await getCurrentUser();
+    if (!user || !user.isActive) {
+      return NextResponse.json(
+        { success: false, message: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    const config = await getCloudinaryConfig();
+
+    return NextResponse.json({
+      success: true,
+      cloudName: config.cloudName,
+      apiKey: config.apiKey,
+      configured: config.isConfigured,
+    });
+  } catch (error) {
+    console.error("GET /api/cloudinary/sign error:", error);
+    return NextResponse.json(
+      { success: false, message: "Failed to resolve Cloudinary client configuration" },
+      { status: 500 }
+    );
+  }
+}
+
+// POST /api/cloudinary/sign - Generate signed upload parameters for Cloudinary upload widget
 export async function POST(request: Request) {
   try {
     // 1. Authentication required
@@ -69,20 +101,33 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Ensure timestamp is present
+    // 3. Resolve active Cloudinary configuration (Admin Override -> Env -> Not Configured)
+    const config = await getCloudinaryConfig();
+    if (!config.isConfigured || !config.apiSecret) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Cloudinary is not fully configured. Please configure your Cloudinary credentials in Website Settings or environment.",
+        },
+        { status: 500 }
+      );
+    }
+
+    // 4. Ensure timestamp is present
     if (!paramsToSign.timestamp) {
       paramsToSign.timestamp = Math.round(new Date().getTime() / 1000);
     }
 
-    // 4. Generate signature server-side
-    const signature = generateUploadSignature(paramsToSign);
+    // 5. Generate signature server-side using resolved secret
+    const signature = await generateUploadSignature(paramsToSign, config.apiSecret);
 
     return NextResponse.json({
       success: true,
       signature,
       timestamp: paramsToSign.timestamp,
-      apiKey: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-      cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+      apiKey: config.apiKey,
+      cloudName: config.cloudName,
       folder: requestedFolder,
     });
   } catch (error) {

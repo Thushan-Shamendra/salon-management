@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import SalonSettings from "@/models/SalonSettings";
 import Branch, { IBranch } from "@/models/Branch";
+import { getGooglePlacesConfig } from "@/lib/integrations/config";
 
 export interface NormalizedGoogleReview {
   authorName: string;
@@ -129,7 +130,8 @@ export async function GET(request: Request) {
 
       // Branch has reviews enabled and Google Place ID configured
       const placeId = branchDoc.googlePlaceId.trim();
-      const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+      const googleConfig = await getGooglePlacesConfig();
+      const apiKey = googleConfig.apiKey;
 
       if (!apiKey || !apiKey.trim()) {
         return NextResponse.json<GoogleReviewsResponse>({
@@ -287,7 +289,8 @@ export async function GET(request: Request) {
 
     const writeReviewUrl = businessUrl || null;
 
-    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    const googleConfig = await getGooglePlacesConfig();
+    const apiKey = googleConfig.apiKey;
     if (!apiKey || !apiKey.trim()) {
       return NextResponse.json<GoogleReviewsResponse>({
         success: true,

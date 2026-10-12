@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { isAiConfigured, generateAiChatCompletion, AiProviderError } from "@/lib/ai/provider";
+import {
+  isAiConfiguredAsync,
+  generateAiChatCompletion,
+  AiProviderError,
+} from "@/lib/ai/provider";
 import { SALVORA_AI_SYSTEM_PROMPT } from "@/lib/ai/systemPrompt";
 import { buildWebsiteContext } from "@/lib/ai/buildWebsiteContext";
 
@@ -48,8 +52,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if AI provider has been configured
-    if (!isAiConfigured()) {
+    // Check if AI provider has been configured (admin override or env)
+    if (!(await isAiConfiguredAsync())) {
       return NextResponse.json({
         success: false,
         notConfigured: true,

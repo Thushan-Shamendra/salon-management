@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { getAiConfig } from "@/lib/ai/provider";
+import { getAiConfigAsync } from "@/lib/ai/provider";
 
 export async function GET() {
   try {
@@ -12,7 +12,7 @@ export async function GET() {
       );
     }
 
-    const config = getAiConfig();
+    const config = await getAiConfigAsync();
     return NextResponse.json({
       success: true,
       ...config,

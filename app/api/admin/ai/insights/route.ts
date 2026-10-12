@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
-import { isAiConfigured, generateAiChatCompletion, AiProviderError } from "@/lib/ai/provider";
+import {
+  isAiConfiguredAsync,
+  generateAiChatCompletion,
+  AiProviderError,
+} from "@/lib/ai/provider";
 import { SALVORA_AI_SYSTEM_PROMPT } from "@/lib/ai/systemPrompt";
 import { buildWebsiteContext, WebsiteContext } from "@/lib/ai/buildWebsiteContext";
 import AiInsightCache from "@/models/AiInsightCache";
@@ -59,7 +63,7 @@ async function handleGenerateInsights(rangeParam: string = "30d", forceRefresh: 
   const context: WebsiteContext = await buildWebsiteContext(range);
 
   // If AI key is not configured, return safe unconfigured response with data context
-  if (!isAiConfigured()) {
+  if (!(await isAiConfiguredAsync())) {
     return {
       success: false,
       notConfigured: true,

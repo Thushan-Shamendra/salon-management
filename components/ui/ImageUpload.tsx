@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   CldUploadWidget,
   CloudinaryUploadWidgetResults,
@@ -41,6 +41,39 @@ export interface ImageUploadProps {
   renderTrigger?: (open: () => void, isButtonDisabled: boolean) => React.ReactNode;
 }
 
+interface CloudinaryClientConfig {
+  cloudName: string;
+  apiKey: string;
+  configured: boolean;
+}
+
+let cachedCloudinaryConfig: CloudinaryClientConfig | null = null;
+let pendingCloudinaryConfigPromise: Promise<CloudinaryClientConfig | null> | null = null;
+
+async function fetchCloudinaryClientConfig(): Promise<CloudinaryClientConfig | null> {
+  if (cachedCloudinaryConfig) return cachedCloudinaryConfig;
+  if (!pendingCloudinaryConfigPromise) {
+    pendingCloudinaryConfigPromise = fetch("/api/cloudinary/sign")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.success && data?.cloudName) {
+          cachedCloudinaryConfig = {
+            cloudName: data.cloudName,
+            apiKey: data.apiKey,
+            configured: Boolean(data.configured),
+          };
+          return cachedCloudinaryConfig;
+        }
+        return null;
+      })
+      .catch(() => null)
+      .finally(() => {
+        pendingCloudinaryConfigPromise = null;
+      });
+  }
+  return pendingCloudinaryConfigPromise;
+}
+
 export default function ImageUpload({
   value,
   onChange,
@@ -60,6 +93,17 @@ export default function ImageUpload({
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const [clientConfig, setClientConfig] = useState<CloudinaryClientConfig | null>(
+    cachedCloudinaryConfig
+  );
+
+  useEffect(() => {
+    if (!cachedCloudinaryConfig) {
+      fetchCloudinaryClientConfig().then((cfg) => {
+        if (cfg) setClientConfig(cfg);
+      });
+    }
+  }, []);
 
   const currentUrl = value || "";
   const hasImage = Boolean(
@@ -123,9 +167,12 @@ export default function ImageUpload({
     }
   };
 
+  const activeCloudName = clientConfig?.cloudName || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const activeApiKey = clientConfig?.apiKey || process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
   const isPlaceholderConfig =
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME === "demo" ||
-    process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY === "123456789012345";
+    !activeCloudName ||
+    activeCloudName === "demo" ||
+    activeApiKey === "123456789012345";
 
   return (
     <div className={`w-full space-y-2.5 ${className}`}>
@@ -151,7 +198,7 @@ export default function ImageUpload({
           <div>
             <p className="font-semibold text-amber-900">Cloudinary Credentials Required</p>
             <p className="mt-0.5 text-amber-800">
-              Your <code>.env.local</code> currently has placeholder values (<code>demo</code>). To upload images, please update <code>NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME</code>, <code>NEXT_PUBLIC_CLOUDINARY_API_KEY</code>, and <code>CLOUDINARY_API_SECRET</code> with your credentials from the Cloudinary console.
+              Cloudinary credentials are not configured or are set to placeholder values (<code>demo</code>). Please configure Cloudinary in <strong>Settings &rarr; Integrations</strong> or update your environment variables.
             </p>
           </div>
         </div>
@@ -160,6 +207,16 @@ export default function ImageUpload({
       {/* Cloudinary Upload Widget Provider */}
       <CldUploadWidget
         signatureEndpoint="/api/cloudinary/sign"
+        config={
+          clientConfig?.cloudName
+            ? {
+                cloud: {
+                  cloudName: clientConfig.cloudName,
+                  apiKey: clientConfig.apiKey,
+                },
+              }
+            : undefined
+        }
         options={{
           folder,
           maxFiles: multiple ? maxFiles : 1,
