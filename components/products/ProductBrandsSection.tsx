@@ -2,6 +2,7 @@
 
 import React from "react";
 import { ExternalLinkIcon } from "@/components/ui/icons";
+import { trackEvent } from "@/lib/analytics-client";
 
 export interface ProductBrandData {
   _id: string;
@@ -80,6 +81,17 @@ export default function ProductBrandsSection({ products }: ProductBrandsSectionP
                 <a
                   key={brand._id}
                   href={brand.websiteUrl}
+                  onClick={() => {
+                    trackEvent({
+                      eventType: "PRODUCT_CLICK",
+                      entityId: brand._id,
+                      entityType: "product-brand",
+                      metadata: {
+                        source: "products-we-use",
+                        label: brand.name,
+                      },
+                    });
+                  }}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block h-full focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 rounded-2xl"

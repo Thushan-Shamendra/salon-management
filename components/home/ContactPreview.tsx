@@ -7,6 +7,7 @@ import {
   MailIcon,
   ClockIcon,
 } from "@/components/ui/icons";
+import { trackEvent } from "@/lib/analytics-client";
 
 interface OpeningHour {
   day: string;
@@ -242,6 +243,16 @@ export default function ContactPreview({ initialSettings }: ContactPreviewProps 
             <div className="pt-3 flex flex-wrap items-center gap-4">
               <a
                 href={`tel:${settings.phone?.replace(/\s+/g, "")}`}
+                onClick={() => {
+                  trackEvent({
+                    eventType: "CALL_CLICK",
+                    page: "/",
+                    metadata: {
+                      source: "home-contact-preview",
+                      label: settings.phone,
+                    },
+                  });
+                }}
                 className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-6 py-3 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-[#7C3AED] transition-colors"
               >
                 <PhoneIcon className="h-4 w-4" />
@@ -250,6 +261,16 @@ export default function ContactPreview({ initialSettings }: ContactPreviewProps 
 
               <a
                 href={mapDirectionsUrl}
+                onClick={() => {
+                  trackEvent({
+                    eventType: "MAP_CLICK",
+                    page: "/",
+                    metadata: {
+                      source: "home-contact-preview",
+                      label: "Get Directions",
+                    },
+                  });
+                }}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-6 py-3 text-xs sm:text-sm font-semibold text-stone-700 shadow-xs hover:border-[#7C3AED] hover:text-[#7C3AED] transition-colors"

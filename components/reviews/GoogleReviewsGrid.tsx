@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { trackEvent } from "@/lib/analytics-client";
 import {
   StarIcon,
   GoogleIcon,
@@ -300,6 +301,16 @@ export default function GoogleReviewsGrid() {
                   {writeReviewUrl && (
                     <a
                       href={writeReviewUrl}
+                      onClick={() => {
+                        trackEvent({
+                          eventType: "GOOGLE_REVIEW_CLICK",
+                          branchId: selectedBranchId || undefined,
+                          page: "/reviews",
+                          metadata: {
+                            source: "write-review-button",
+                          },
+                        });
+                      }}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#6D28D9] hover:shadow-md active:scale-[0.98]"
@@ -344,6 +355,16 @@ export default function GoogleReviewsGrid() {
                     <div className="mt-5">
                       <a
                         href={writeReviewUrl}
+                        onClick={() => {
+                          trackEvent({
+                            eventType: "GOOGLE_REVIEW_CLICK",
+                            branchId: selectedBranchId || undefined,
+                            page: "/reviews",
+                            metadata: {
+                              source: "empty-state-review-button",
+                            },
+                          });
+                        }}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#6D28D9]"

@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRightIcon } from "@/components/ui/icons";
+import { trackEvent } from "@/lib/analytics-client";
 
 interface WeddingHeroProps {
   bookingUrl?: string;
@@ -54,6 +55,15 @@ export default function WeddingHero({ bookingUrl = "" }: WeddingHeroProps) {
             {bookingUrl ? (
               <a
                 href={bookingUrl}
+                onClick={() => {
+                  trackEvent({
+                    eventType: "BOOKING_CLICK",
+                    page: "/wedding",
+                    metadata: {
+                      source: "wedding-hero",
+                    },
+                  });
+                }}
                 className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-7 py-3 text-sm font-semibold text-white shadow-md shadow-purple-900/30 transition-all hover:bg-[#6D28D9] hover:gap-3 active:scale-[0.98]"
               >
                 <span>Book Your Bridal Consultation</span>

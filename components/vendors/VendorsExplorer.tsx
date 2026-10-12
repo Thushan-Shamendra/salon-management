@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { VENDOR_CATEGORIES } from "@/lib/vendor-constants";
+import { trackEvent } from "@/lib/analytics-client";
 import {
   PhoneIcon,
   WhatsAppIcon,
@@ -191,6 +192,18 @@ export default function VendorsExplorer({
             {vendor.phone && (
               <a
                 href={`tel:${vendor.phone.trim()}`}
+                onClick={() => {
+                  trackEvent({
+                    eventType: "VENDOR_CLICK",
+                    entityId: vendor._id,
+                    entityType: "vendor",
+                    page: "/vendors",
+                    metadata: {
+                      source: "call",
+                      label: vendor.name,
+                    },
+                  });
+                }}
                 className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3.5 py-2 text-xs font-semibold text-stone-700 shadow-2xs hover:bg-stone-50 hover:border-purple-300 transition-colors cursor-pointer"
                 aria-label={`Call ${vendor.name}`}
               >
@@ -203,6 +216,18 @@ export default function VendorsExplorer({
             {vendor.whatsapp && (
               <a
                 href={formatWhatsAppLink(vendor.whatsapp, vendor.name)}
+                onClick={() => {
+                  trackEvent({
+                    eventType: "VENDOR_CLICK",
+                    entityId: vendor._id,
+                    entityType: "vendor",
+                    page: "/vendors",
+                    metadata: {
+                      source: "whatsapp",
+                      label: vendor.name,
+                    },
+                  });
+                }}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50/50 px-3.5 py-2 text-xs font-semibold text-emerald-800 shadow-2xs hover:bg-emerald-100 transition-colors cursor-pointer"
@@ -217,6 +242,18 @@ export default function VendorsExplorer({
             {vendor.website && (
               <a
                 href={vendor.website}
+                onClick={() => {
+                  trackEvent({
+                    eventType: "VENDOR_CLICK",
+                    entityId: vendor._id,
+                    entityType: "vendor",
+                    page: "/vendors",
+                    metadata: {
+                      source: "website",
+                      label: vendor.name,
+                    },
+                  });
+                }}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3.5 py-2 text-xs font-semibold text-stone-700 shadow-2xs hover:bg-stone-50 hover:border-[#7C3AED] hover:text-[#7C3AED] transition-colors cursor-pointer"
@@ -231,6 +268,18 @@ export default function VendorsExplorer({
             {vendor.instagram && (
               <a
                 href={vendor.instagram}
+                onClick={() => {
+                  trackEvent({
+                    eventType: "VENDOR_CLICK",
+                    entityId: vendor._id,
+                    entityType: "vendor",
+                    page: "/vendors",
+                    metadata: {
+                      source: "instagram",
+                      label: vendor.name,
+                    },
+                  });
+                }}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-full border border-pink-200 bg-pink-50/40 px-3.5 py-2 text-xs font-semibold text-pink-700 shadow-2xs hover:bg-pink-100 transition-colors cursor-pointer"

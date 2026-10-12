@@ -4,6 +4,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { WhatsAppIcon } from "@/components/ui/icons";
 import { useBranchContext } from "@/components/context/BranchContext";
+import { trackEvent } from "@/lib/analytics-client";
 
 function normalizeWhatsAppNumber(raw?: string): string {
   if (!raw) return "";
@@ -15,7 +16,7 @@ function normalizeWhatsAppNumber(raw?: string): string {
 
 export default function FloatingWhatsApp() {
   const pathname = usePathname();
-  const { selectedBranchWhatsapp } = useBranchContext();
+  const { selectedBranchWhatsapp, selectedBranchId } = useBranchContext();
   const [firstBranchWhatsapp, setFirstBranchWhatsapp] = useState<string>("");
   const [settingsWhatsapp, setSettingsWhatsapp] = useState<string>("");
   const [isLoaded, setIsLoaded] = useState(false);
@@ -102,6 +103,17 @@ export default function FloatingWhatsApp() {
   );
   const whatsappUrl = `https://wa.me/${effectiveNumber}?text=${defaultMessage}`;
 
+  const handleClick = () => {
+    trackEvent({
+      eventType: "WHATSAPP_CLICK",
+      branchId: selectedBranchId || undefined,
+      page: pathname || undefined,
+      metadata: {
+        source: "floating-whatsapp",
+      },
+    });
+  };
+
   return (
     <div className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-50 flex items-center group pointer-events-auto">
       {/* Desktop Hover Label */}
@@ -115,6 +127,7 @@ export default function FloatingWhatsApp() {
       {/* Floating Button */}
       <a
         href={whatsappUrl}
+        onClick={handleClick}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat with SALVORA on WhatsApp"

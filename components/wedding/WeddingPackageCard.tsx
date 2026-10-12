@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { ArrowRightIcon, ClockIcon, CheckIcon } from "@/components/ui/icons";
+import { trackEvent } from "@/lib/analytics-client";
 
 export interface WeddingPackageCardData {
   _id: string;
@@ -71,7 +72,20 @@ export default function WeddingPackageCard({
         </div>
 
         {/* Title & Description */}
-        <div className="mt-5">
+        <div
+          className="mt-5 cursor-pointer"
+          onClick={() => {
+            trackEvent({
+              eventType: "WEDDING_VIEW",
+              entityType: "wedding-package",
+              entityId: pkg._id,
+              metadata: {
+                source: "wedding-package-card",
+                label: pkg.name,
+              },
+            });
+          }}
+        >
           <h3
             className={`text-xl font-bold tracking-tight truncate ${
               pkg.isFeatured ? "text-[#7C3AED]" : "text-stone-900 group-hover:text-[#7C3AED]"
@@ -121,6 +135,26 @@ export default function WeddingPackageCard({
         {bookingUrl ? (
           <a
             href={bookingUrl}
+            onClick={() => {
+              trackEvent({
+                eventType: "BOOKING_CLICK",
+                entityType: "wedding-package",
+                entityId: pkg._id,
+                metadata: {
+                  source: "wedding-package",
+                  label: pkg.name,
+                },
+              });
+              trackEvent({
+                eventType: "WEDDING_VIEW",
+                entityType: "wedding-package",
+                entityId: pkg._id,
+                metadata: {
+                  source: "wedding-package-booking",
+                  label: pkg.name,
+                },
+              });
+            }}
             className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 text-xs sm:text-sm font-semibold transition-all active:scale-[0.98] ${
               pkg.isFeatured
                 ? "bg-[#7C3AED] text-white hover:bg-[#6D28D9] shadow-md shadow-purple-600/30"

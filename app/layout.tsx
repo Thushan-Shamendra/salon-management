@@ -14,6 +14,7 @@ const geistMono = Geist_Mono({
 
 import { BranchProvider } from "@/components/context/BranchContext";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import PageViewTracker from "@/components/analytics/PageViewTracker";
 
 export const metadata: Metadata = {
   title: "SALVORA | Look Beautiful. Feel Confident.",
@@ -33,6 +34,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <BranchProvider>
+          <PageViewTracker />
           {children}
           <FloatingWhatsApp />
         </BranchProvider>

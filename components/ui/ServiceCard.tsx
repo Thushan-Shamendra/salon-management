@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { ArrowRightIcon, ClockIcon } from "@/components/ui/icons";
+import { trackEvent } from "@/lib/analytics-client";
 
 export interface ServiceCardData {
   _id: string;
@@ -55,7 +56,20 @@ export default function ServiceCard({
         </div>
 
         {/* Title & Description */}
-        <div className="mt-4">
+        <div
+          className="mt-4 cursor-pointer"
+          onClick={() => {
+            trackEvent({
+              eventType: "SERVICE_VIEW",
+              entityType: "service",
+              entityId: service._id,
+              metadata: {
+                source: "service-card",
+                label: service.name,
+              },
+            });
+          }}
+        >
           <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#7C3AED] transition-colors truncate">
             {service.name}
           </h3>
@@ -88,6 +102,26 @@ export default function ServiceCard({
         {bookingUrl ? (
           <a
             href={bookingUrl}
+            onClick={() => {
+              trackEvent({
+                eventType: "BOOKING_CLICK",
+                entityType: "service",
+                entityId: service._id,
+                metadata: {
+                  source: "services",
+                  label: service.name,
+                },
+              });
+              trackEvent({
+                eventType: "SERVICE_VIEW",
+                entityType: "service",
+                entityId: service._id,
+                metadata: {
+                  source: "service-card",
+                  label: service.name,
+                },
+              });
+            }}
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-stone-900 py-3 text-xs sm:text-sm font-semibold text-white transition-all hover:bg-[#7C3AED] hover:shadow-md active:scale-[0.98]"
           >
             <span>Book Appointment</span>

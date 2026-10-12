@@ -10,6 +10,7 @@ import {
   CalendarIcon,
   ArrowRightIcon,
 } from "@/components/ui/icons";
+import { trackEvent } from "@/lib/analytics-client";
 
 interface ExternalSystemLinks {
   loginUrl: string;
@@ -151,6 +152,15 @@ export default function Navbar() {
           {externalSystem.bookingUrl ? (
             <a
               href={externalSystem.bookingUrl}
+              onClick={() => {
+                trackEvent({
+                  eventType: "BOOKING_CLICK",
+                  page: pathname || undefined,
+                  metadata: {
+                    source: "navbar",
+                  },
+                });
+              }}
               className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-[#6D28D9] hover:shadow-md hover:shadow-purple-500/20 active:scale-[0.98]"
             >
               <span>Book Appointment</span>
@@ -174,6 +184,15 @@ export default function Navbar() {
           {externalSystem.bookingUrl && (
             <a
               href={externalSystem.bookingUrl}
+              onClick={() => {
+                trackEvent({
+                  eventType: "BOOKING_CLICK",
+                  page: pathname || undefined,
+                  metadata: {
+                    source: "navbar-mobile-header",
+                  },
+                });
+              }}
               className="rounded-full bg-[#7C3AED] px-4 py-2 text-xs font-medium text-white shadow-xs hover:bg-[#6D28D9]"
             >
               Book
@@ -224,6 +243,15 @@ export default function Navbar() {
             {externalSystem.bookingUrl ? (
               <a
                 href={externalSystem.bookingUrl}
+                onClick={() => {
+                  trackEvent({
+                    eventType: "BOOKING_CLICK",
+                    page: pathname || undefined,
+                    metadata: {
+                      source: "navbar-mobile-drawer",
+                    },
+                  });
+                }}
                 className="flex w-full items-center justify-center gap-2 rounded-full bg-[#7C3AED] py-3 text-sm font-medium text-white shadow-sm hover:bg-[#6D28D9] transition-colors"
               >
                 <CalendarIcon className="h-4 w-4" />

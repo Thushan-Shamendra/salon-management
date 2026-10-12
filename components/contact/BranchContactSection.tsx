@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import QuickCall from "@/components/QuickCall";
 import { useBranchContext } from "@/components/context/BranchContext";
+import { trackEvent } from "@/lib/analytics-client";
 import {
   MapPinIcon,
   PhoneIcon,
@@ -433,6 +434,9 @@ export default function BranchContactSection({
                   label="Quick Call"
                   variant="primary"
                   ariaLabel={`Call ${branchName} at ${branchPhone}`}
+                  branchId={selectedBranch?._id}
+                  source="contact-page"
+                  page="/contact"
                 />
               )}
 
@@ -440,6 +444,16 @@ export default function BranchContactSection({
               {whatsappLink && (
                 <a
                   href={whatsappLink}
+                  onClick={() => {
+                    trackEvent({
+                      eventType: "WHATSAPP_CLICK",
+                      branchId: selectedBranch?._id || undefined,
+                      page: "/contact",
+                      metadata: {
+                        source: "contact-page",
+                      },
+                    });
+                  }}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`Chat with ${branchName} on WhatsApp`}
@@ -454,6 +468,17 @@ export default function BranchContactSection({
               {mapData?.directionsUrl && (
                 <a
                   href={mapData.directionsUrl}
+                  onClick={() => {
+                    trackEvent({
+                      eventType: "MAP_CLICK",
+                      branchId: selectedBranch?._id || undefined,
+                      page: "/contact",
+                      metadata: {
+                        source: "contact-page",
+                        label: "Get Directions",
+                      },
+                    });
+                  }}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-5 py-2.5 text-xs sm:text-sm font-semibold text-stone-800 hover:border-[#7C3AED] hover:text-[#7C3AED] transition-all active:scale-[0.98]"
@@ -502,6 +527,17 @@ export default function BranchContactSection({
                   <div className="flex items-center gap-2 shrink-0">
                     <a
                       href={mapData.searchUrl}
+                      onClick={() => {
+                        trackEvent({
+                          eventType: "MAP_CLICK",
+                          branchId: selectedBranch?._id || undefined,
+                          page: "/contact",
+                          metadata: {
+                            source: "contact-map-preview",
+                            label: "Open Map",
+                          },
+                        });
+                      }}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-3.5 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 hover:text-[#7C3AED] transition-all"
@@ -512,6 +548,17 @@ export default function BranchContactSection({
 
                     <a
                       href={mapData.directionsUrl}
+                      onClick={() => {
+                        trackEvent({
+                          eventType: "MAP_CLICK",
+                          branchId: selectedBranch?._id || undefined,
+                          page: "/contact",
+                          metadata: {
+                            source: "contact-map-preview",
+                            label: "Directions",
+                          },
+                        });
+                      }}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 rounded-full border border-purple-200 bg-purple-50 px-3.5 py-1.5 text-xs font-semibold text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-all"

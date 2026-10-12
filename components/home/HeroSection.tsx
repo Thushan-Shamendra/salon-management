@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRightIcon, StarIcon, SparklesIcon } from "@/components/ui/icons";
+import { trackEvent } from "@/lib/analytics-client";
 
 interface HeroSectionProps {
   bookingUrl?: string;
@@ -58,6 +59,15 @@ export default function HeroSection({
             {bookingUrl ? (
               <a
                 href={bookingUrl}
+                onClick={() => {
+                  trackEvent({
+                    eventType: "BOOKING_CLICK",
+                    page: "/",
+                    metadata: {
+                      source: "home-hero",
+                    },
+                  });
+                }}
                 className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-purple-600/30 transition-all hover:bg-[#6D28D9] hover:shadow-purple-600/50 hover:gap-3 active:scale-[0.98]"
               >
                 <span>Book Appointment</span>
