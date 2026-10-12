@@ -57,6 +57,7 @@ export default async function Footer() {
     { name: "About", href: "/about" },
     { name: "Services", href: "/services" },
     { name: "Wedding", href: "/wedding" },
+    { name: "Vendors", href: "/vendors" },
     { name: "Gallery", href: "/gallery" },
     { name: "Reviews", href: "/reviews" },
     { name: "Contact", href: "/contact" },

@@ -13,6 +13,7 @@ import {
   SettingsIcon,
   MapPinIcon,
   PackageIcon,
+  StoreIcon,
   ExternalLinkIcon,
   LockIcon,
   LogOutIcon,
@@ -104,11 +105,6 @@ export default function AdminSidebar({
           icon: UsersIcon,
         },
         {
-          name: "Products",
-          href: "/admin/products",
-          icon: PackageIcon,
-        },
-        {
           name: "Gallery",
           href: "/admin/gallery",
           icon: ImageIcon,
@@ -117,6 +113,16 @@ export default function AdminSidebar({
           name: "Wedding",
           href: "/admin/wedding",
           icon: SparklesIcon,
+        },
+        {
+          name: "Products",
+          href: "/admin/products",
+          icon: PackageIcon,
+        },
+        {
+          name: "Vendors",
+          href: "/admin/vendors",
+          icon: StoreIcon,
         },
       ],
     },

@@ -10,6 +10,16 @@ export interface IUser extends Document {
   mustChangePassword: boolean;
   profileImage?: string;
   profileImagePublicId?: string;
+
+  // Password Reset fields (Group 3)
+  passwordResetOtpHash?: string;
+  passwordResetOtpExpiresAt?: Date;
+  passwordResetOtpAttempts?: number;
+  passwordResetVerified?: boolean;
+  passwordResetTokenHash?: string;
+  passwordResetTokenExpiresAt?: Date;
+  passwordResetRequestedAt?: Date;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -69,11 +79,45 @@ const UserSchema = new Schema<IUser>(
       default: "",
       trim: true,
     },
+
+    // Password Reset fields (Group 3)
+    passwordResetOtpHash: {
+      type: String,
+      default: undefined,
+    },
+    passwordResetOtpExpiresAt: {
+      type: Date,
+      default: undefined,
+    },
+    passwordResetOtpAttempts: {
+      type: Number,
+      default: 0,
+    },
+    passwordResetVerified: {
+      type: Boolean,
+      default: false,
+    },
+    passwordResetTokenHash: {
+      type: String,
+      default: undefined,
+    },
+    passwordResetTokenExpiresAt: {
+      type: Date,
+      default: undefined,
+    },
+    passwordResetRequestedAt: {
+      type: Date,
+      default: undefined,
+    },
   },
   {
     timestamps: true,
   }
 );
+
+if (process.env.NODE_ENV !== "production") {
+  delete (mongoose.models as Record<string, unknown>).User;
+}
 
 const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

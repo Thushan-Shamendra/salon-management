@@ -5,6 +5,7 @@ export const CLOUDINARY_FOLDERS = {
   GALLERY: "salon-management/gallery",
   BEAUTICIANS: "salon-management/beauticians",
   PRODUCTS: "salon-management/products",
+  VENDORS: "salon-management/vendors",
   WEDDING_SERVICES: "salon-management/wedding/services",
   WEDDING_PACKAGES: "salon-management/wedding/packages",
 } as const;

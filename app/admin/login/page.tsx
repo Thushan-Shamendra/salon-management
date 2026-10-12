@@ -2,6 +2,7 @@
 
 import { FormEvent, useState, Suspense } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { EyeIcon, EyeOffIcon, LockIcon } from "@/components/ui/icons";
 
@@ -148,6 +149,14 @@ function AdminLoginForm() {
                 <EyeIcon className="h-4 w-4" />
               )}
             </button>
+          </div>
+          <div className="mt-2 flex items-center justify-end">
+            <Link
+              href="/admin/forgot-password"
+              className="text-xs font-semibold text-[#7C3AED] hover:text-[#6D28D9] transition-colors hover:underline"
+            >
+              Forgot Password?
+            </Link>
           </div>
         </div>
 
