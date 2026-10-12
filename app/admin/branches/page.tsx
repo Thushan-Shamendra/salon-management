@@ -1,6 +1,8 @@
 "use client";
 
-import React, { FormEvent, useEffect, useState, useMemo, useCallback } from "react";
+import React, { FormEvent, useEffect, useState, useMemo, useCallback, Suspense } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import EmptyState from "@/components/admin/EmptyState";
@@ -23,6 +25,7 @@ import {
   CheckCircleIcon,
   AlertCircleIcon,
   ExternalLinkIcon,
+  SparklesIcon,
 } from "@/components/ui/icons";
 
 interface OpeningHour {
@@ -49,6 +52,7 @@ interface Branch {
   openingHours: OpeningHour[];
   isActive: boolean;
   displayOrder: number;
+  isMain?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -139,14 +143,29 @@ function getOpeningHoursSummary(hours: OpeningHour[]): string {
   return `${firstOpen.day}: ${formatTime(firstOpen.openTime)} - ${formatTime(firstOpen.closeTime)} (+${openDays.length - 1} days)`;
 }
 
-export default function AdminBranchesPage() {
+function AdminBranchesPageContent() {
+  const searchParams = useSearchParams();
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [form, setForm] = useState<BranchFormState>(emptyForm);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const isInitialAdd = searchParams?.get("action") === "new" || searchParams?.get("add") === "true";
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(isInitialAdd);
+
+  // Auto-open Add Form if action=new or add=true query parameter is present
+  useEffect(() => {
+    if (searchParams?.get("action") === "new" || searchParams?.get("add") === "true") {
+      const timer = setTimeout(() => {
+        setEditingId(null);
+        setForm(emptyForm);
+        setFormErrors({});
+        setIsFormOpen(true);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
 
   // Search, filter, and sort state
   const [searchQuery, setSearchQuery] = useState("");
@@ -236,6 +255,10 @@ export default function AdminBranchesPage() {
         return true;
       })
       .sort((a, b) => {
+        // Main branch always comes first
+        if (a.isMain && !b.isMain) return -1;
+        if (!a.isMain && b.isMain) return 1;
+
         if (sortBy === "order") {
           if (a.displayOrder !== b.displayOrder) {
             return (a.displayOrder || 0) - (b.displayOrder || 0);
@@ -472,6 +495,13 @@ export default function AdminBranchesPage() {
   // Confirm delete
   const handleConfirmDelete = async () => {
     if (!branchToDelete) return;
+
+    if (branchToDelete.isMain) {
+      showNotification("error", "Main branch cannot be deleted. Its details are managed in Website Settings.");
+      setBranchToDelete(null);
+      return;
+    }
+
     setIsDeleting(true);
 
     try {
@@ -714,10 +744,16 @@ export default function AdminBranchesPage() {
                   {/* Top Bar: Name, Order, Status */}
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="text-lg font-bold text-stone-900 tracking-tight">
                           {branch.name}
                         </h3>
+                        {branch.isMain && (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-purple-100 px-2 py-0.5 text-xs font-bold text-[#7C3AED] border border-purple-200 shadow-2xs">
+                            <SparklesIcon className="h-3 w-3" />
+                            <span>Main Branch</span>
+                          </span>
+                        )}
                         <span className="text-[11px] font-semibold text-stone-400 bg-stone-100 px-2 py-0.5 rounded-md" title="Display Order">
                           #{branch.displayOrder ?? 0}
                         </span>
@@ -843,6 +879,17 @@ export default function AdminBranchesPage() {
                   </button>
 
                   <div className="flex items-center gap-1.5">
+                    {branch.isMain && (
+                      <Link
+                        href="/admin/settings"
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#7C3AED] hover:underline px-2.5 py-1.5 bg-purple-50 rounded-xl border border-purple-100 transition mr-1"
+                        title="Configure in Website Settings"
+                      >
+                        <span>Settings</span>
+                        <ExternalLinkIcon className="h-3 w-3" />
+                      </Link>
+                    )}
+
                     {/* Edit Button */}
                     <button
                       type="button"
@@ -855,15 +902,24 @@ export default function AdminBranchesPage() {
                     </button>
 
                     {/* Delete Button */}
-                    <button
-                      type="button"
-                      onClick={() => setBranchToDelete(branch)}
-                      className="p-2 rounded-xl text-stone-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                      title="Delete Branch"
-                      aria-label={`Delete ${branch.name}`}
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </button>
+                    {branch.isMain ? (
+                      <span
+                        className="p-2 rounded-xl text-stone-300 cursor-not-allowed inline-flex items-center"
+                        title="Main Branch cannot be deleted"
+                      >
+                        <TrashIcon className="h-4 w-4 text-stone-300" />
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setBranchToDelete(branch)}
+                        className="p-2 rounded-xl text-stone-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                        title="Delete Branch"
+                        aria-label={`Delete ${branch.name}`}
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1377,5 +1433,13 @@ export default function AdminBranchesPage() {
         variant="danger"
       />
     </div>
+  );
+}
+
+export default function AdminBranchesPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-stone-500 text-sm">Loading branches...</div>}>
+      <AdminBranchesPageContent />
+    </Suspense>
   );
 }

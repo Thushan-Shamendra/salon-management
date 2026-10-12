@@ -23,7 +23,7 @@ export default function HeroSection({
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/hero-salon.jpg"
-          alt="Invora Salon professional styling and beauty care"
+          alt="Salvora Salon professional styling and beauty care"
           fill
           priority
           className="object-cover object-right-top opacity-90 sm:opacity-95 lg:opacity-100"
@@ -51,7 +51,7 @@ export default function HeroSection({
           {/* Subtitle */}
           <p className="text-base sm:text-lg text-stone-200 leading-relaxed max-w-xl font-normal drop-shadow-sm">
             Experience professional care, modern treatments and a relaxing salon
-            environment at Invora.
+            environment at Salvora.
           </p>
 
           {/* Action Buttons */}

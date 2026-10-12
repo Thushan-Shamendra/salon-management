@@ -9,7 +9,7 @@ export default function ReviewsHero() {
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/reviews-hero.jpg"
-          alt="Invora Salon Client Reviews"
+          alt="Salvora Salon Client Reviews"
           fill
           priority
           sizes="100vw"
@@ -33,7 +33,7 @@ export default function ReviewsHero() {
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
             What Our Clients{" "}
             <span className="block bg-gradient-to-r from-[#C4B5FD] via-[#A78BFA] to-[#8B5CF6] bg-clip-text text-transparent">
-              Say About Invora
+              Say About Salvora
             </span>
           </h1>
 

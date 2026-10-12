@@ -332,7 +332,7 @@ export default function AdminServicesPage() {
       {/* ========================================================== */}
       <AdminPageHeader
         title="Services"
-        description="Manage services displayed on the INVORA website."
+        description="Manage services displayed on the SALVORA website."
         breadcrumbs={[{ label: "Services" }]}
         action={
           <button
@@ -534,7 +534,7 @@ export default function AdminServicesPage() {
               <EmptyState
                 icon={ScissorsIcon}
                 title="No services yet"
-                description="Add your first salon service to display it on the INVORA website."
+                description="Add your first salon service to display it on the SALVORA website."
                 actionText="Add First Service"
                 onAction={handleOpenAdd}
               />

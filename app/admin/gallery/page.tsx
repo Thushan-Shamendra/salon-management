@@ -502,7 +502,7 @@ export default function AdminGalleryPage() {
       {/* ========================================================== */}
       <AdminPageHeader
         title="Gallery"
-        description="Manage photos displayed on the INVORA website gallery."
+        description="Manage photos displayed on the SALVORA website gallery."
         breadcrumbs={[{ label: "Gallery" }]}
         action={
           <button
@@ -753,7 +753,7 @@ export default function AdminGalleryPage() {
                 featuredFilter !== "all" ||
                 categoryFilter !== "all"
                   ? "Try adjusting or clearing your search and filters to view photos."
-                  : "Upload your first salon photo to display it in the INVORA gallery."
+                  : "Upload your first salon photo to display it in the SALVORA gallery."
               }
               actionText={
                 searchQuery ||

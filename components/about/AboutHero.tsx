@@ -23,7 +23,7 @@ export default function AboutHero() {
       <div className={styles.header}>
         <p className={styles.headerBadge}>
           <SparklesIcon className={styles.badgeIcon} />
-          ABOUT INVORA
+          ABOUT SALVORA
         </p>
         <h1 id="about-hero-title" className={styles.heading}>
           More Than a Salon

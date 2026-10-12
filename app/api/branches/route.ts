@@ -24,8 +24,10 @@ export async function GET() {
         reviewsEnabled: 1,
         openingHours: 1,
         displayOrder: 1,
+        isMain: 1,
       })
       .sort({
+        isMain: -1,
         displayOrder: 1,
         createdAt: 1,
       })

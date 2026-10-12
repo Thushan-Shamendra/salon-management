@@ -38,6 +38,7 @@ export async function GET() {
     await connectDB();
 
     const branches = await Branch.find().sort({
+      isMain: -1,
       displayOrder: 1,
       createdAt: 1,
     });
@@ -92,6 +93,7 @@ export async function POST(request: Request) {
       openingHours,
       isActive,
       displayOrder,
+      isMain,
     } = body;
 
     // Required fields validation
@@ -224,6 +226,11 @@ export async function POST(request: Request) {
       );
     }
 
+    const shouldBeMain = Boolean(isMain);
+    if (shouldBeMain) {
+      await Branch.updateMany({}, { isMain: false });
+    }
+
     const newBranch = await Branch.create({
       name: trimmedName,
       slug: generatedSlug,
@@ -240,6 +247,7 @@ export async function POST(request: Request) {
       openingHours: parsedHours,
       isActive: isActive !== undefined ? Boolean(isActive) : true,
       displayOrder: orderNum,
+      isMain: shouldBeMain,
     });
 
     return NextResponse.json(

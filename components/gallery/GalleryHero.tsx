@@ -9,7 +9,7 @@ export default function GalleryHero() {
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/gallery-hero.jpg"
-          alt="Invora Salon Transformations Gallery"
+          alt="Salvora Salon Transformations Gallery"
           fill
           priority
           sizes="100vw"
@@ -40,7 +40,7 @@ export default function GalleryHero() {
           {/* Short Description */}
           <p className="text-sm sm:text-base text-stone-200 leading-relaxed font-normal max-w-xl">
             Explore our gallery of real salon moments, treatments, styling and
-            client transformations at Invora.
+            client transformations at Salvora.
           </p>
 
           {/* Breadcrumb Navigation */}

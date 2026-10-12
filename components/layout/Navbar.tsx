@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import InvoraLogo from "@/components/ui/InvoraLogo";
+import SalvoraLogo from "@/components/ui/SalvoraLogo";
 import {
   MenuIcon,
   XIcon,
@@ -23,7 +23,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [headerLogo, setHeaderLogo] = useState<string>("");
-  const [salonName, setSalonName] = useState<string>("Invora");
+  const [salonName, setSalonName] = useState<string>("Salvora");
   const [externalSystem, setExternalSystem] = useState<ExternalSystemLinks>({
     loginUrl: "",
     registerUrl: "",
@@ -88,7 +88,7 @@ export default function Navbar() {
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 h-20">
-        {/* INVORA Brand Logo */}
+        {/* SALVORA Brand Logo */}
         <Link
           href="/"
           className="group flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] rounded-lg transition-transform hover:opacity-90"
@@ -102,7 +102,7 @@ export default function Navbar() {
               className="h-10 sm:h-11 w-auto max-w-[220px] object-contain"
             />
           ) : (
-            <InvoraLogo theme="light" className="h-10 sm:h-11 w-auto object-contain" />
+            <SalvoraLogo theme="light" className="h-10 sm:h-11 w-auto object-contain" />
           )}
         </Link>
 

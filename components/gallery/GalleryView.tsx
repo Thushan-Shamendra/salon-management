@@ -260,7 +260,7 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
       <BookingCTA
         tag="✦ READY FOR A CHANGE"
         heading="Let's Create Your Next Look"
-        description="Book your appointment and experience professional care at Invora."
+        description="Book your appointment and experience professional care at Salvora."
         bookingUrl={bookingUrl}
       />
     </>
@@ -298,7 +298,7 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
           >
             <Image
               src={photo.image}
-              alt={photo.altText || photo.title || "Invora Salon Gallery Transformation"}
+              alt={photo.altText || photo.title || "Salvora Salon Gallery Transformation"}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover"

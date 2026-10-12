@@ -155,7 +155,7 @@ function VerifyOtpForm() {
         {/* SALVORA Branding */}
         <div className="relative h-10 w-36 mb-2">
           <Image
-            src="/images/invora-logo-dark-trimmed.png"
+            src="/images/salvora-logo-light.png"
             alt="SALVORA Salon"
             fill
             className="object-contain"

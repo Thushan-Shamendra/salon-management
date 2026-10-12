@@ -36,8 +36,10 @@ export default function FloatingWhatsApp() {
         if (branchRes.ok) {
           const branchData = await branchRes.json();
           if (branchData?.success && Array.isArray(branchData.branches) && branchData.branches.length > 0) {
-            const first = branchData.branches[0];
-            const candidate = first.whatsappNumber || first.phone || "";
+            const mainOrFirst =
+              branchData.branches.find((b: { isMain?: boolean }) => b.isMain) ||
+              branchData.branches[0];
+            const candidate = mainOrFirst.whatsappNumber || mainOrFirst.phone || "";
             if (isMounted) setFirstBranchWhatsapp(candidate);
           }
         }

@@ -1,22 +1,22 @@
 import React from "react";
 import Image from "next/image";
 
-interface InvoraLogoProps {
+interface SalvoraLogoProps {
   theme?: "light" | "dark";
   className?: string;
   showIconOnly?: boolean;
 }
 
-export default function InvoraLogo({
+export default function SalvoraLogo({
   theme = "light",
   className = "h-9 sm:h-10 w-auto",
   showIconOnly = false,
-}: InvoraLogoProps) {
+}: SalvoraLogoProps) {
   if (showIconOnly) {
     return (
       <Image
-        src="/images/invora-icon.png"
-        alt="INVORA"
+        src="/images/salvora-logo-light.png"
+        alt="SALVORA"
         width={44}
         height={44}
         priority
@@ -25,19 +25,20 @@ export default function InvoraLogo({
     );
   }
 
-  // Use precisely trimmed brand assets with zero empty top/bottom transparent padding
+  // theme="dark" is for dark backgrounds (e.g. footer, dark sidebar)
+  // theme="light" is for light backgrounds (e.g. navbar, modals)
   const src =
     theme === "dark"
-      ? "/images/invora-logo-dark-trimmed.png"
-      : "/images/invora-logo-light-trimmed.png";
+      ? "/images/salvora-logo-dark.png"
+      : "/images/salvora-logo-light.png";
 
   return (
     <div className={`relative inline-flex items-center ${className}`}>
       <Image
         src={src}
-        alt="INVORA"
-        width={355}
-        height={91}
+        alt="SALVORA"
+        width={320}
+        height={128}
         priority
         className="h-full w-auto object-contain"
       />

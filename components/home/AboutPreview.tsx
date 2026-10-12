@@ -36,10 +36,10 @@ export default function AboutPreview() {
 
           {/* Right Column: Balanced About Content */}
           <div className="lg:col-span-6 space-y-5">
-            {/* Tag: About Invora */}
+            {/* Tag: About Salvora */}
             <div className="inline-flex items-center gap-2">
               <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
-                ✦ About Invora
+                ✦ About Salvora
               </span>
             </div>
 
@@ -51,7 +51,7 @@ export default function AboutPreview() {
 
             {/* Introduction Paragraph */}
             <p className="text-base sm:text-lg text-stone-600 leading-relaxed font-normal">
-              At Invora, we believe beauty is more than a look — it&apos;s a feeling.
+              At Salvora, we believe beauty is more than a look — it&apos;s a feeling.
               Our professional team is dedicated to bringing out your natural beauty
               with personalized care and modern techniques.
             </p>

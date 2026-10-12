@@ -59,9 +59,9 @@ function getBadgeLocation(address?: string): string {
 
 export default function ContactPreview({ initialSettings }: ContactPreviewProps = {}) {
   const [settings, setSettings] = useState<SalonSettingsData>(() => ({
-    salonName: initialSettings?.salonName || "Invora",
+    salonName: initialSettings?.salonName || "Salvora",
     phone: initialSettings?.phone || "+94 76 123 4567",
-    email: initialSettings?.email || "info@invora.lk",
+    email: initialSettings?.email || "info@salvora.lk",
     address: initialSettings?.address || "123 Beauty Street, Colombo 07, Sri Lanka",
     businessUrl: initialSettings?.businessUrl || "",
     openingHours:
@@ -77,21 +77,70 @@ export default function ContactPreview({ initialSettings }: ContactPreviewProps 
   useEffect(() => {
     let isMounted = true;
 
-    fetch("/api/settings")
-      .then((res) => res.json())
-      .then((data) => {
+    Promise.all([
+      fetch("/api/branches")
+        .then((r) => r.json())
+        .catch(() => null),
+      fetch("/api/settings")
+        .then((r) => r.json())
+        .catch(() => null),
+    ])
+      .then(([branchData, settingsData]) => {
         if (!isMounted) return;
-        if (data?.success && data?.settings) {
+        if (
+          branchData?.success &&
+          Array.isArray(branchData.branches) &&
+          branchData.branches.length > 0
+        ) {
+          const mainBranch =
+            branchData.branches.find((b: { isMain?: boolean }) => b.isMain) ||
+            branchData.branches[0];
           setSettings((prev) => ({
             ...prev,
-            salonName: data.settings.salonName || prev.salonName,
-            phone: data.settings.phone || prev.phone,
-            email: data.settings.email || prev.email,
-            address: data.settings.address || prev.address,
-            businessUrl: data.settings.businessUrl || prev.businessUrl,
+            salonName:
+              settingsData?.settings?.salonName ||
+              mainBranch.name ||
+              prev.salonName,
+            phone: mainBranch.phone || prev.phone,
+            email:
+              mainBranch.email ||
+              settingsData?.settings?.email ||
+              prev.email,
+            address: mainBranch.address || prev.address,
+            businessUrl:
+              mainBranch.googleMapsUrl ||
+              mainBranch.googleReviewUrl ||
+              prev.businessUrl,
             openingHours:
-              data.settings.openingHours?.length > 0
-                ? data.settings.openingHours
+              Array.isArray(mainBranch.openingHours) &&
+              mainBranch.openingHours.length > 0
+                ? mainBranch.openingHours.map(
+                    (h: {
+                      day: string;
+                      openTime?: string;
+                      closeTime?: string;
+                      isClosed?: boolean;
+                    }) => ({
+                      day: h.day,
+                      open: h.openTime || "09:00",
+                      close: h.closeTime || "19:00",
+                      isClosed: Boolean(h.isClosed),
+                    })
+                  )
+                : prev.openingHours,
+          }));
+        } else if (settingsData?.success && settingsData?.settings) {
+          setSettings((prev) => ({
+            ...prev,
+            salonName: settingsData.settings.salonName || prev.salonName,
+            phone: settingsData.settings.phone || prev.phone,
+            email: settingsData.settings.email || prev.email,
+            address: settingsData.settings.address || prev.address,
+            businessUrl:
+              settingsData.settings.businessUrl || prev.businessUrl,
+            openingHours:
+              settingsData.settings.openingHours?.length > 0
+                ? settingsData.settings.openingHours
                 : prev.openingHours,
           }));
         }
@@ -105,7 +154,7 @@ export default function ContactPreview({ initialSettings }: ContactPreviewProps 
 
   const currentAddress =
     settings.address?.trim() || "123 Beauty Street, Colombo 07, Sri Lanka";
-  const salonName = settings.salonName?.trim() || "Invora";
+  const salonName = settings.salonName?.trim() || "Salvora";
   const badgeLocation = getBadgeLocation(currentAddress);
 
   // Dynamic Google Maps Embed URL generated from the configured address (or custom embed URL)
@@ -221,7 +270,7 @@ export default function ContactPreview({ initialSettings }: ContactPreviewProps 
                   href={`mailto:${settings.email}`}
                   className="text-sm text-stone-600 hover:text-[#7C3AED] transition-colors mt-1 block font-medium"
                 >
-                  {settings.email || "info@invora.lk"}
+                  {settings.email || "info@salvora.lk"}
                 </a>
               </div>
             </div>

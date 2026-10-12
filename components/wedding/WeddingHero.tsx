@@ -15,7 +15,7 @@ export default function WeddingHero({ bookingUrl = "" }: WeddingHeroProps) {
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/wedding-hero.jpg"
-          alt="Invora Salon Bridal & Wedding Beauty Services"
+          alt="Salvora Salon Bridal & Wedding Beauty Services"
           fill
           priority
           sizes="100vw"

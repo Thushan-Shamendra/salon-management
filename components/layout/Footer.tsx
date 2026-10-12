@@ -1,8 +1,9 @@
 import React from "react";
 import Link from "next/link";
-import InvoraLogo from "@/components/ui/InvoraLogo";
+import SalvoraLogo from "@/components/ui/SalvoraLogo";
 import { connectDB } from "@/lib/mongodb";
 import SalonSettings from "@/models/SalonSettings";
+import Branch from "@/models/Branch";
 import {
   PhoneIcon,
   MailIcon,
@@ -14,14 +15,25 @@ import {
   YoutubeIcon,
 } from "@/components/ui/icons";
 
+function formatTime(t?: string): string {
+  if (!t) return "";
+  const parts = t.split(":");
+  if (parts.length < 2) return t;
+  const hour = parseInt(parts[0], 10);
+  const min = parts[1];
+  const ampm = hour >= 12 ? "PM" : "AM";
+  const h12 = hour % 12 || 12;
+  return `${h12}:${min} ${ampm}`;
+}
+
 export default async function Footer() {
   const currentYear = new Date().getFullYear();
 
   let address = "123 Beauty Street, Colombo 07, Sri Lanka";
   let phone = "+94 76 123 4567";
-  let email = "info@invora.lk";
+  let email = "info@salvora.lk";
   let footerLogo = "";
-  let salonName = "INVORA";
+  let salonName = "SALVORA";
   let branches: Array<{
     name: string;
     address: string;
@@ -31,9 +43,18 @@ export default async function Footer() {
     isMain?: boolean;
   }> = [];
 
+  let hoursWeekday = "10:00 AM – 8:00 PM";
+  let hoursSunday = "10:00 AM – 4:00 PM";
+
   try {
     await connectDB();
-    const settings = await SalonSettings.findOne().lean();
+    const [settings, branchDocs] = await Promise.all([
+      SalonSettings.findOne().lean(),
+      Branch.find({ isActive: true })
+        .sort({ isMain: -1, displayOrder: 1, createdAt: 1 })
+        .lean(),
+    ]);
+
     if (settings) {
       if (settings.address) address = settings.address;
       if (settings.phone) phone = settings.phone;
@@ -44,9 +65,42 @@ export default async function Footer() {
       } else if (settings.logo) {
         footerLogo = settings.logo;
       }
-      if (Array.isArray(settings.branches) && settings.branches.length > 0) {
-        branches = settings.branches;
+    }
+
+    if (Array.isArray(branchDocs) && branchDocs.length > 0) {
+      branches = branchDocs.map((b) => ({
+        name: b.name,
+        address: b.address,
+        phone: b.phone,
+        email: b.email,
+        mapUrl: b.googleMapsUrl || b.googleReviewUrl,
+        isMain: Boolean(b.isMain),
+      }));
+
+      const mainBranch = branchDocs.find((b) => b.isMain) || branchDocs[0];
+      if (mainBranch) {
+        if (mainBranch.address) address = mainBranch.address;
+        if (mainBranch.phone) phone = mainBranch.phone;
+        if (mainBranch.email) email = mainBranch.email;
+
+        if (Array.isArray(mainBranch.openingHours) && mainBranch.openingHours.length > 0) {
+          const mon = mainBranch.openingHours.find((h) => h.day.toLowerCase() === "monday");
+          if (mon && !mon.isClosed && mon.openTime && mon.closeTime) {
+            hoursWeekday = `${formatTime(mon.openTime)} – ${formatTime(mon.closeTime)}`;
+          } else if (mon?.isClosed) {
+            hoursWeekday = "Closed";
+          }
+
+          const sun = mainBranch.openingHours.find((h) => h.day.toLowerCase() === "sunday");
+          if (sun && !sun.isClosed && sun.openTime && sun.closeTime) {
+            hoursSunday = `${formatTime(sun.openTime)} – ${formatTime(sun.closeTime)}`;
+          } else if (sun?.isClosed) {
+            hoursSunday = "Closed";
+          }
+        }
       }
+    } else if (settings && Array.isArray(settings.branches) && settings.branches.length > 0) {
+      branches = settings.branches;
     }
   } catch {
     // Graceful fallback
@@ -86,13 +140,13 @@ export default async function Footer() {
                   className="h-10 sm:h-11 w-auto max-w-[200px] object-contain"
                 />
               ) : (
-                <InvoraLogo theme="dark" className="h-10 sm:h-11 w-auto object-contain" />
+                <SalvoraLogo theme="dark" className="h-10 sm:h-11 w-auto object-contain" />
               )}
             </Link>
 
             <p className="text-xs leading-relaxed text-stone-400">
               Professional beauty care, modern treatments, and a relaxing salon
-              environment at Invora.
+              environment at Salvora.
             </p>
 
             {/* Social Media Links in Purple Badges */}
@@ -101,7 +155,7 @@ export default async function Footer() {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Invora Instagram"
+                aria-label="Salvora Instagram"
                 className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-950/60 text-[#C4B5FD] hover:bg-[#7C3AED] hover:text-white transition-colors"
               >
                 <InstagramIcon className="h-4 w-4" />
@@ -110,7 +164,7 @@ export default async function Footer() {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Invora Facebook"
+                aria-label="Salvora Facebook"
                 className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-950/60 text-[#C4B5FD] hover:bg-[#7C3AED] hover:text-white transition-colors"
               >
                 <FacebookIcon className="h-4 w-4" />
@@ -119,7 +173,7 @@ export default async function Footer() {
                 href="https://tiktok.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Invora TikTok"
+                aria-label="Salvora TikTok"
                 className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-950/60 text-[#C4B5FD] hover:bg-[#7C3AED] hover:text-white transition-colors"
               >
                 <TikTokIcon className="h-4 w-4" />
@@ -128,7 +182,7 @@ export default async function Footer() {
                 href="https://youtube.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Invora YouTube"
+                aria-label="Salvora YouTube"
                 className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-950/60 text-[#C4B5FD] hover:bg-[#7C3AED] hover:text-white transition-colors"
               >
                 <YoutubeIcon className="h-4 w-4" />
@@ -273,12 +327,12 @@ export default async function Footer() {
                 <ClockIcon className="h-4 w-4 text-[#A78BFA] shrink-0 mt-0.5" />
                 <div>
                   <p className="text-white font-medium">Mon – Sat</p>
-                  <p>10:00 AM – 8:00 PM</p>
+                  <p>{hoursWeekday}</p>
                 </div>
               </div>
               <div className="pt-1">
                 <p className="text-white font-medium">Sunday</p>
-                <p>10:00 AM – 4:00 PM</p>
+                <p>{hoursSunday}</p>
               </div>
             </div>
           </div>
@@ -286,7 +340,7 @@ export default async function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-14 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
-          <p>© {currentYear} Invora. All rights reserved.</p>
+          <p>© {currentYear} Salvora. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <span className="hover:text-stone-400 transition-colors cursor-pointer">
               Privacy Policy

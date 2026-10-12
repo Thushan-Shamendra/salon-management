@@ -40,7 +40,7 @@ export default function ServicesGrid({
               href="/contact"
               className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-6 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#6D28D9] active:scale-[0.98]"
             >
-              <span>Contact Invora</span>
+              <span>Contact Salvora</span>
               <ArrowRightIcon className="h-3.5 w-3.5" />
             </Link>
           </div>

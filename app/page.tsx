@@ -12,6 +12,7 @@ import ContactPreview from "@/components/home/ContactPreview";
 import Footer from "@/components/layout/Footer";
 import { connectDB } from "@/lib/mongodb";
 import SalonSettings, { IOpeningHour } from "@/models/SalonSettings";
+import Branch from "@/models/Branch";
 import Service from "@/models/Service";
 
 export const dynamic = "force-dynamic";
@@ -23,14 +24,39 @@ export default async function HomePage() {
 
   try {
     await connectDB();
-    const [settings, count] = await Promise.all([
+    const [settings, branchDoc, count] = await Promise.all([
       SalonSettings.findOne().lean(),
+      Branch.findOne({ isActive: true })
+        .sort({ isMain: -1, displayOrder: 1, createdAt: 1 })
+        .lean(),
       Service.countDocuments({ isActive: { $ne: false } }),
     ]);
-    if (settings) {
-      if (settings.externalSystem?.bookingUrl) {
-        bookingUrl = settings.externalSystem.bookingUrl;
-      }
+
+    if (settings && settings.externalSystem?.bookingUrl) {
+      bookingUrl = settings.externalSystem.bookingUrl;
+    }
+
+    if (branchDoc) {
+      initialSettings = {
+        salonName: settings?.salonName || branchDoc.name || undefined,
+        phone: branchDoc.phone || undefined,
+        email: branchDoc.email || settings?.email || undefined,
+        address: branchDoc.address || undefined,
+        businessUrl:
+          branchDoc.googleMapsUrl ||
+          branchDoc.googleReviewUrl ||
+          settings?.googleReviews?.businessUrl ||
+          undefined,
+        openingHours: Array.isArray(branchDoc.openingHours)
+          ? branchDoc.openingHours.map((h) => ({
+              day: String(h.day),
+              open: String(h.openTime || "09:00"),
+              close: String(h.closeTime || "19:00"),
+              isClosed: Boolean(h.isClosed),
+            }))
+          : undefined,
+      };
+    } else if (settings) {
       initialSettings = {
         salonName: settings.salonName || undefined,
         phone: settings.phone || undefined,
@@ -70,7 +96,7 @@ export default async function HomePage() {
         {/* 5. Wedding Beauty Promotional Section */}
         <WeddingPreview />
 
-        {/* 6. Why Choose Invora */}
+        {/* 6. Why Choose Salvora */}
         <WhyChooseUs />
 
         {/* 6. Meet Our Beauty Experts */}

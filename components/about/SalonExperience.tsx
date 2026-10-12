@@ -13,7 +13,7 @@ export default function SalonExperience() {
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-stone-100 shadow-md group">
               <Image
                 src="/images/salon-experience.jpg"
-                alt="Invora Salon modern treatment products and serene space"
+                alt="Salvora Salon modern treatment products and serene space"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -43,7 +43,7 @@ export default function SalonExperience() {
             {/* Description */}
             <p className="text-base text-stone-600 leading-relaxed font-normal">
               Our salon is designed to give you a comfortable and relaxing experience.
-              With modern equipment, a clean environment, and a friendly team, Invora
+              With modern equipment, a clean environment, and a friendly team, Salvora
               is the perfect place to take time for yourself and feel your best.
             </p>
 

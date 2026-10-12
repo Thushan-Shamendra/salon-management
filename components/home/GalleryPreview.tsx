@@ -70,7 +70,7 @@ export default function GalleryPreview() {
         >
           <Image
             src={item.image}
-            alt={item.altText || item.title || "Invora Salon look"}
+            alt={item.altText || item.title || "Salvora Salon look"}
             fill
             sizes={sizes}
             className="object-cover"

@@ -52,7 +52,7 @@ export default function OurStory() {
 
             {/* Paragraph */}
             <p className="text-base text-stone-600 leading-relaxed font-normal">
-              At Invora, we believe beauty is more than a look — it is a feeling.
+              At Salvora, we believe beauty is more than a look — it is a feeling.
               Our professional team is dedicated to bringing out your natural beauty
               with personalized care and modern techniques, in a clean and relaxing environment.
             </p>

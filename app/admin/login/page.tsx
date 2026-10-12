@@ -80,11 +80,11 @@ function AdminLoginForm() {
   return (
     <div className="w-full max-w-md rounded-3xl bg-white p-8 sm:p-10 shadow-xl border border-stone-200/90">
       <div className="flex flex-col items-center text-center">
-        {/* INVORA Branding */}
+        {/* SALVORA Branding */}
         <div className="relative h-10 w-36 mb-2">
           <Image
-            src="/images/invora-logo-dark-trimmed.png"
-            alt="INVORA Salon"
+            src="/images/salvora-logo-light.png"
+            alt="SALVORA Salon"
             fill
             className="object-contain"
             priority
@@ -118,7 +118,7 @@ function AdminLoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            placeholder="admin@invora.lk"
+            placeholder="admin@salvora.lk"
             className="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm text-stone-900 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
           />
         </div>

@@ -9,7 +9,7 @@ export default function ServicesHero() {
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/services-hero.jpg"
-          alt="Invora Salon Professional Treatments"
+          alt="Salvora Salon Professional Treatments"
           fill
           priority
           sizes="100vw"

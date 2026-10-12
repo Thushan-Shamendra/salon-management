@@ -23,6 +23,7 @@ export interface IBranch extends Document {
   openingHours: IBranchOpeningHour[];
   isActive: boolean;
   displayOrder: number;
+  isMain?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -122,6 +123,10 @@ const BranchSchema = new Schema<IBranch>(
       type: Number,
       default: 0,
       min: 0,
+    },
+    isMain: {
+      type: Boolean,
+      default: false,
     },
   },
   {

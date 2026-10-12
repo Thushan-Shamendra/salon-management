@@ -18,6 +18,7 @@ import {
   LockIcon,
   LogOutIcon,
   XIcon,
+  DatabaseIcon,
 } from "@/components/ui/icons";
 
 interface AdminSidebarProps {
@@ -144,6 +145,11 @@ export default function AdminSidebar({
           href: "/admin/ai-assistant",
           icon: SparklesIcon,
         },
+        {
+          name: "Backup & Restore",
+          href: "/admin/backup",
+          icon: DatabaseIcon,
+        },
       ],
     },
     {
@@ -181,7 +187,7 @@ export default function AdminSidebar({
               ) : (
                 <div className="relative h-8 w-32">
                   <Image
-                    src="/images/invora-logo-light-trimmed.png"
+                    src="/images/salvora-logo-dark.png"
                     alt={salonName}
                     fill
                     className="object-contain object-left"

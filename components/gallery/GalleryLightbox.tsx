@@ -129,7 +129,7 @@ export default function GalleryLightbox({
         <div className="relative max-h-[70vh] sm:max-h-[76vh] w-full h-full flex items-center justify-center">
           <Image
             src={photo.image}
-            alt={photo.altText || photo.title || "Invora Salon Gallery Transformation"}
+            alt={photo.altText || photo.title || "Salvora Salon Gallery Transformation"}
             fill
             sizes="(max-width: 1024px) 100vw, 85vw"
             className="object-contain"

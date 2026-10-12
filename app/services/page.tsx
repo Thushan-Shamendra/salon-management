@@ -97,10 +97,10 @@ export default async function ServicesPage() {
         {/* 4. Adaptive Services Grid */}
         <ServicesGrid services={services} bookingUrl={bookingUrl} />
 
-        {/* 5. Why Choose Invora / Service Benefits */}
+        {/* 5. Why Choose Salvora / Service Benefits */}
         <WhyChooseUs
-          tag="✦ WHY CHOOSE INVORA"
-          heading="Why Choose Invora?"
+          tag="✦ WHY CHOOSE SALVORA"
+          heading="Why Choose Salvora?"
           features={serviceBenefits}
         />
 

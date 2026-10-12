@@ -42,8 +42,8 @@ const DEFAULT_FEATURES: FeatureItem[] = [
 ];
 
 export default function WhyChooseUs({
-  tag = "✦ The Invora Standard",
-  heading = "Why Choose Invora",
+  tag = "✦ The Salvora Standard",
+  heading = "Why Choose Salvora",
   features = DEFAULT_FEATURES,
 }: WhyChooseUsProps = {}) {
   return (

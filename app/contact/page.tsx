@@ -33,7 +33,7 @@ async function getContactData(): Promise<{
 
     const [branchDocs, settingsDoc] = await Promise.all([
       Branch.find({ isActive: true })
-        .sort({ displayOrder: 1, createdAt: 1 })
+        .sort({ isMain: -1, displayOrder: 1, createdAt: 1 })
         .lean(),
       SalonSettings.findOne().lean(),
     ]);
@@ -59,6 +59,7 @@ async function getContactData(): Promise<{
               }))
             : [],
           displayOrder: typeof b.displayOrder === "number" ? b.displayOrder : 0,
+          isMain: Boolean(b.isMain),
         }))
       : [];
 

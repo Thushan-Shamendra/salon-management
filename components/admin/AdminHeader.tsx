@@ -150,7 +150,7 @@ export default function AdminHeader({
             <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-stone-200 bg-white p-2 shadow-xl animate-fadeIn z-40">
               <div className="px-3 py-2 border-b border-stone-100">
                 <p className="text-xs font-bold text-stone-900">{adminName}</p>
-                <p className="text-[11px] text-stone-500 truncate">{user?.email || "admin@invora.lk"}</p>
+                <p className="text-[11px] text-stone-500 truncate">{user?.email || "admin@salvora.lk"}</p>
               </div>
 
               <div className="py-1">

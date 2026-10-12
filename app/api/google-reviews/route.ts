@@ -235,44 +235,57 @@ export async function GET(request: Request) {
     }
 
     // ==============================================================
-    // NO BRANCH PARAMETER PROVIDED -> GLOBAL FALLBACK ONLY
-    // Maintains backward compatibility for legacy non-branch review usage.
+    // NO BRANCH PARAMETER PROVIDED -> PREFER ACTIVE MAIN BRANCH
+    // Falls back to first active branch, then legacy settings if no branch exists.
     // ==============================================================
-    const settings = await SalonSettings.findOne().lean();
-    const globalGoogleSettings = settings?.googleReviews;
-
-    if (!globalGoogleSettings || !globalGoogleSettings.enabled) {
-      return NextResponse.json<GoogleReviewsResponse>({
-        success: true,
-        enabled: false,
-        configured: false,
-        rating: null,
-        totalReviews: 0,
-        reviewCount: 0,
-        reviews: [],
-        businessUrl: "",
-        writeReviewUrl: null,
-      });
+    let defaultBranch = await Branch.findOne({ isActive: true, isMain: true }).lean();
+    if (!defaultBranch) {
+      defaultBranch = await Branch.findOne({ isActive: true })
+        .sort({ displayOrder: 1, createdAt: 1 })
+        .lean();
     }
 
-    const placeId = (globalGoogleSettings.placeId || "").trim();
-    const businessUrl = (globalGoogleSettings.businessUrl || "").trim();
-    const writeReviewUrl = businessUrl || null;
+    let placeId = "";
+    let businessUrl = "";
+    let reviewsEnabled = false;
+    let branchInfo: { _id: string; name: string; slug: string } | null = null;
 
-    if (!placeId) {
+    if (defaultBranch) {
+      reviewsEnabled = Boolean(defaultBranch.reviewsEnabled);
+      placeId = (defaultBranch.googlePlaceId || "").trim();
+      businessUrl = (defaultBranch.googleReviewUrl || defaultBranch.googleMapsUrl || "").trim();
+      branchInfo = {
+        _id: defaultBranch._id.toString(),
+        name: defaultBranch.name,
+        slug: defaultBranch.slug,
+      };
+    } else {
+      const settings = await SalonSettings.findOne().lean();
+      const globalGoogleSettings = settings?.googleReviews;
+      reviewsEnabled = Boolean(globalGoogleSettings?.enabled);
+      placeId = (globalGoogleSettings?.placeId || "").trim();
+      businessUrl = (globalGoogleSettings?.businessUrl || "").trim();
+    }
+
+    if (!reviewsEnabled || !placeId) {
       return NextResponse.json<GoogleReviewsResponse>({
         success: true,
-        enabled: false,
-        configured: false,
+        enabled: reviewsEnabled,
+        configured: Boolean(placeId),
         rating: null,
         totalReviews: 0,
         reviewCount: 0,
         reviews: [],
         businessUrl,
-        writeReviewUrl,
-        message: "Google Place ID is not configured",
+        writeReviewUrl: businessUrl || null,
+        branch: branchInfo,
+        message: !reviewsEnabled
+          ? "Google Reviews are currently disabled"
+          : "Google Place ID is not configured",
       });
     }
+
+    const writeReviewUrl = businessUrl || null;
 
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
     if (!apiKey || !apiKey.trim()) {
@@ -349,10 +362,7 @@ export async function GET(request: Request) {
         placeId
       )}`;
 
-    const maxReviews =
-      typeof globalGoogleSettings.maxReviews === "number" && globalGoogleSettings.maxReviews > 0
-        ? globalGoogleSettings.maxReviews
-        : 5;
+    const maxReviews = 5;
 
     const rawReviews = Array.isArray(result.reviews) ? result.reviews : [];
     const normalizedReviews: NormalizedGoogleReview[] = rawReviews
@@ -376,6 +386,7 @@ export async function GET(request: Request) {
       reviews: normalizedReviews,
       businessUrl: resolvedBusinessUrl,
       writeReviewUrl: writeReviewUrl || resolvedBusinessUrl || null,
+      branch: branchInfo,
     });
   } catch (error) {
     console.error("GET /api/google-reviews internal error:", error);

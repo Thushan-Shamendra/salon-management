@@ -110,6 +110,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       openingHours,
       isActive,
       displayOrder,
+      isMain,
     } = body;
 
     const updateData: Record<string, unknown> = {};
@@ -296,6 +297,14 @@ export async function PATCH(request: Request, context: RouteContext) {
       updateData.openingHours = parsedHours;
     }
 
+    if (isMain !== undefined) {
+      const shouldBeMain = Boolean(isMain);
+      if (shouldBeMain) {
+        await Branch.updateMany({ _id: { $ne: id } }, { isMain: false });
+      }
+      updateData.isMain = shouldBeMain;
+    }
+
     const updatedBranch = await Branch.findByIdAndUpdate(
       id,
       { $set: updateData },
@@ -337,13 +346,25 @@ export async function DELETE(request: Request, context: RouteContext) {
       );
     }
 
-    const branch = await Branch.findByIdAndDelete(id);
-    if (!branch) {
+    const branchToDel = await Branch.findById(id);
+    if (!branchToDel) {
       return NextResponse.json(
         { success: false, message: "Branch not found" },
         { status: 404 }
       );
     }
+
+    if (branchToDel.isMain) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Main branch cannot be deleted. Its details are managed in Website Settings.",
+        },
+        { status: 400 }
+      );
+    }
+
+    await Branch.findByIdAndDelete(id);
 
     return NextResponse.json({
       success: true,

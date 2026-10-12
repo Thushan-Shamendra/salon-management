@@ -22,7 +22,7 @@ export default function BookingCTA({
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/cta-salon.jpg"
-          alt="Invora Salon appointment styling"
+          alt="Salvora Salon appointment styling"
           fill
           className="object-cover object-center opacity-80 sm:opacity-90"
         />

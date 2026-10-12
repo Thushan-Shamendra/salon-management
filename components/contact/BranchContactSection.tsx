@@ -32,6 +32,7 @@ export interface BranchData {
     closeTime?: string;
   }>;
   displayOrder?: number;
+  isMain?: boolean;
 }
 
 export interface FallbackSettingsData {
@@ -78,7 +79,7 @@ export default function BranchContactSection({
   const [branches, setBranches] = useState<BranchData[]>(initialBranches);
   const [loading, setLoading] = useState(initialBranches.length === 0 && !fallbackSettings);
   const [selectedBranchId, setSelectedBranchId] = useState<string>(
-    initialBranches[0]?._id || ""
+    initialBranches.find((b) => b.isMain)?._id || initialBranches[0]?._id || ""
   );
 
   const {
@@ -103,8 +104,9 @@ export default function BranchContactSection({
         const data = await res.json();
         if (isMounted && res.ok && data.success && Array.isArray(data.branches) && data.branches.length > 0) {
           setBranches(data.branches);
-          setSelectedBranchId(data.branches[0]._id);
-          setContextBranchId(data.branches[0]._id);
+          const chosen = data.branches.find((b: BranchData) => b.isMain) || data.branches[0];
+          setSelectedBranchId(chosen._id);
+          setContextBranchId(chosen._id);
         }
       } catch {
         // Handled via fallback
