@@ -1,5 +1,8 @@
 "use client";
 
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
+
+
 import React, { useState, useEffect } from "react";
 import { trackEvent } from "@/lib/analytics-client";
 import {
@@ -46,6 +49,8 @@ interface BranchItem {
 }
 
 export default function GoogleReviewsGrid() {
+  const custom = useSectionCustomization("reviews");
+
   const [branches, setBranches] = useState<BranchItem[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState<string>("");
   const [data, setData] = useState<GoogleReviewsData | null>(null);
@@ -153,7 +158,7 @@ export default function GoogleReviewsGrid() {
   // Initial loading skeleton
   if (loading) {
     return (
-      <section className="bg-white py-16 sm:py-20 animate-pulse border-b border-stone-100">
+      <section className="bg-white py-16 sm:py-20 animate-pulse border-b border-stone-100" data-customization-section="reviews">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
           <div className="max-w-md mx-auto rounded-3xl border border-stone-200/80 bg-white p-8 shadow-xs text-center space-y-3">
             <div className="h-12 w-12 rounded-full bg-stone-200 mx-auto" />
@@ -192,7 +197,7 @@ export default function GoogleReviewsGrid() {
   const reviewsDisabled = data?.enabled === false;
 
   return (
-    <section className="bg-white py-16 sm:py-20 border-b border-stone-100">
+    <section className="bg-white py-16 sm:py-20 border-b border-stone-100" data-customization-section="reviews">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
         {/* ============================================================== */}
         {/* BRANCH SELECTOR TABS                                           */}
@@ -284,16 +289,16 @@ export default function GoogleReviewsGrid() {
                 <div>
                   <div className="inline-flex items-center gap-2 mb-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-                    <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+                    <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                       OUR CLIENTS
-                    </span>
+                    </>}</span>
                   </div>
-                  <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+                  <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
                     Client Feedback &amp; Reviews
-                  </h2>
-                  <p className="mt-2 text-xs sm:text-sm text-stone-600 max-w-xl">
+                  </>}</h2>
+                  <p className="mt-2 text-xs sm:text-sm text-stone-600 max-w-xl" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
                     See what our valued guests say about their experience at {currentBranchName}.
-                  </p>
+                  </>}</p>
                 </div>
 
                 {/* Actions: Write a Review per Branch + View on Google */}
@@ -313,10 +318,10 @@ export default function GoogleReviewsGrid() {
                       }}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#6D28D9] hover:shadow-md active:scale-[0.98]"
+                      className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#6D28D9] hover:shadow-md active:scale-[0.98]" data-customization-role="primaryButton"
                     >
                       <StarIcon className="h-3.5 w-3.5 fill-amber-300 text-amber-300" />
-                      <span>Write a Review</span>
+                      <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Write a Review</>}</span>
                       <ExternalLinkIcon className="h-3.5 w-3.5 text-white/80" />
                     </a>
                   )}
@@ -326,9 +331,9 @@ export default function GoogleReviewsGrid() {
                       href={businessUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-5 py-2.5 text-xs font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]"
+                      className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-5 py-2.5 text-xs font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="secondaryButton"
                     >
-                      <span>View on Google</span>
+                      <span data-customization-role="buttonText">{custom.has("secondaryButtonText") ? custom.text("secondaryButtonText", "") : <>View on Google</>}</span>
                       <ArrowRightIcon className="h-3.5 w-3.5" />
                     </a>
                   )}
@@ -367,10 +372,10 @@ export default function GoogleReviewsGrid() {
                         }}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#6D28D9]"
+                        className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#6D28D9]" data-customization-role="primaryButton"
                       >
                         <StarIcon className="h-3.5 w-3.5 fill-amber-300 text-amber-300" />
-                        <span>Write a Review</span>
+                        <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Write a Review</>}</span>
                         <ExternalLinkIcon className="h-3.5 w-3.5" />
                       </a>
                     </div>

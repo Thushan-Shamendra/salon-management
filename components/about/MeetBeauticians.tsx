@@ -1,5 +1,8 @@
 "use client";
 
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
+
+
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -41,6 +44,8 @@ const FALLBACK_PHOTO =
   "https://images.unsplash.com/photo-1595959183082-7b570b7e08e2?auto=format&fit=crop&w=800&q=80";
 
 export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeauticiansProps) {
+  const custom = useSectionCustomization("beauticians");
+
   const [failedImageIds, setFailedImageIds] = useState<Record<string, boolean>>({});
   const [selectedBranchId, setSelectedBranchId] = useState<string>("all");
 
@@ -77,27 +82,27 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
   };
 
   return (
-    <section className="bg-white py-16 sm:py-20 lg:py-24 border-b border-stone-100">
+    <section className="bg-white py-16 sm:py-20 lg:py-24 border-b border-stone-100" data-customization-section="beauticians">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-8">
           <div>
             <div className="inline-flex items-center gap-2 mb-2">
               <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                 OUR TEAM
-              </span>
+              </>}</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
               Meet Our Beauty Experts
-            </h2>
+            </>}</h2>
           </div>
 
           <Link
             href="/services"
-            className="self-start sm:self-auto inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-5 py-2.5 text-xs font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]"
+            className="self-start sm:self-auto inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-5 py-2.5 text-xs font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="primaryButton"
           >
-            <span>View Our Services</span>
+            <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View Our Services</>}</span>
             <ArrowRightIcon className="h-3.5 w-3.5" />
           </Link>
         </div>

@@ -1,3 +1,6 @@
+"use client";
+
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 import React from "react";
 import {
   GiftIcon,
@@ -11,6 +14,8 @@ interface WhyLoveOurOffersProps {
 }
 
 export default function WhyLoveOurOffers({ salonName = "Salvora" }: WhyLoveOurOffersProps) {
+  const custom = useSectionCustomization("why-offers");
+
   const highlights = [
     {
       icon: GiftIcon,
@@ -35,18 +40,18 @@ export default function WhyLoveOurOffers({ salonName = "Salvora" }: WhyLoveOurOf
   ];
 
   return (
-    <section className="bg-white py-16 sm:py-20 border-t border-stone-100">
+    <section className="bg-white py-16 sm:py-20 border-t border-stone-100" data-customization-section="why-offers">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-2 mb-12">
           <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#7C3AED]">
             <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span>Why Choose {salonName}</span>
+            <span data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>Why Choose {salonName}</>}</span>
           </div>
 
-          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-stone-900">
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             Why Customers Love Our Offers
-          </h2>
+          </>}</h2>
         </div>
 
         {/* 4 Cards (Matches Mockup) */}

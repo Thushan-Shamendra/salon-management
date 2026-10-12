@@ -1,5 +1,8 @@
 "use client";
 
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
+
+
 import React, { useState, useMemo } from "react";
 import { VENDOR_CATEGORIES } from "@/lib/vendor-constants";
 import { trackEvent } from "@/lib/analytics-client";
@@ -57,6 +60,8 @@ export default function VendorsExplorer({
   initialVendors,
   branches,
 }: VendorsExplorerProps) {
+  const custom = useSectionCustomization("vendors-grid");
+
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [selectedBranchId, setSelectedBranchId] = useState<string>("all");
 
@@ -296,7 +301,7 @@ export default function VendorsExplorer({
   };
 
   return (
-    <section className="bg-white py-12 sm:py-16 lg:py-20">
+    <section className="bg-white py-12 sm:py-16 lg:py-20" data-customization-section="vendors-grid">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
         {/* ============================================================== */}
         {/* FILTERS TOOLBAR                                                */}
@@ -410,12 +415,12 @@ export default function VendorsExplorer({
                     <StarIcon className="h-4 w-4 fill-amber-500 text-amber-500" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7C3AED]">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                       PREMIER HIGHLIGHTS
-                    </span>
-                    <h2 className="text-xl sm:text-2xl font-bold text-stone-900">
+                    </>}</span>
+                    <h2 className="text-xl sm:text-2xl font-bold text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
                       Featured Partners
-                    </h2>
+                    </>}</h2>
                   </div>
                 </div>
 
@@ -432,9 +437,9 @@ export default function VendorsExplorer({
               <div className="space-y-6">
                 {featuredVendors.length > 0 && (
                   <div className="pt-4 border-t border-stone-200/60">
-                    <h2 className="text-xl sm:text-2xl font-bold text-stone-900">
+                    <h2 className="text-xl sm:text-2xl font-bold text-stone-900" data-customization-role="subheading">{custom.has("subheading") ? custom.text("subheading", "") : <>
                       All Trusted Service Providers
-                    </h2>
+                    </>}</h2>
                   </div>
                 )}
 

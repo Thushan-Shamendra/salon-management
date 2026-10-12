@@ -21,8 +21,10 @@ import {
   RestoreResult,
   BackupPayload,
 } from "@/lib/backup/types";
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 
 export default function AdminBackupPage() {
+  const customization = useSectionCustomization("page");
   // Export state
   const [downloading, setDownloading] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
@@ -216,12 +218,12 @@ export default function AdminBackupPage() {
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100 shadow-2xs">
             <DatabaseIcon className="h-5 w-5" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900">
-            Backup & Restore
+          <h1 data-customization-role="heading" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900">
+            {customization.text("heading", "Backup & Restore")}
           </h1>
         </div>
-        <p className="mt-1 text-xs sm:text-sm text-stone-500 max-w-2xl">
-          Protect SALVORA website content by downloading backups and safely restoring previous data.
+        <p data-customization-role="description" data-customization-admin-body className="mt-1 text-xs sm:text-sm text-stone-500 max-w-2xl">
+          {customization.text("description", "Protect SALVORA website content by downloading backups and safely restoring previous data.")}
         </p>
       </div>
 
@@ -231,7 +233,7 @@ export default function AdminBackupPage() {
       <div className="rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-7 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-100 pb-5">
           <div>
-            <h2 className="text-lg font-bold text-stone-900">Create Website Backup</h2>
+            <h2 data-customization-role="sectionHeading" className="text-lg font-bold text-stone-900">Create Website Backup</h2>
             <p className="text-xs text-stone-500 mt-0.5">
               Download a copy of SALVORA website content and configuration.
             </p>
@@ -240,10 +242,12 @@ export default function AdminBackupPage() {
             type="button"
             onClick={handleDownloadBackup}
             disabled={downloading}
+            data-customization-role="primaryButton"
+            data-customization-admin-primary="true"
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#7C3AED] px-5 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-[#6D28D9] transition-all disabled:opacity-60 cursor-pointer shrink-0"
           >
             <UploadCloudIcon className={`h-4 w-4 rotate-180 ${downloading ? "animate-bounce" : ""}`} />
-            <span>{downloading ? "Creating Backup..." : "Download Backup"}</span>
+            <span>{downloading ? "Creating Backup..." : customization.text("primaryButtonText", "Download Backup")}</span>
           </button>
         </div>
 
@@ -301,7 +305,7 @@ export default function AdminBackupPage() {
       {/* ========================================================== */}
       <div className="rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-7 shadow-xs space-y-6">
         <div className="border-b border-stone-100 pb-4">
-          <h2 className="text-lg font-bold text-stone-900">Restore Website Backup</h2>
+          <h2 data-customization-role="sectionHeading" className="text-lg font-bold text-stone-900">Restore Website Backup</h2>
           <p className="text-xs text-stone-500 mt-0.5">
             Select a verified SALVORA backup JSON file to inspect and restore website content.
           </p>

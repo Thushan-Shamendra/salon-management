@@ -1,3 +1,6 @@
+"use client";
+
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 import React from "react";
 import {
   UsersIcon,
@@ -7,6 +10,8 @@ import {
 } from "@/components/ui/icons";
 
 export default function OurValues() {
+  const custom = useSectionCustomization("our-values");
+
   const values = [
     {
       title: "Personalized Care",
@@ -35,19 +40,19 @@ export default function OurValues() {
   ];
 
   return (
-    <section id="values" className="bg-[#FAF8F5] py-16 sm:py-20 lg:py-24 border-b border-stone-200/60">
+    <section id="values" className="bg-[#FAF8F5] py-16 sm:py-20 lg:py-24 border-b border-stone-200/60" data-customization-section="our-values">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
         <div className="text-left mb-12">
           <div className="inline-flex items-center gap-2 mb-2">
             <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               OUR VALUES
-            </span>
+            </>}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             What We Stand For
-          </h2>
+          </>}</h2>
         </div>
 
         {/* 4 Cards Grid */}

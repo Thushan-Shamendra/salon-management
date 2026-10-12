@@ -1,5 +1,8 @@
 "use client";
 
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
+
+
 import React, { useState, useEffect } from "react";
 import { StarIcon, ArrowRightIcon, GoogleIcon } from "@/components/ui/icons";
 
@@ -12,6 +15,8 @@ interface NormalizedReview {
 }
 
 export default function ReviewPreview() {
+  const custom = useSectionCustomization("reviews");
+
   const [reviews, setReviews] = useState<NormalizedReview[]>([]);
   const [rating, setRating] = useState<number>(0);
   const [totalCount, setTotalCount] = useState<number>(0);
@@ -53,17 +58,17 @@ export default function ReviewPreview() {
   }
 
   return (
-    <section className="bg-white py-16 sm:py-20 lg:py-24 border-t border-stone-200/60">
+    <section className="bg-white py-16 sm:py-20 lg:py-24 border-t border-stone-200/60" data-customization-section="reviews">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               ✦ Client Love
-            </span>
-            <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+            </>}</span>
+            <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
               What Our Clients Say
-            </h2>
+            </>}</h2>
           </div>
 
           {/* Real Google Score & CTA */}
@@ -92,9 +97,9 @@ export default function ReviewPreview() {
                 href={businessUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#6D28D9] active:scale-[0.98]"
+                className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#6D28D9] active:scale-[0.98]" data-customization-role="primaryButton"
               >
-                <span>View on Google</span>
+                <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View on Google</>}</span>
                 <ArrowRightIcon className="h-3 w-3" />
               </a>
             )}

@@ -20,6 +20,26 @@ export interface IExternalSystemSettings {
   bookingUrl: string;
 }
 
+export interface IPageVisibilitySettings {
+  products: boolean;
+  promotions: boolean;
+  wedding: boolean;
+  vendors: boolean;
+  gallery: boolean;
+}
+
+export function normalizePageVisibility(
+  raw?: Partial<IPageVisibilitySettings> | null
+): IPageVisibilitySettings {
+  return {
+    products: raw?.products !== undefined ? Boolean(raw.products) : true,
+    promotions: raw?.promotions !== undefined ? Boolean(raw.promotions) : true,
+    wedding: raw?.wedding !== undefined ? Boolean(raw.wedding) : true,
+    vendors: raw?.vendors !== undefined ? Boolean(raw.vendors) : true,
+    gallery: raw?.gallery !== undefined ? Boolean(raw.gallery) : true,
+  };
+}
+
 export interface ISalonBranch {
   _id?: string;
   name: string;
@@ -52,6 +72,7 @@ export interface ISalonSettings extends Document {
   };
   googleReviews?: IGoogleReviewsSettings;
   externalSystem?: IExternalSystemSettings;
+  pageVisibility?: IPageVisibilitySettings;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -191,6 +212,28 @@ const SalonSettingsSchema = new Schema<ISalonSettings>(
         type: String,
         trim: true,
         default: "",
+      },
+    },
+    pageVisibility: {
+      products: {
+        type: Boolean,
+        default: true,
+      },
+      promotions: {
+        type: Boolean,
+        default: true,
+      },
+      wedding: {
+        type: Boolean,
+        default: true,
+      },
+      vendors: {
+        type: Boolean,
+        default: true,
+      },
+      gallery: {
+        type: Boolean,
+        default: true,
       },
     },
   },

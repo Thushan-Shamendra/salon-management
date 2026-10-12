@@ -1,5 +1,7 @@
+import { PageCustomization } from "@/components/customization/PageCustomization";
 import React from "react";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import VendorsHero from "@/components/vendors/VendorsHero";
@@ -11,6 +13,7 @@ import VendorsExplorer, {
 import { connectDB } from "@/lib/mongodb";
 import Vendor from "@/models/Vendor";
 import Branch from "@/models/Branch";
+import SalonSettings, { normalizePageVisibility } from "@/models/SalonSettings";
 
 export const dynamic = "force-dynamic";
 
@@ -23,11 +26,12 @@ export const metadata: Metadata = {
 async function getVendorsData(): Promise<{
   vendors: PublicVendorItem[];
   branches: PublicBranchInfo[];
+  isVisible: boolean;
 }> {
   try {
     await connectDB();
 
-    const [rawVendors, rawBranches] = await Promise.all([
+    const [rawVendors, rawBranches, settings] = await Promise.all([
       Vendor.find({ isActive: true })
         .populate("branchIds", "_id name slug")
         .sort({ isFeatured: -1, displayOrder: 1, name: 1 })
@@ -36,7 +40,10 @@ async function getVendorsData(): Promise<{
         .select("_id name slug")
         .sort({ displayOrder: 1, name: 1 })
         .lean(),
+      SalonSettings.findOne().select("pageVisibility").lean(),
     ]);
+
+    const isVisible = normalizePageVisibility(settings?.pageVisibility).vendors;
 
     const vendors: PublicVendorItem[] = rawVendors.map((v) => ({
       _id: String(v._id),
@@ -68,17 +75,22 @@ async function getVendorsData(): Promise<{
       slug: b.slug,
     }));
 
-    return { vendors, branches };
+    return { vendors, branches, isVisible };
   } catch (error) {
     console.error("Failed to load vendors on server:", error);
-    return { vendors: [], branches: [] };
+    return { vendors: [], branches: [], isVisible: true };
   }
 }
 
 export default async function PublicVendorsPage() {
-  const { vendors, branches } = await getVendorsData();
+  const { vendors, branches, isVisible } = await getVendorsData();
+
+  if (!isVisible) {
+    notFound();
+  }
 
   return (
+    <PageCustomization scope="public" pageKey="vendors">
     <div className="min-h-screen flex flex-col bg-white text-stone-900 selection:bg-purple-100 selection:text-[#7C3AED]">
       {/* 1. Navbar */}
       <Navbar />
@@ -99,5 +111,6 @@ export default async function PublicVendorsPage() {
       {/* 5. Footer */}
       <Footer />
     </div>
+    </PageCustomization>
   );
 }

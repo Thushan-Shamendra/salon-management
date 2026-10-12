@@ -28,9 +28,14 @@ import {
   ShieldCheckIcon,
   EyeIcon,
   EyeOffIcon,
+  ShoppingBagIcon,
+  TagIcon,
+  HeartIcon,
+  UsersIcon,
 } from "@/components/ui/icons";
 import ImageUpload, { UploadResult } from "@/components/ui/ImageUpload";
 import { CLOUDINARY_FOLDERS } from "@/lib/cloudinary-constants";
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 
 // ============================================================================
 // DATA INTERFACES
@@ -55,6 +60,22 @@ export interface GlobalSettingsData {
     bookingUrl: string;
   };
 }
+
+export interface PageVisibilityState {
+  products: boolean;
+  promotions: boolean;
+  wedding: boolean;
+  vendors: boolean;
+  gallery: boolean;
+}
+
+const DEFAULT_PAGE_VISIBILITY: PageVisibilityState = {
+  products: true,
+  promotions: true,
+  wedding: true,
+  vendors: true,
+  gallery: true,
+};
 
 export interface BranchOpeningHour {
   day: string;
@@ -163,6 +184,7 @@ const SECTIONS = [
   { id: "salon-branding", label: "Branding & Logo", icon: StoreIcon, group: "Global Website" },
   { id: "social-media", label: "Social Media", icon: ExternalLinkIcon, group: "Global Website" },
   { id: "external-system", label: "External System", icon: LinkIcon, group: "Global Website" },
+  { id: "page-visibility", label: "Page Visibility", icon: EyeIcon, group: "Global Website" },
   { id: "main-branch-details", label: "Main Branch Details", icon: MapPinIcon, group: "Main Branch" },
   { id: "main-branch-hours", label: "Main Opening Hours", icon: ClockIcon, group: "Main Branch" },
   { id: "main-branch-reviews", label: "Main Google Reviews", icon: StarIcon, group: "Main Branch" },
@@ -175,6 +197,7 @@ export default function AdminSettingsPage() {
   const router = useRouter();
 
   // Loading & notification states
+  const customization = useSectionCustomization("page");
   const [loading, setLoading] = useState(true);
   const [savingGlobal, setSavingGlobal] = useState(false);
   const [savingMainBranch, setSavingMainBranch] = useState(false);
@@ -205,6 +228,11 @@ export default function AdminSettingsPage() {
     },
   });
   const [initialGlobalData, setInitialGlobalData] = useState<GlobalSettingsData | null>(null);
+
+  // Page Visibility state
+  const [pageVisibility, setPageVisibility] = useState<PageVisibilityState>(DEFAULT_PAGE_VISIBILITY);
+  const [initialPageVisibility, setInitialPageVisibility] = useState<PageVisibilityState | null>(null);
+  const [savingPageVisibility, setSavingPageVisibility] = useState(false);
 
   // Logo input modes
   const [logoTab, setLogoTab] = useState<"upload" | "url">("upload");
@@ -420,6 +448,31 @@ export default function AdminSettingsPage() {
 
             setGlobalData(normalizedGlobal);
             setInitialGlobalData(JSON.parse(JSON.stringify(normalizedGlobal)));
+
+            const normalizedVisibility: PageVisibilityState = {
+              products:
+                s.pageVisibility?.products !== undefined
+                  ? Boolean(s.pageVisibility.products)
+                  : true,
+              promotions:
+                s.pageVisibility?.promotions !== undefined
+                  ? Boolean(s.pageVisibility.promotions)
+                  : true,
+              wedding:
+                s.pageVisibility?.wedding !== undefined
+                  ? Boolean(s.pageVisibility.wedding)
+                  : true,
+              vendors:
+                s.pageVisibility?.vendors !== undefined
+                  ? Boolean(s.pageVisibility.vendors)
+                  : true,
+              gallery:
+                s.pageVisibility?.gallery !== undefined
+                  ? Boolean(s.pageVisibility.gallery)
+                  : true,
+            };
+            setPageVisibility(normalizedVisibility);
+            setInitialPageVisibility({ ...normalizedVisibility });
           }
         }
 
@@ -489,6 +542,11 @@ export default function AdminSettingsPage() {
     return JSON.stringify(globalData) !== JSON.stringify(initialGlobalData);
   }, [globalData, initialGlobalData]);
 
+  const hasPageVisibilityChanges = useMemo(() => {
+    if (!initialPageVisibility) return false;
+    return JSON.stringify(pageVisibility) !== JSON.stringify(initialPageVisibility);
+  }, [pageVisibility, initialPageVisibility]);
+
   const hasMainBranchChanges = useMemo(() => {
     if (!initialBranchForm) return false;
     return JSON.stringify(mainBranchForm) !== JSON.stringify(initialBranchForm);
@@ -497,14 +555,14 @@ export default function AdminSettingsPage() {
   // Unload warning
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasGlobalChanges || hasMainBranchChanges) {
+      if (hasGlobalChanges || hasPageVisibilityChanges || hasMainBranchChanges) {
         e.preventDefault();
         e.returnValue = "";
       }
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [hasGlobalChanges, hasMainBranchChanges]);
+  }, [hasGlobalChanges, hasPageVisibilityChanges, hasMainBranchChanges]);
 
   // Smooth scroll
   const scrollToSection = (sectionId: string) => {
@@ -577,6 +635,29 @@ export default function AdminSettingsPage() {
   const handleGlobalSubmit = async (e?: FormEvent) => {
     if (e) e.preventDefault();
     await saveGlobalSettingsPayload(globalData);
+  };
+
+  const handleSavePageVisibility = async () => {
+    setSavingPageVisibility(true);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pageVisibility }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showNotification("success", "Page visibility updated successfully.");
+        setInitialPageVisibility({ ...pageVisibility });
+        router.refresh();
+      } else {
+        showNotification("error", "Unable to update page visibility.");
+      }
+    } catch {
+      showNotification("error", "Unable to update page visibility.");
+    } finally {
+      setSavingPageVisibility(false);
+    }
   };
 
   // Logo handlers
@@ -1004,12 +1085,14 @@ export default function AdminSettingsPage() {
               type="button"
               disabled={savingGlobal || !hasGlobalChanges}
               onClick={() => handleGlobalSubmit()}
+              data-customization-role="primaryButton"
+              data-customization-admin-primary="true"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-xs font-semibold text-white shadow-2xs transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {savingGlobal && (
                 <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
               )}
-              <span>{savingGlobal ? "Saving..." : "Save Global Settings"}</span>
+              <span>{savingGlobal ? "Saving..." : customization.text("primaryButtonText", "Save Global Settings")}</span>
             </button>
 
             {mainBranch && (
@@ -1153,7 +1236,7 @@ export default function AdminSettingsPage() {
           <div className="space-y-6">
             <div className="flex items-center justify-between border-b border-stone-200/80 pb-3">
               <div>
-                <h2 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
+                <h2 data-customization-role="sectionHeading" className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
                   Global Website Settings
                 </h2>
                 <p className="text-xs text-stone-500">
@@ -1605,6 +1688,138 @@ export default function AdminSettingsPage() {
                 </div>
               </div>
             </div>
+
+            {/* CARD 4: PUBLIC PAGE VISIBILITY */}
+            <div
+              id="page-visibility"
+              className="rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-6"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 border-b border-stone-100 pb-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100">
+                    <EyeIcon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-stone-900 tracking-tight">
+                      Public Page Visibility
+                    </h3>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      Choose which optional pages are available on the public SALVORA website.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleSavePageVisibility}
+                  disabled={savingPageVisibility}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] disabled:opacity-60 px-4 py-2 text-xs font-semibold text-white shadow-xs transition cursor-pointer shrink-0"
+                >
+                  <span>{savingPageVisibility ? "Saving..." : "Save Page Visibility"}</span>
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {(
+                  [
+                    {
+                      key: "products" as const,
+                      name: "Products",
+                      description: "Show SALVORA selling products on the public website.",
+                      icon: ShoppingBagIcon,
+                    },
+                    {
+                      key: "promotions" as const,
+                      name: "Promotions",
+                      description: "Show active promotions and special offers on the public website.",
+                      icon: TagIcon,
+                    },
+                    {
+                      key: "wedding" as const,
+                      name: "Wedding",
+                      description: "Show Wedding services and wedding packages on the public website.",
+                      icon: HeartIcon,
+                    },
+                    {
+                      key: "vendors" as const,
+                      name: "Vendors",
+                      description: "Show trusted vendors and partner services on the public website.",
+                      icon: UsersIcon,
+                    },
+                    {
+                      key: "gallery" as const,
+                      name: "Gallery",
+                      description: "Show the salon photo gallery on the public website.",
+                      icon: ImageIcon,
+                    },
+                  ] as const
+                ).map((item) => {
+                  const IconComp = item.icon;
+                  const isEnabled = pageVisibility[item.key];
+                  return (
+                    <div
+                      key={item.key}
+                      className="flex items-center justify-between gap-4 rounded-xl border border-stone-200/80 bg-stone-50/50 px-4 py-3.5 transition-colors hover:border-stone-300/80"
+                    >
+                      <div className="flex items-start gap-3 min-w-0">
+                        <div
+                          className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-colors ${
+                            isEnabled
+                              ? "bg-purple-50 text-[#7C3AED] border-purple-100"
+                              : "bg-stone-100 text-stone-400 border-stone-200"
+                          }`}
+                        >
+                          <IconComp className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs sm:text-sm font-bold text-stone-900">
+                            {item.name}
+                          </p>
+                          <p className="text-xs text-stone-500 mt-0.5">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span
+                          className={`text-xs font-semibold ${
+                            isEnabled ? "text-[#7C3AED]" : "text-stone-400"
+                          }`}
+                        >
+                          {isEnabled ? "Enabled" : "Hidden"}
+                        </span>
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={isEnabled}
+                          aria-label={`Toggle ${item.name} page visibility`}
+                          onClick={() =>
+                            setPageVisibility((prev) => ({
+                              ...prev,
+                              [item.key]: !prev[item.key],
+                            }))
+                          }
+                          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] focus-visible:ring-offset-2 ${
+                            isEnabled ? "bg-[#7C3AED]" : "bg-stone-300"
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition-transform duration-200 ${
+                              isEnabled ? "translate-x-6" : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="rounded-xl border border-stone-200/80 bg-stone-50/70 px-4 py-3 text-xs text-stone-600">
+                Hiding a page removes it from the public website only. Admin management pages and saved data remain available.
+              </div>
+            </div>
           </div>
 
           {/* ==================================================== */}
@@ -1618,7 +1833,7 @@ export default function AdminSettingsPage() {
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#7C3AED] text-white text-xs font-bold">
                     ★
                   </span>
-                  <h2 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
+                  <h2 data-customization-role="sectionHeading" className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
                     Main Branch Settings
                   </h2>
                   <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200">
@@ -2128,7 +2343,7 @@ export default function AdminSettingsPage() {
           {/* ==================================================== */}
           <div className="space-y-6 pt-6 border-t border-stone-200/80">
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
+              <h2 data-customization-role="sectionHeading" className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
                 Integrations & API Configuration
               </h2>
               <p className="text-xs text-stone-500">

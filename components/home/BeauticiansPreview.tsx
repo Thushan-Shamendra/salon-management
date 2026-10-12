@@ -1,5 +1,8 @@
 "use client";
 
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
+
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -26,6 +29,8 @@ const FALLBACK_BEAUTICIAN_PHOTO =
   "https://images.unsplash.com/photo-1595959183082-7b570b7e08e2?auto=format&fit=crop&w=800&q=80";
 
 export default function BeauticiansPreview() {
+  const custom = useSectionCustomization("beauticians");
+
   const [beauticians, setBeauticians] = useState<BeauticianItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [failedImageIds, setFailedImageIds] = useState<Record<string, boolean>>({});
@@ -105,24 +110,24 @@ export default function BeauticiansPreview() {
   const layout = getLayoutConfig(beauticians.length || 1);
 
   return (
-    <section className={`bg-white border-t border-stone-200/60 ${layout.sectionPadding}`}>
+    <section className={`bg-white border-t border-stone-200/60 ${layout.sectionPadding}`} data-customization-section="beauticians">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               ✦ Our Team
-            </span>
-            <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+            </>}</span>
+            <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
               Meet Our Beauty Experts
-            </h2>
+            </>}</h2>
           </div>
 
           <Link
             href="/about"
-            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]"
+            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="primaryButton"
           >
-            <span>View Our Team</span>
+            <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View Our Team</>}</span>
             <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>

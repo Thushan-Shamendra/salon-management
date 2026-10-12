@@ -1,5 +1,8 @@
 "use client";
 
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
+
+
 import React from "react";
 import { ExternalLinkIcon } from "@/components/ui/icons";
 import { trackEvent } from "@/lib/analytics-client";
@@ -18,27 +21,29 @@ interface ProductBrandsSectionProps {
 }
 
 export default function ProductBrandsSection({ products }: ProductBrandsSectionProps) {
+  const custom = useSectionCustomization("product-brands");
+
   if (!products || products.length === 0) {
     return null;
   }
 
   return (
-    <section className="bg-stone-50/60 py-16 sm:py-20 lg:py-24 border-b border-stone-100">
+    <section className="bg-stone-50/60 py-16 sm:py-20 lg:py-24 border-b border-stone-100" data-customization-section="product-brands">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 mb-2 justify-center">
             <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               PRODUCTS WE USE
-            </span>
+            </>}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             Premium Brands for Exceptional Care
-          </h2>
-          <p className="mt-3 text-xs sm:text-sm text-stone-600 leading-relaxed">
+          </>}</h2>
+          <p className="mt-3 text-xs sm:text-sm text-stone-600 leading-relaxed" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
             We only work with world-class, salon-grade product lines carefully selected to guarantee radiant, healthy, and long-lasting results.
-          </p>
+          </>}</p>
         </div>
 
         {/* Responsive Logo Grid: Mobile 2, Tablet 3-4, Desktop 4-6 */}

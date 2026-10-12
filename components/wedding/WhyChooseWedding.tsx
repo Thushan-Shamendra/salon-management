@@ -1,3 +1,6 @@
+"use client";
+
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 import React from "react";
 import {
   UsersIcon,
@@ -34,26 +37,28 @@ const WHY_CHOOSE_ITEMS = [
 ];
 
 export default function WhyChooseWedding() {
+  const custom = useSectionCustomization("why-wedding");
+
   return (
-    <section className="py-16 sm:py-24 bg-white border-b border-stone-200/60">
+    <section className="py-16 sm:py-24 bg-white border-b border-stone-200/60" data-customization-section="why-wedding">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 mb-2">
             <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               WHY CHOOSE US
-            </span>
+            </>}</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             Why Choose Our Wedding Services
-          </h2>
+          </>}</h2>
 
-          <p className="mt-3 text-sm sm:text-base text-stone-600 leading-relaxed">
+          <p className="mt-3 text-sm sm:text-base text-stone-600 leading-relaxed" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
             We are committed to making your wedding day even more special with
             our expertise and personalized care.
-          </p>
+          </>}</p>
         </div>
 
         {/* 4 Cards Grid */}

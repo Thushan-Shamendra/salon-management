@@ -1,3 +1,6 @@
+"use client";
+
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -15,18 +18,20 @@ export default function HeroSection({
   serviceCount = 0,
   googleRating = null,
 }: HeroSectionProps) {
+  const custom = useSectionCustomization("hero");
+
   const hasRealStats = (serviceCount && serviceCount > 0) || (googleRating && googleRating > 0);
 
   return (
-    <section className="relative overflow-hidden bg-[#0C0A14] text-white py-16 sm:py-20 lg:py-24">
+    <section className="relative overflow-hidden bg-[#0C0A14] text-white py-16 sm:py-20 lg:py-24" data-customization-section="hero">
       {/* Background Salon Image - Bright & Clearly Visible */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/hero-salon.jpg"
+          src={custom.image("/images/hero-salon.jpg")}
           alt="Salvora Salon professional styling and beauty care"
           fill
           priority
-          className="object-cover object-right-top opacity-90 sm:opacity-95 lg:opacity-100"
+          className="object-cover object-right-top opacity-90 sm:opacity-95 lg:opacity-100" data-customization-role="backgroundImage" unoptimized={Boolean(custom.style.backgroundImage?.url)}
         />
         {/* Controlled Gradient Overlay: strong text contrast on left, bright salon image on right */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#0C0A14] via-[#0C0A14]/75 lg:via-[#0C0A14]/45 to-transparent" />
@@ -38,21 +43,21 @@ export default function HeroSection({
           {/* Label: Professional Beauty & Wellness */}
           <div className="inline-flex items-center gap-2 rounded-full border border-purple-400/30 bg-purple-950/50 px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#C4B5FD] backdrop-blur-md">
             <span className="h-1.5 w-1.5 rounded-full bg-[#8B5CF6] animate-pulse" />
-            <span>Professional Beauty & Wellness</span>
+            <span data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>Professional Beauty & Wellness</>}</span>
           </div>
 
           {/* Main Heading */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.12]">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.12]" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             Beauty<br />
-            Redefined<br />
-            <span className="text-[#8B5CF6]">For You</span>
+            Redefined<br /></>}
+            <span className="text-[#8B5CF6]" data-customization-role="highlight">{custom.has("highlightedText") ? custom.text("highlightedText", "") : <>For You</>}</span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-base sm:text-lg text-stone-200 leading-relaxed max-w-xl font-normal drop-shadow-sm">
+          <p className="text-base sm:text-lg text-stone-200 leading-relaxed max-w-xl font-normal drop-shadow-sm" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
             Experience professional care, modern treatments and a relaxing salon
             environment at Salvora.
-          </p>
+          </>}</p>
 
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -68,9 +73,9 @@ export default function HeroSection({
                     },
                   });
                 }}
-                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-purple-600/30 transition-all hover:bg-[#6D28D9] hover:shadow-purple-600/50 hover:gap-3 active:scale-[0.98]"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-purple-600/30 transition-all hover:bg-[#6D28D9] hover:shadow-purple-600/50 hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
               >
-                <span>Book Appointment</span>
+                <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Book Appointment</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />
               </a>
             ) : (
@@ -78,18 +83,18 @@ export default function HeroSection({
                 type="button"
                 disabled
                 title="Online booking link not yet configured"
-                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED]/60 px-8 py-3.5 text-sm font-semibold text-white/80 cursor-not-allowed shadow-none"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED]/60 px-8 py-3.5 text-sm font-semibold text-white/80 cursor-not-allowed shadow-none" data-customization-role="primaryButton"
               >
-                <span>Book Appointment</span>
+                <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Book Appointment</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />
               </button>
             )}
 
             <Link
               href="/services"
-              className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/10 px-8 py-3.5 text-sm font-medium text-white backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/50 active:scale-[0.98]"
+              className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/10 px-8 py-3.5 text-sm font-medium text-white backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/50 active:scale-[0.98]" data-customization-role="secondaryButton"
             >
-              <span>View Services</span>
+              <span data-customization-role="buttonText">{custom.has("secondaryButtonText") ? custom.text("secondaryButtonText", "") : <>View Services</>}</span>
             </Link>
           </div>
 

@@ -10,7 +10,9 @@ export const CLOUDINARY_FOLDERS = {
   WEDDING_PACKAGES: "salon-management/wedding/packages",
   RETAIL_PRODUCTS: "salon-management/retail-products",
   PROMOTIONS: "salon-management/promotions",
+  CUSTOMIZATION_GLOBAL: "salon-management/customization/global",
 } as const;
 
 export type CloudinaryFolder =
-  (typeof CLOUDINARY_FOLDERS)[keyof typeof CLOUDINARY_FOLDERS];
+  | (typeof CLOUDINARY_FOLDERS)[keyof typeof CLOUDINARY_FOLDERS]
+  | `salon-management/customization/${"public" | "admin"}/${string}/${string}`;

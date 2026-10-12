@@ -1,5 +1,8 @@
 "use client";
 
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
+
+
 import React from "react";
 import Link from "next/link";
 import { ArrowRightIcon } from "@/components/ui/icons";
@@ -16,6 +19,8 @@ export default function ProductsPreview({
   whatsappNumber = "",
   salonName = "Salvora",
 }: ProductsPreviewProps) {
+  const custom = useSectionCustomization("products-preview");
+
   // If zero products in database, hide cleanly
   if (!products || products.length === 0) {
     return null;
@@ -25,31 +30,31 @@ export default function ProductsPreview({
   const displayedProducts = products.slice(0, 4);
 
   return (
-    <section className="bg-[#FAF8F5] py-14 sm:py-20 border-b border-stone-200/60">
+    <section className="bg-[#FAF8F5] py-14 sm:py-20 border-b border-stone-200/60" data-customization-section="products-preview">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10 sm:mb-12">
           <div>
             <div className="inline-flex items-center gap-2 mb-2">
               <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-              <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#7C3AED]">
+              <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                 OUR PRODUCTS
-              </span>
+              </>}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-stone-900 leading-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-stone-900 leading-tight" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
               Beauty Essentials <br className="hidden sm:inline" />
               For Your Routine
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-stone-600 leading-relaxed max-w-xl">
+            </>}</h2>
+            <p className="mt-3 text-sm sm:text-base text-stone-600 leading-relaxed max-w-xl" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
               Discover selected professional beauty products available from SALVORA.
-            </p>
+            </>}</p>
           </div>
 
           <Link
             href="/products"
-            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]"
+            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="primaryButton"
           >
-            <span>View All Products</span>
+            <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View All Products</>}</span>
             <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
@@ -70,9 +75,9 @@ export default function ProductsPreview({
         <div className="mt-8 text-center sm:hidden">
           <Link
             href="/products"
-            className="group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]"
+            className="group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="primaryButton"
           >
-            <span>View All Products</span>
+            <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View All Products</>}</span>
             <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>

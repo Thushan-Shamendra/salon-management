@@ -1,3 +1,6 @@
+"use client";
+
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -18,36 +21,37 @@ const SALON_FEATURES = [
 ];
 
 export default function AboutHero() {
+  const custom = useSectionCustomization("hero");
+
   return (
-    <section className={styles.hero} aria-labelledby="about-hero-title">
+    <section className={styles.hero} aria-labelledby="about-hero-title" data-customization-section="hero">
       <div className={styles.header}>
-        <p className={styles.headerBadge}>
-          <SparklesIcon className={styles.badgeIcon} />
+        <p className={styles.headerBadge} data-customization-role="eyebrow">
+          <SparklesIcon className={styles.badgeIcon} />{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
           ABOUT SALVORA
-        </p>
+        </>}</p>
         <h1
           id="about-hero-title"
-          className={`${styles.heading} text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight`}
-        >
+          className={`${styles.heading} text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight`} data-customization-role="heading"
+        >{custom.has("heading") ? custom.text("heading", "") : <>
           More Than a Salon
-          <span>A Place for You</span>
+          </>}<span data-customization-role="highlight">{custom.has("highlightedText") ? custom.text("highlightedText", "") : <>A Place for You</>}</span>
         </h1>
       </div>
 
       <div className={styles.composition}>
         <div className={styles.introCard}>
           <p className={styles.eyebrow}>YOUR EVERYDAY ESCAPE</p>
-          <h2 className={styles.introTitle}>
+          <h2 className={styles.introTitle} data-customization-role="subheading">{custom.has("subheading") ? custom.text("subheading", "") : <>
             Care That Goes
             <span>Beyond Beauty</span>
-          </h2>
-          <p className={styles.introDescription}>
-            A little time for yourself, with thoughtful treatments and personal
-            attention in a calming space.
+          </>}</h2>
+          <p className={styles.introDescription} data-customization-role="description">
+            {custom.text("description", "A little time for yourself, with thoughtful treatments and personal attention in a calming space.")}
           </p>
-          <Link href="/services" className={styles.servicesLink}>
+          <Link href="/services" className={styles.servicesLink} data-customization-role="primaryButton">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>
             Explore Our Services
-            <ArrowRightIcon className={styles.arrow} />
+            </>}<ArrowRightIcon className={styles.arrow} />
           </Link>
         </div>
 

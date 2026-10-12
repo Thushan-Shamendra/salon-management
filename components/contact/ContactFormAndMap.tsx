@@ -1,5 +1,8 @@
 "use client";
 
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
+
+
 import React, { useState, FormEvent } from "react";
 import Image from "next/image";
 import {
@@ -24,6 +27,8 @@ export default function ContactFormAndMap({
   salonName = "SALVORA Salon",
   email = "info@salvora.lk",
 }: ContactFormAndMapProps) {
+  const custom = useSectionCustomization("message");
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -82,7 +87,7 @@ export default function ContactFormAndMap({
   };
 
   return (
-    <section className="bg-white py-14 sm:py-16 lg:py-20 border-b border-stone-100">
+    <section className="bg-white py-14 sm:py-16 lg:py-20 border-b border-stone-100" data-customization-section="message">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-10 items-stretch">
           {/* ========================================================== */}
@@ -94,21 +99,21 @@ export default function ContactFormAndMap({
                 {/* Eyebrow */}
                 <div className="inline-flex items-center gap-2 mb-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-                  <span className="text-xs font-bold uppercase tracking-[0.22em] text-[#7C3AED]">
+                  <span className="text-xs font-bold uppercase tracking-[0.22em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                     SEND US A MESSAGE
-                  </span>
+                  </>}</span>
                 </div>
 
                 {/* Heading */}
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-stone-900 leading-tight">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-stone-900 leading-tight" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
                   We&apos;d Love to Hear From You
-                </h2>
+                </>}</h2>
 
                 {/* Description */}
-                <p className="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed max-w-xl">
+                <p className="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed max-w-xl" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
                   Have a question or need more information? Complete the details below
                   and we&apos;ll get back to you as soon as possible.
-                </p>
+                </>}</p>
 
                 {/* Success Notification */}
                 {dispatched && (

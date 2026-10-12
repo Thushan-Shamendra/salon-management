@@ -68,6 +68,7 @@ export default function AdminHeader({
     if (pathname.startsWith("/admin/beauticians")) return "Beauticians";
     if (pathname.startsWith("/admin/gallery")) return "Gallery";
     if (pathname.startsWith("/admin/settings")) return "Website Settings";
+    if (pathname.startsWith("/admin/customize")) return "Website Customizer";
     if (pathname.startsWith("/admin/change-password")) return "Change Password";
     return "Admin Portal";
   };
@@ -77,7 +78,7 @@ export default function AdminHeader({
   const adminRole = user?.role === "admin" ? "Administrator" : "Staff";
 
   return (
-    <header className="sticky top-0 z-30 h-20 border-b border-stone-200/90 bg-white/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+    <header data-customization-header="admin" className="sticky top-0 z-30 h-20 border-b border-stone-200/90 bg-white/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 flex items-center justify-between">
       {/* Left: Mobile hamburger & Search input (or title on mobile) */}
       <div className="flex items-center gap-4 flex-1 max-w-md">
         <button
@@ -90,7 +91,7 @@ export default function AdminHeader({
         </button>
 
         {/* Mobile Page Title */}
-        <h2 className="text-lg font-bold text-stone-900 md:hidden">
+        <h2 data-customization-header-text className="text-lg font-bold text-stone-900 md:hidden">
           {dynamicTitle}
         </h2>
 
@@ -134,10 +135,10 @@ export default function AdminHeader({
 
             {/* Name and Role */}
             <div className="hidden sm:block leading-tight">
-              <p className="text-xs font-bold text-stone-900 truncate max-w-[120px]">
+              <p data-customization-header-text className="text-xs font-bold text-stone-900 truncate max-w-[120px]">
                 {adminName}
               </p>
-              <p className="text-[11px] text-stone-500 font-medium">
+              <p data-customization-header-text className="text-[11px] text-stone-500 font-medium">
                 {adminRole}
               </p>
             </div>

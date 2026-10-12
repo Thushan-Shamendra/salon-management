@@ -6,6 +6,7 @@ import {
   CloudinaryFolder,
 } from "@/lib/cloudinary";
 import { getCloudinaryConfig } from "@/lib/integrations/config";
+import { isCustomizationFolder } from "@/lib/customization-registry";
 
 const ADMIN_ONLY_FOLDERS: CloudinaryFolder[] = [
   CLOUDINARY_FOLDERS.SERVICES,
@@ -14,6 +15,7 @@ const ADMIN_ONLY_FOLDERS: CloudinaryFolder[] = [
   CLOUDINARY_FOLDERS.BEAUTICIANS,
   CLOUDINARY_FOLDERS.RETAIL_PRODUCTS,
   CLOUDINARY_FOLDERS.PROMOTIONS,
+  CLOUDINARY_FOLDERS.CUSTOMIZATION_GLOBAL,
 ];
 
 const ALLOWED_FOLDERS = Object.values(CLOUDINARY_FOLDERS);
@@ -75,10 +77,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const requestedFolder = paramsToSign.folder as CloudinaryFolder | undefined;
+    const requestedFolder = typeof paramsToSign.folder === "string" ? paramsToSign.folder as CloudinaryFolder : undefined;
+    const customizationFolder = Boolean(requestedFolder && isCustomizationFolder(requestedFolder));
 
     // 2. Validate folder structure - folder must be specified and in allowed list
-    if (!requestedFolder || !ALLOWED_FOLDERS.includes(requestedFolder)) {
+    if (!requestedFolder || (!(ALLOWED_FOLDERS as readonly string[]).includes(requestedFolder) && !customizationFolder)) {
       return NextResponse.json(
         {
           success: false,
@@ -91,7 +94,7 @@ export async function POST(request: Request) {
     }
 
     // Check admin privileges for administrative folders
-    if (ADMIN_ONLY_FOLDERS.includes(requestedFolder) && user.role !== "admin") {
+    if ((ADMIN_ONLY_FOLDERS.includes(requestedFolder) || customizationFolder) && user.role !== "admin") {
       return NextResponse.json(
         {
           success: false,
@@ -99,6 +102,11 @@ export async function POST(request: Request) {
         },
         { status: 403 }
       );
+    }
+
+    if (customizationFolder && paramsToSign.public_id !== undefined &&
+      (typeof paramsToSign.public_id !== "string" || !/^[a-zA-Z0-9_-]+$/.test(paramsToSign.public_id))) {
+      return NextResponse.json({ success: false, message: "Customization uploads must use a filename within their approved folder" }, { status: 400 });
     }
 
     // 3. Resolve active Cloudinary configuration (Admin Override -> Env -> Not Configured)

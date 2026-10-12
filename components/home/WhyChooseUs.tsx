@@ -1,3 +1,4 @@
+import { CustomizationText } from "@/components/customization/CustomizationProvider";
 import React from "react";
 import {
   ScissorsIcon,
@@ -47,15 +48,15 @@ export default function WhyChooseUs({
   features = DEFAULT_FEATURES,
 }: WhyChooseUsProps = {}) {
   return (
-    <section className="bg-[#FAF8F5] py-16 sm:py-20 lg:py-24 border-t border-stone-200/60">
+    <section className="bg-[#FAF8F5] py-16 sm:py-20 lg:py-24 border-t border-stone-200/60" data-customization-section="why-choose">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Centered Heading */}
         <div className="text-center max-w-xl mx-auto mb-14">
-          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
-            {tag}
+          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">
+            <CustomizationText sectionKey="why-choose" field="eyebrow">{tag}</CustomizationText>
           </span>
-          <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
-            {heading}
+          <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">
+            <CustomizationText sectionKey="why-choose" field="heading">{heading}</CustomizationText>
           </h2>
         </div>
 

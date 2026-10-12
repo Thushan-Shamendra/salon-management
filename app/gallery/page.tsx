@@ -1,5 +1,7 @@
+import { PageCustomization } from "@/components/customization/PageCustomization";
 import React from "react";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import GalleryHero from "@/components/gallery/GalleryHero";
@@ -7,7 +9,7 @@ import GalleryView from "@/components/gallery/GalleryView";
 import { GalleryPhotoItem } from "@/components/gallery/GalleryLightbox";
 import { connectDB } from "@/lib/mongodb";
 import Gallery, { normalizeCropSettings } from "@/models/Gallery";
-import SalonSettings from "@/models/SalonSettings";
+import SalonSettings, { normalizePageVisibility } from "@/models/SalonSettings";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +22,7 @@ export const metadata: Metadata = {
 async function getGalleryData(): Promise<{
   photos: GalleryPhotoItem[];
   bookingUrl: string;
+  isVisible: boolean;
 }> {
   try {
     await connectDB();
@@ -30,6 +33,8 @@ async function getGalleryData(): Promise<{
         .lean(),
       SalonSettings.findOne().lean(),
     ]);
+
+    const isVisible = normalizePageVisibility(settings?.pageVisibility).gallery;
 
     const photos: GalleryPhotoItem[] = rawPhotos.map((p) => {
       const normalizedCrops = normalizeCropSettings(p);
@@ -51,17 +56,22 @@ async function getGalleryData(): Promise<{
 
     const bookingUrl = settings?.externalSystem?.bookingUrl || "";
 
-    return { photos, bookingUrl };
+    return { photos, bookingUrl, isVisible };
   } catch (error) {
     console.error("Failed to load gallery photos on server:", error);
-    return { photos: [], bookingUrl: "" };
+    return { photos: [], bookingUrl: "", isVisible: true };
   }
 }
 
 export default async function PublicGalleryPage() {
-  const { photos, bookingUrl } = await getGalleryData();
+  const { photos, bookingUrl, isVisible } = await getGalleryData();
+
+  if (!isVisible) {
+    notFound();
+  }
 
   return (
+    <PageCustomization scope="public" pageKey="gallery">
     <div className="min-h-screen flex flex-col bg-white text-stone-900 selection:bg-purple-100 selection:text-[#7C3AED]">
       {/* 1. Navbar */}
       <Navbar />
@@ -77,5 +87,6 @@ export default async function PublicGalleryPage() {
       {/* 8. Footer */}
       <Footer />
     </div>
+    </PageCustomization>
   );
 }

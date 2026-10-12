@@ -1,5 +1,8 @@
 "use client";
 
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
+
+
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import { SearchIcon, ImageIcon, ArrowRightIcon } from "@/components/ui/icons";
@@ -12,6 +15,8 @@ interface GalleryViewProps {
 }
 
 export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProps) {
+  const custom = useSectionCustomization("gallery-heading");
+
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -67,26 +72,26 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
       {/* ============================================================== */}
       {/* SECTION 3 - GALLERY INTRODUCTION                                */}
       {/* ============================================================== */}
-      <section className="bg-white pt-16 pb-6 sm:pt-20 sm:pb-8">
+      <section className="bg-white pt-16 pb-6 sm:pt-20 sm:pb-8" data-customization-section="gallery-heading">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
           {/* Label */}
           <div className="inline-flex items-center gap-2 mb-2">
             <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               OUR WORK
-            </span>
+            </>}</span>
           </div>
 
           {/* Heading */}
-          <h2 className="mt-1 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+          <h2 className="mt-1 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             A Glimpse Into Our Salon
-          </h2>
+          </>}</h2>
 
           {/* Description */}
-          <p className="mt-3 text-sm sm:text-base text-stone-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-3 text-sm sm:text-base text-stone-600 max-w-2xl mx-auto leading-relaxed" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
             Discover moments from our salon — hair transformations, treatments, styling
             and more. Each photo reflects the care, skill and attention behind every client experience.
-          </p>
+          </>}</p>
         </div>
       </section>
 
@@ -94,7 +99,7 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
       {/* SECTION 4 - CATEGORY FILTERS                                   */}
       {/* ============================================================== */}
       {categories.length > 1 && (
-        <section className="bg-white pb-10">
+        <section className="bg-white pb-10" data-customization-section="gallery-heading">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
               {categories.map((cat) => {
@@ -122,7 +127,7 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
       {/* ============================================================== */}
       {/* SECTION 5 - MAIN GALLERY GRID (ADAPTIVE REAL-DATA LAYOUT)       */}
       {/* ============================================================== */}
-      <section className="bg-white pb-20 sm:pb-24 lg:pb-28">
+      <section className="bg-white pb-20 sm:pb-24 lg:pb-28" data-customization-section="gallery-heading">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Empty State */}
           {filteredPhotos.length === 0 ? (

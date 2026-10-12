@@ -1,3 +1,4 @@
+import { PageCustomization } from "@/components/customization/PageCustomization";
 import Navbar from "@/components/layout/Navbar";
 import HeroSection from "@/components/home/HeroSection";
 import AboutPreview from "@/components/home/AboutPreview";
@@ -20,7 +21,7 @@ import BranchesPreview, {
 } from "@/components/home/BranchesPreview";
 import Footer from "@/components/layout/Footer";
 import { connectDB } from "@/lib/mongodb";
-import SalonSettings from "@/models/SalonSettings";
+import SalonSettings, { normalizePageVisibility } from "@/models/SalonSettings";
 import Branch from "@/models/Branch";
 import Service from "@/models/Service";
 import WeddingPackage from "@/models/WeddingPackage";
@@ -39,6 +40,7 @@ export default async function HomePage() {
   let homeBranches: HomeBranchCardData[] = [];
   let whatsappNumber = "";
   let salonName = "Salvora";
+  let pageVisibility = normalizePageVisibility(null);
 
   try {
     await connectDB();
@@ -70,12 +72,14 @@ export default async function HomePage() {
         .lean(),
     ]);
 
-    if (settings && settings.salonName) {
-      salonName = settings.salonName;
-    }
-
-    if (settings && settings.externalSystem?.bookingUrl) {
-      bookingUrl = settings.externalSystem.bookingUrl;
+    if (settings) {
+      if (settings.salonName) {
+        salonName = settings.salonName;
+      }
+      if (settings.externalSystem?.bookingUrl) {
+        bookingUrl = settings.externalSystem.bookingUrl;
+      }
+      pageVisibility = normalizePageVisibility(settings.pageVisibility);
     }
 
     const branchDoc = branchDocs.find((b) => b.isMain) || branchDocs[0];
@@ -195,6 +199,7 @@ export default async function HomePage() {
   }
 
   return (
+    <PageCustomization scope="public" pageKey="home">
     <div className="min-h-screen flex flex-col bg-white text-stone-900 selection:bg-purple-200 selection:text-purple-950">
       {/* 1. Navbar */}
       <Navbar />
@@ -209,26 +214,32 @@ export default async function HomePage() {
         {/* 4. Featured Services */}
         <FeaturedServices bookingUrl={bookingUrl} />
 
-        {/* 5. Wedding Beauty Promotional Section */}
-        <WeddingPreview />
-
-        {/* 5b. Wedding Packages Preview Section (Max 3, Real Data Only, Hidden if 0) */}
-        <WeddingPackagesPreview packages={weddingPackages} />
+        {/* 5. Wedding Beauty Promotional Section & Packages Preview */}
+        {pageVisibility.wedding && (
+          <>
+            <WeddingPreview />
+            <WeddingPackagesPreview packages={weddingPackages} />
+          </>
+        )}
 
         {/* 5c. Products Preview Section (Max 4, Real Data Only, Hidden if 0) */}
-        <ProductsPreview
-          products={products}
-          whatsappNumber={whatsappNumber}
-          salonName={salonName}
-        />
+        {pageVisibility.products && (
+          <ProductsPreview
+            products={products}
+            whatsappNumber={whatsappNumber}
+            salonName={salonName}
+          />
+        )}
 
         {/* 5d. Promotions Preview Section (Max 3, Real Data Only, Hidden if 0) */}
-        <PromotionsPreview
-          promotions={promotions}
-          whatsappNumber={whatsappNumber}
-          bookingUrl={bookingUrl}
-          salonName={salonName}
-        />
+        {pageVisibility.promotions && (
+          <PromotionsPreview
+            promotions={promotions}
+            whatsappNumber={whatsappNumber}
+            bookingUrl={bookingUrl}
+            salonName={salonName}
+          />
+        )}
 
         {/* 6. Why Choose Salvora */}
         <WhyChooseUs />
@@ -237,7 +248,7 @@ export default async function HomePage() {
         <BeauticiansPreview />
 
         {/* 7. Gallery preview */}
-        <GalleryPreview />
+        {pageVisibility.gallery && <GalleryPreview />}
 
         {/* 8. Google Reviews preview */}
         <ReviewPreview />
@@ -252,5 +263,6 @@ export default async function HomePage() {
       {/* 11. Footer */}
       <Footer />
     </div>
+    </PageCustomization>
   );
 }

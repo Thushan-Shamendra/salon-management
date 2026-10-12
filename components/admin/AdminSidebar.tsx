@@ -21,6 +21,7 @@ import {
   DatabaseIcon,
   ShoppingBagIcon,
   TagIcon,
+  PaletteIcon,
 } from "@/components/ui/icons";
 
 interface AdminSidebarProps {
@@ -139,6 +140,11 @@ export default function AdminSidebar({
           href: "/admin/backup",
           icon: DatabaseIcon,
         },
+        {
+          name: "Website Customizer",
+          href: "/admin/customize",
+          icon: PaletteIcon,
+        },
       ],
     },
     {
@@ -154,7 +160,7 @@ export default function AdminSidebar({
   ];
 
   const sidebarContent = (
-    <div className="flex h-full flex-col justify-between bg-[#12101C] text-stone-300 select-none">
+    <div data-customization-sidebar className="flex h-full flex-col justify-between bg-[#12101C] text-stone-300 select-none">
       {/* Top Branding Section (Hardcoded Salvora Salon Management Suite Logo) */}
       <div className="relative flex h-24 shrink-0 items-center justify-center px-4 border-b border-white/5">
         <Link
@@ -203,6 +209,7 @@ export default function AdminSidebar({
                 return (
                   <Link
                     key={item.name}
+                    data-customization-active={isActive ? "true" : "false"}
                     href={item.href}
                     onClick={onClose}
                     className={`group flex items-center gap-3.5 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-150 ${

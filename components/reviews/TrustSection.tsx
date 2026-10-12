@@ -1,3 +1,6 @@
+"use client";
+
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 import React from "react";
 import {
   AwardIcon,
@@ -7,6 +10,8 @@ import {
 } from "@/components/ui/icons";
 
 export default function TrustSection() {
+  const custom = useSectionCustomization("trust");
+
   const trustPoints = [
     {
       title: "Professional Care",
@@ -35,23 +40,23 @@ export default function TrustSection() {
   ];
 
   return (
-    <section className="bg-[#FAF8F5] py-16 sm:py-20 lg:py-24 border-b border-stone-200/60">
+    <section className="bg-[#FAF8F5] py-16 sm:py-20 lg:py-24 border-b border-stone-200/60" data-customization-section="trust">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
         <div className="text-center max-w-2xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 mb-2">
             <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               WHY CLIENTS CHOOSE US
-            </span>
+            </>}</span>
           </div>
-          <h2 className="mt-1 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+          <h2 className="mt-1 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             Care You Can Feel
-          </h2>
-          <p className="mt-3 text-xs sm:text-sm text-stone-600 leading-relaxed">
+          </>}</h2>
+          <p className="mt-3 text-xs sm:text-sm text-stone-600 leading-relaxed" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
             Our clients trust us for our professional care, personalized service and
             relaxing experience.
-          </p>
+          </>}</p>
         </div>
 
         {/* 4 Cards Grid */}

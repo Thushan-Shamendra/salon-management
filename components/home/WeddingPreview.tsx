@@ -1,11 +1,16 @@
+"use client";
+
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRightIcon, SparklesIcon } from "@/components/ui/icons";
 
 export default function WeddingPreview() {
+  const custom = useSectionCustomization("wedding-beauty");
+
   return (
-    <section className="relative overflow-hidden bg-[#FAF6FE] py-14 sm:py-16 border-y border-purple-100/80">
+    <section className="relative overflow-hidden bg-[#FAF6FE] py-14 sm:py-16 border-y border-purple-100/80" data-customization-section="wedding-beauty">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Bridal Image */}
@@ -33,30 +38,30 @@ export default function WeddingPreview() {
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100 text-[#7C3AED]">
                 <SparklesIcon className="h-3.5 w-3.5" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-widest text-[#7C3AED]">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                 SPECIAL OCCASIONS
-              </span>
+              </>}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-stone-900 leading-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-stone-900 leading-tight" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
               Wedding Beauty
-            </h2>
+            </>}</h2>
 
-            <p className="text-base sm:text-lg font-medium text-stone-800">
+            <p className="text-base sm:text-lg font-medium text-stone-800" data-customization-role="subheading">{custom.has("subheading") ? custom.text("subheading", "") : <>
               Your special day deserves a look made just for you.
-            </p>
+            </>}</p>
 
-            <p className="text-sm sm:text-base text-stone-600 leading-relaxed max-w-xl">
+            <p className="text-sm sm:text-base text-stone-600 leading-relaxed max-w-xl" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
               Explore bridal makeup, hair styling, nail care, and complete
               wedding packages curated to make you look and feel your most radiant.
-            </p>
+            </>}</p>
 
             <div className="pt-2">
               <Link
                 href="/wedding"
-                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-6 py-3 text-sm font-semibold text-white shadow-md shadow-purple-500/20 transition-all hover:bg-[#6D28D9] hover:shadow-purple-500/35 hover:gap-3 active:scale-[0.98]"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-6 py-3 text-sm font-semibold text-white shadow-md shadow-purple-500/20 transition-all hover:bg-[#6D28D9] hover:shadow-purple-500/35 hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
               >
-                <span>Explore Wedding Services</span>
+                <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Explore Wedding Services</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />
               </Link>
             </div>

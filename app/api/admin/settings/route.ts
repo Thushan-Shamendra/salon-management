@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
-import SalonSettings from "@/models/SalonSettings";
+import SalonSettings, { normalizePageVisibility } from "@/models/SalonSettings";
 import { deleteCloudinaryImage, CLOUDINARY_FOLDERS } from "@/lib/cloudinary";
 
 // Helper to ensure singleton settings exist
@@ -35,10 +35,12 @@ export async function GET() {
 
     await connectDB();
     const settings = await getOrCreateSettings();
+    const settingsObj = settings.toObject();
+    settingsObj.pageVisibility = normalizePageVisibility(settingsObj.pageVisibility);
 
     return NextResponse.json({
       success: true,
-      settings,
+      settings: settingsObj,
     });
   } catch (error) {
     console.error("GET /api/admin/settings error:", error);
@@ -350,6 +352,14 @@ export async function PUT(request: Request) {
       };
     }
 
+    if (body.pageVisibility !== undefined && typeof body.pageVisibility === "object" && body.pageVisibility !== null) {
+      const currentPv = normalizePageVisibility(settings.pageVisibility);
+      settings.pageVisibility = normalizePageVisibility({
+        ...currentPv,
+        ...body.pageVisibility,
+      });
+    }
+
     // 1. Save to MongoDB successfully first
     await settings.save();
 
@@ -360,7 +370,10 @@ export async function PUT(request: Request) {
       revalidatePath("/contact");
       revalidatePath("/about");
       revalidatePath("/services");
+      revalidatePath("/products");
+      revalidatePath("/promotions");
       revalidatePath("/wedding");
+      revalidatePath("/vendors");
       revalidatePath("/gallery");
       revalidatePath("/reviews");
     } catch {
@@ -384,10 +397,13 @@ export async function PUT(request: Request) {
       }
     }
 
+    const updatedObj = settings.toObject();
+    updatedObj.pageVisibility = normalizePageVisibility(updatedObj.pageVisibility);
+
     return NextResponse.json({
       success: true,
       message: "Website settings updated successfully",
-      settings,
+      settings: updatedObj,
     });
   } catch (error) {
     console.error("PUT /api/admin/settings error:", error);
@@ -397,3 +413,72 @@ export async function PUT(request: Request) {
     );
   }
 }
+
+// PATCH /api/admin/settings - ADMIN ONLY: partial update (e.g., pageVisibility only)
+export async function PATCH(request: Request) {
+  try {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    if (user.role !== "admin") {
+      return NextResponse.json(
+        { success: false, message: "Access forbidden. Admin role required." },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+
+    if (!body.pageVisibility || typeof body.pageVisibility !== "object") {
+      return NextResponse.json(
+        { success: false, message: "Invalid pageVisibility payload" },
+        { status: 400 }
+      );
+    }
+
+    await connectDB();
+    const settings = await getOrCreateSettings();
+
+    const currentPv = normalizePageVisibility(settings.pageVisibility);
+    settings.pageVisibility = normalizePageVisibility({
+      ...currentPv,
+      ...body.pageVisibility,
+    });
+
+    await settings.save();
+
+    try {
+      revalidatePath("/", "layout");
+      revalidatePath("/");
+      revalidatePath("/products");
+      revalidatePath("/promotions");
+      revalidatePath("/wedding");
+      revalidatePath("/vendors");
+      revalidatePath("/gallery");
+    } catch {
+      // Ignore in non-Next contexts
+    }
+
+    const updatedObj = settings.toObject();
+    updatedObj.pageVisibility = normalizePageVisibility(updatedObj.pageVisibility);
+
+    return NextResponse.json({
+      success: true,
+      message: "Page visibility updated successfully.",
+      settings: updatedObj,
+    });
+  } catch (error) {
+    console.error("PATCH /api/admin/settings error:", error);
+    return NextResponse.json(
+      { success: false, message: "Unable to update page visibility." },
+      { status: 500 }
+    );
+  }
+}
+

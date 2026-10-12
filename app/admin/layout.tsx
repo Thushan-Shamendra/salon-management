@@ -2,6 +2,9 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { getCurrentUser } from "@/lib/auth";
 import AdminLayoutClient from "@/components/admin/AdminLayoutClient";
+import { getGlobalCustomization, getPageCustomizations } from "@/lib/customization";
+import { getAdminPageKey } from "@/lib/customization-admin-registry";
+import type { GlobalOverrides } from "@/lib/customization-types";
 
 export const metadata = {
   title: "Admin Portal | salvora",
@@ -37,9 +40,23 @@ export default async function AdminLayout({
     redirect("/admin/change-password");
   }
 
+  const initialPageKey = getAdminPageKey(currentPath) || "dashboard";
+  const [allGlobal, initialSections] = await Promise.all([
+    getGlobalCustomization(),
+    getPageCustomizations("admin", initialPageKey),
+  ]);
+  // Keep admin presentation data inside the authenticated portal.
+  const customizationGlobal: GlobalOverrides = {};
+  for (const group of ["adminHeader", "adminSidebar", "adminWebsite"] as const) {
+    if (allGlobal[group]) customizationGlobal[group] = allGlobal[group];
+  }
+
   // 3. Render Admin Portal layout with sidebar & header
   return (
     <AdminLayoutClient
+      customizationGlobal={customizationGlobal}
+      initialPageKey={initialPageKey}
+      initialSections={initialSections}
       user={{
         name: user.name,
         email: user.email,

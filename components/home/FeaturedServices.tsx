@@ -1,5 +1,8 @@
 "use client";
 
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
+
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -18,6 +21,8 @@ const FALLBACK_SERVICE_IMAGES = [
 ];
 
 export default function FeaturedServices({ bookingUrl: propBookingUrl }: FeaturedServicesProps) {
+  const custom = useSectionCustomization("services-preview");
+
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [fetchedBookingUrl, setFetchedBookingUrl] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -95,24 +100,24 @@ export default function FeaturedServices({ bookingUrl: propBookingUrl }: Feature
   };
 
   return (
-    <section className="bg-white py-16 sm:py-20 lg:py-24 border-t border-stone-200/60">
+    <section className="bg-white py-16 sm:py-20 lg:py-24 border-t border-stone-200/60" data-customization-section="services-preview">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               ✦ Our Services
-            </span>
-            <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+            </>}</span>
+            <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
               Treatments Designed Around You
-            </h2>
+            </>}</h2>
           </div>
 
           <Link
             href="/services"
-            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]"
+            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="primaryButton"
           >
-            <span>View All Services</span>
+            <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View All Services</>}</span>
             <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>

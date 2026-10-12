@@ -1,10 +1,12 @@
+import { PageCustomization } from "@/components/customization/PageCustomization";
 import React from "react";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { connectDB } from "@/lib/mongodb";
 import Promotion from "@/models/Promotion";
-import SalonSettings from "@/models/SalonSettings";
+import SalonSettings, { normalizePageVisibility } from "@/models/SalonSettings";
 import Branch from "@/models/Branch";
 import PromotionsHero from "@/components/promotions/PromotionsHero";
 import PromotionsGridSection from "@/components/promotions/PromotionsGridSection";
@@ -33,6 +35,7 @@ export default async function PromotionsPage() {
   let salonName = "Salvora";
   let whatsappNumber = "";
   let bookingUrl = "";
+  let isVisible = true;
 
   try {
     await connectDB();
@@ -54,6 +57,7 @@ export default async function PromotionsPage() {
     ]);
 
     if (settings) {
+      isVisible = normalizePageVisibility(settings.pageVisibility).promotions;
       if (settings.salonName) salonName = settings.salonName;
       if (settings.externalSystem?.bookingUrl) {
         bookingUrl = settings.externalSystem.bookingUrl;
@@ -124,7 +128,12 @@ export default async function PromotionsPage() {
     promotions = [];
   }
 
+  if (!isVisible) {
+    notFound();
+  }
+
   return (
+    <PageCustomization scope="public" pageKey="promotions">
     <div className="min-h-screen flex flex-col bg-[#FAF9FB] text-stone-900">
       <Navbar />
       <main className="flex-1">
@@ -143,5 +152,6 @@ export default async function PromotionsPage() {
       </main>
       <Footer />
     </div>
+    </PageCustomization>
   );
 }

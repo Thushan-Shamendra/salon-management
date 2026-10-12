@@ -1,19 +1,24 @@
+"use client";
+
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function ContactHero() {
+  const custom = useSectionCustomization("hero");
+
   return (
-    <section className="relative overflow-hidden bg-[#0C0A14] text-white py-16 sm:py-20 lg:py-24">
+    <section className="relative overflow-hidden bg-[#0C0A14] text-white py-16 sm:py-20 lg:py-24" data-customization-section="hero">
       {/* Background Salon Client Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/contact-hero.jpg"
+          src={custom.image("/images/contact-hero.jpg")}
           alt="Contact SALVORA Salon"
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center opacity-70 sm:opacity-85"
+          className="object-cover object-center opacity-70 sm:opacity-85" data-customization-role="backgroundImage" unoptimized={Boolean(custom.style.backgroundImage?.url)}
         />
         {/* Controlled gradient overlay for crisp text readability */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#0C0A14] via-[#0C0A14]/90 to-[#0C0A14]/35" />
@@ -24,20 +29,20 @@ export default function ContactHero() {
           {/* Label / Pill */}
           <div className="inline-flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#C4B5FD]">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#C4B5FD]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               GET IN TOUCH
-            </span>
+            </>}</span>
           </div>
 
           {/* Heading */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             Contact Information
-          </h1>
+          </>}</h1>
 
           {/* Short Description */}
-          <p className="text-sm sm:text-base text-stone-200 leading-relaxed font-normal max-w-xl">
+          <p className="text-sm sm:text-base text-stone-200 leading-relaxed font-normal max-w-xl" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
             Choose a SALVORA branch to view its contact details, opening hours, and location.
-          </p>
+          </>}</p>
 
           {/* Breadcrumb Navigation */}
           <nav aria-label="Breadcrumb" className="pt-2 flex items-center gap-2 text-xs font-medium">

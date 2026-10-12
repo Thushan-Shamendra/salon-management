@@ -1,3 +1,4 @@
+import { PageCustomization } from "@/components/customization/PageCustomization";
 import React from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -83,6 +84,7 @@ export default async function ServicesPage() {
   ];
 
   return (
+    <PageCustomization scope="public" pageKey="services">
     <div className="min-h-screen flex flex-col bg-white text-stone-900 selection:bg-purple-100 selection:text-[#7C3AED]">
       {/* 1. Navbar */}
       <Navbar />
@@ -116,5 +118,6 @@ export default async function ServicesPage() {
       {/* 7. Footer */}
       <Footer />
     </div>
+    </PageCustomization>
   );
 }

@@ -1,5 +1,8 @@
 "use client";
 
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
+
+
 import React, { useMemo } from "react";
 import {
   ClockIcon,
@@ -167,6 +170,8 @@ export default function BranchOpeningHours({
   branches = [],
   fallbackSettings,
 }: BranchOpeningHoursProps) {
+  const custom = useSectionCustomization("opening-hours");
+
   const { selectedBranchId, setSelectedBranchId, setSelectedBranchWhatsapp } =
     useBranchContext();
 
@@ -270,24 +275,24 @@ export default function BranchOpeningHours({
     activeBranch?.address || fallbackSettings?.address || "";
 
   return (
-    <section className="bg-[#F8F5FF] py-14 sm:py-16 lg:py-20 border-b border-purple-100/80">
+    <section className="bg-[#F8F5FF] py-14 sm:py-16 lg:py-20 border-b border-purple-100/80" data-customization-section="opening-hours">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
           <div className="inline-flex items-center gap-2 mb-2">
             <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-bold uppercase tracking-[0.22em] text-[#7C3AED]">
+            <span className="text-xs font-bold uppercase tracking-[0.22em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               OPENING HOURS
-            </span>
+            </>}</span>
           </div>
 
-          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-stone-900 leading-tight">
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-stone-900 leading-tight" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             Visit Us at a Time That Works for You
-          </h2>
+          </>}</h2>
 
-          <p className="mt-2.5 text-xs sm:text-sm text-stone-600 leading-relaxed max-w-xl mx-auto">
+          <p className="mt-2.5 text-xs sm:text-sm text-stone-600 leading-relaxed max-w-xl mx-auto" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
             Our opening hours may vary by branch. Select a location to view the weekly schedule.
-          </p>
+          </>}</p>
         </div>
 
         {/* Branch Selector Pills */}

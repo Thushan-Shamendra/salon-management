@@ -1,9 +1,10 @@
+import FooterBackground from "@/components/layout/FooterBackground";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import SalvoraLogo from "@/components/ui/SalvoraLogo";
 import { connectDB } from "@/lib/mongodb";
-import SalonSettings from "@/models/SalonSettings";
+import SalonSettings, { normalizePageVisibility } from "@/models/SalonSettings";
 import Branch from "@/models/Branch";
 import Service from "@/models/Service";
 import WeddingService from "@/models/WeddingService";
@@ -119,6 +120,7 @@ export default async function Footer() {
   }> = [];
 
   let footerLogo = "";
+  let pageVisibility = normalizePageVisibility(null);
 
   try {
     await connectDB();
@@ -131,7 +133,7 @@ export default async function Footer() {
       activeCategories,
     ] = await Promise.all([
       SalonSettings.findOne()
-        .select("salonName logo footerLogo socialMedia")
+        .select("salonName logo footerLogo socialMedia pageVisibility")
         .lean(),
       Branch.find({ isActive: true })
         .sort({ isMain: -1, displayOrder: 1, name: 1 })
@@ -161,6 +163,7 @@ export default async function Footer() {
       if (settings.footerLogo || settings.logo) {
         footerLogo = settings.footerLogo || settings.logo;
       }
+      pageVisibility = normalizePageVisibility(settings.pageVisibility);
       if (settings.socialMedia) {
         const isLegacyBrand = (val?: string) =>
           Boolean(val && val.toLowerCase().includes(String.fromCharCode(108, 117, 109, 105, 110, 97)));
@@ -186,42 +189,44 @@ export default async function Footer() {
     }
 
     // 2. Wedding (preferred max 3 services + max 2 packages, up to 5 combined)
-    const combinedWedding: Array<{ name: string; href: string }> = [
-      ...(Array.isArray(weddingServiceDocs) ? weddingServiceDocs.slice(0, 3) : []).map((w) => ({
-        name: w.name,
-        href: "/wedding",
-      })),
-      ...(Array.isArray(weddingPackageDocs) ? weddingPackageDocs.slice(0, 2) : []).map((p) => ({
-        name: p.name,
-        href: "/wedding",
-      })),
-    ];
+    if (pageVisibility.wedding) {
+      const combinedWedding: Array<{ name: string; href: string }> = [
+        ...(Array.isArray(weddingServiceDocs) ? weddingServiceDocs.slice(0, 3) : []).map((w) => ({
+          name: w.name,
+          href: "/wedding",
+        })),
+        ...(Array.isArray(weddingPackageDocs) ? weddingPackageDocs.slice(0, 2) : []).map((p) => ({
+          name: p.name,
+          href: "/wedding",
+        })),
+      ];
 
-    if (combinedWedding.length < 5) {
-      const existingNames = new Set(combinedWedding.map((i) => i.name));
-      if (Array.isArray(weddingServiceDocs)) {
-        for (const w of weddingServiceDocs) {
-          if (combinedWedding.length >= 5) break;
-          if (!existingNames.has(w.name)) {
-            combinedWedding.push({ name: w.name, href: "/wedding" });
-            existingNames.add(w.name);
+      if (combinedWedding.length < 5) {
+        const existingNames = new Set(combinedWedding.map((i) => i.name));
+        if (Array.isArray(weddingServiceDocs)) {
+          for (const w of weddingServiceDocs) {
+            if (combinedWedding.length >= 5) break;
+            if (!existingNames.has(w.name)) {
+              combinedWedding.push({ name: w.name, href: "/wedding" });
+              existingNames.add(w.name);
+            }
+          }
+        }
+        if (Array.isArray(weddingPackageDocs)) {
+          for (const p of weddingPackageDocs) {
+            if (combinedWedding.length >= 5) break;
+            if (!existingNames.has(p.name)) {
+              combinedWedding.push({ name: p.name, href: "/wedding" });
+              existingNames.add(p.name);
+            }
           }
         }
       }
-      if (Array.isArray(weddingPackageDocs)) {
-        for (const p of weddingPackageDocs) {
-          if (combinedWedding.length >= 5) break;
-          if (!existingNames.has(p.name)) {
-            combinedWedding.push({ name: p.name, href: "/wedding" });
-            existingNames.add(p.name);
-          }
-        }
-      }
+      weddingItems = combinedWedding.slice(0, 5);
     }
-    weddingItems = combinedWedding.slice(0, 5);
 
     // 3. Products Categories (unique active categories from RetailProduct)
-    if (Array.isArray(activeCategories) && activeCategories.length > 0) {
+    if (pageVisibility.products && Array.isArray(activeCategories) && activeCategories.length > 0) {
       const preferredCategoryOrder = [
         "hair_care",
         "skin_care",
@@ -273,30 +278,28 @@ export default async function Footer() {
     // Graceful error handling
   }
 
-  const quickLinks = [
+  const allQuickLinks = [
     { name: "Home", href: "/", icon: HomeIcon },
     { name: "About", href: "/about", icon: UserIcon },
     { name: "Services", href: "/services", icon: SparklesIcon },
-    { name: "Products", href: "/products", icon: ShoppingBagIcon },
-    { name: "Promotions", href: "/promotions", icon: TagIcon },
-    { name: "Wedding", href: "/wedding", icon: HeartIcon },
-    { name: "Vendors", href: "/vendors", icon: UsersIcon },
-    { name: "Gallery", href: "/gallery", icon: ImageIcon },
+    { name: "Products", href: "/products", icon: ShoppingBagIcon, visibilityKey: "products" as const },
+    { name: "Promotions", href: "/promotions", icon: TagIcon, visibilityKey: "promotions" as const },
+    { name: "Wedding", href: "/wedding", icon: HeartIcon, visibilityKey: "wedding" as const },
+    { name: "Vendors", href: "/vendors", icon: UsersIcon, visibilityKey: "vendors" as const },
+    { name: "Gallery", href: "/gallery", icon: ImageIcon, visibilityKey: "gallery" as const },
     { name: "Reviews", href: "/reviews", icon: StarIcon },
     { name: "Contact", href: "/contact", icon: MailIcon },
   ];
 
+  const quickLinks = allQuickLinks.filter(
+    (link) => !link.visibilityKey || pageVisibility[link.visibilityKey]
+  );
+
   return (
-    <footer className="relative overflow-hidden bg-[#07040E] text-stone-300 border-t border-purple-900/30">
+    <footer className="relative overflow-hidden bg-[#07040E] text-stone-300 border-t border-purple-900/30" data-customization-footer="public">
       {/* Background Graphic: Luxury Silk Satin Ribbon Petals in Lower Left Corner */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        <Image
-          src="/images/footer-bg.jpg"
-          alt="Footer background decoration"
-          fill
-          sizes="100vw"
-          className="object-cover object-left-bottom opacity-75"
-        />
+        <FooterBackground />
         <div className="absolute inset-0 bg-gradient-to-t from-[#07040E]/60 via-transparent to-[#07040E]/40" />
       </div>
 
@@ -321,13 +324,13 @@ export default async function Footer() {
               )}
             </Link>
 
-            <p className="text-xs leading-relaxed text-stone-300 max-w-xs">
+            <p className="text-xs leading-relaxed text-stone-300 max-w-xs" data-customization-role="footerText">
               Professional beauty care, modern treatments, and a relaxing salon
               environment at Salvora.
             </p>
 
             {/* Accent divider line */}
-            <div className="h-0.5 w-7 rounded-full bg-[#8B5CF6]" />
+            <div className="h-0.5 w-7 rounded-full bg-[#8B5CF6]" data-customization-role="footerAccent" />
 
             {/* Social Media Links in Purple Badges */}
             <div className="flex items-center gap-2">
@@ -371,17 +374,17 @@ export default async function Footer() {
 
             {/* Slogan */}
             <div className="pt-2 text-[10px] tracking-[0.2em] font-semibold text-purple-300/80 uppercase leading-relaxed">
-              <p>BEAUTY • CARE • CONFIDENCE</p>
-              <p className="text-purple-400 text-[9px] tracking-[0.25em]">ALL IN ONE PLACE</p>
+              <p data-customization-role="footerText">BEAUTY • CARE • CONFIDENCE</p>
+              <p className="text-purple-400 text-[9px] tracking-[0.25em]" data-customization-role="footerText">ALL IN ONE PLACE</p>
             </div>
           </div>
 
           {/* COLUMN 2: Quick Links */}
           <div className="lg:col-span-2 xl:col-span-2 min-w-0">
-            <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white">
+            <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white" data-customization-role="footerHeading">
               Quick Links
             </h4>
-            <div className="h-0.5 w-7 rounded-full bg-[#8B5CF6] mt-2 mb-4" />
+            <div className="h-0.5 w-7 rounded-full bg-[#8B5CF6] mt-2 mb-4" data-customization-role="footerAccent" />
             <ul className="space-y-2 text-xs">
               {quickLinks.map((link) => {
                 const IconComponent = link.icon;
@@ -389,10 +392,10 @@ export default async function Footer() {
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="group flex items-center gap-2.5 text-stone-300 hover:text-white transition-colors py-0.5"
+                      className="group flex items-center gap-2.5 text-stone-300 hover:text-white transition-colors py-0.5" data-customization-role="footerLink"
                     >
                       <IconComponent className="h-3.5 w-3.5 text-[#C4B5FD] group-hover:text-white transition-colors shrink-0" />
-                      <span className="truncate">{link.name}</span>
+                      <span className="truncate" data-customization-role="footerText">{link.name}</span>
                     </Link>
                   </li>
                 );
@@ -406,18 +409,18 @@ export default async function Footer() {
               {/* Our Services */}
               {serviceLinks.length > 0 && (
                 <div>
-                  <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white">
+                  <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white" data-customization-role="footerHeading">
                     Our Services
                   </h4>
-                  <div className="h-0.5 w-7 rounded-full bg-[#8B5CF6] mt-2 mb-3.5" />
+                  <div className="h-0.5 w-7 rounded-full bg-[#8B5CF6] mt-2 mb-3.5" data-customization-role="footerAccent" />
                   <ul className="space-y-2 text-xs">
                     {serviceLinks.map((service, idx) => (
                       <li key={idx}>
                         <Link
                           href={service.href}
-                          className="group flex items-center justify-between gap-1 text-stone-300 hover:text-white transition-colors py-0.5"
+                          className="group flex items-center justify-between gap-1 text-stone-300 hover:text-white transition-colors py-0.5" data-customization-role="footerLink"
                         >
-                          <span className="truncate group-hover:text-white transition-colors">
+                          <span className="truncate group-hover:text-white transition-colors" data-customization-role="footerText">
                             {service.name}
                           </span>
                           <ChevronRightIcon className="h-3 w-3 text-stone-500 group-hover:text-[#C4B5FD] transition-colors shrink-0" />
@@ -427,9 +430,9 @@ export default async function Footer() {
                     <li className="pt-2">
                       <Link
                         href="/services"
-                        className="text-[#C084FC] hover:text-white transition-colors font-semibold text-xs sm:text-sm inline-flex items-center gap-1.5"
+                        className="text-[#C084FC] hover:text-white transition-colors font-semibold text-xs sm:text-sm inline-flex items-center gap-1.5" data-customization-role="footerLink"
                       >
-                        <span>View All Services</span>
+                        <span data-customization-role="footerText">View All Services</span>
                         <ArrowRightIcon className="h-3.5 w-3.5" />
                       </Link>
                     </li>
@@ -440,18 +443,18 @@ export default async function Footer() {
               {/* Wedding (Under Our Services) */}
               {weddingItems.length > 0 && (
                 <div>
-                  <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white">
+                  <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white" data-customization-role="footerHeading">
                     Wedding
                   </h4>
-                  <div className="h-0.5 w-7 rounded-full bg-[#8B5CF6] mt-2 mb-3.5" />
+                  <div className="h-0.5 w-7 rounded-full bg-[#8B5CF6] mt-2 mb-3.5" data-customization-role="footerAccent" />
                   <ul className="space-y-2 text-xs">
                     {weddingItems.map((item, idx) => (
                       <li key={idx}>
                         <Link
                           href={item.href}
-                          className="group flex items-center justify-between gap-1 text-stone-300 hover:text-white transition-colors py-0.5"
+                          className="group flex items-center justify-between gap-1 text-stone-300 hover:text-white transition-colors py-0.5" data-customization-role="footerLink"
                         >
-                          <span className="truncate group-hover:text-white transition-colors">
+                          <span className="truncate group-hover:text-white transition-colors" data-customization-role="footerText">
                             {item.name}
                           </span>
                           <ChevronRightIcon className="h-3 w-3 text-stone-500 group-hover:text-[#C4B5FD] transition-colors shrink-0" />
@@ -461,9 +464,9 @@ export default async function Footer() {
                     <li className="pt-2">
                       <Link
                         href="/wedding"
-                        className="text-[#C084FC] hover:text-white transition-colors font-semibold text-xs sm:text-sm inline-flex items-center gap-1.5"
+                        className="text-[#C084FC] hover:text-white transition-colors font-semibold text-xs sm:text-sm inline-flex items-center gap-1.5" data-customization-role="footerLink"
                       >
-                        <span>View Wedding Services</span>
+                        <span data-customization-role="footerText">View Wedding Services</span>
                         <ArrowRightIcon className="h-3.5 w-3.5" />
                       </Link>
                     </li>
@@ -476,18 +479,18 @@ export default async function Footer() {
           {/* COLUMN 4: Our Products */}
           {productCategoryLinks.length > 0 && (
             <div className="lg:col-span-2 xl:col-span-2 min-w-0">
-              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white">
+              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white" data-customization-role="footerHeading">
                 Our Products
               </h4>
-              <div className="h-0.5 w-7 rounded-full bg-[#8B5CF6] mt-2 mb-4" />
+              <div className="h-0.5 w-7 rounded-full bg-[#8B5CF6] mt-2 mb-4" data-customization-role="footerAccent" />
               <ul className="space-y-2 text-xs">
                 {productCategoryLinks.map((product, idx) => (
                   <li key={idx}>
                     <Link
                       href={product.href}
-                      className="group flex items-center justify-between gap-1 text-stone-300 hover:text-white transition-colors py-0.5"
+                      className="group flex items-center justify-between gap-1 text-stone-300 hover:text-white transition-colors py-0.5" data-customization-role="footerLink"
                     >
-                      <span className="truncate group-hover:text-white transition-colors">
+                      <span className="truncate group-hover:text-white transition-colors" data-customization-role="footerText">
                         {product.name}
                       </span>
                       <ChevronRightIcon className="h-3 w-3 text-stone-500 group-hover:text-[#C4B5FD] transition-colors shrink-0" />
@@ -497,9 +500,9 @@ export default async function Footer() {
                 <li className="pt-2">
                   <Link
                     href="/products"
-                    className="text-[#C084FC] hover:text-white transition-colors font-semibold text-xs sm:text-sm inline-flex items-center gap-1.5"
+                    className="text-[#C084FC] hover:text-white transition-colors font-semibold text-xs sm:text-sm inline-flex items-center gap-1.5" data-customization-role="footerLink"
                   >
-                    <span>View All Products</span>
+                    <span data-customization-role="footerText">View All Products</span>
                     <ArrowRightIcon className="h-3.5 w-3.5" />
                   </Link>
                 </li>
@@ -511,10 +514,10 @@ export default async function Footer() {
           {branches.length > 0 && (
             <div className="space-y-4 lg:col-span-12 xl:col-span-4 min-w-0">
               <div>
-                <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white">
+                <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white" data-customization-role="footerHeading">
                   Our Branches
                 </h4>
-                <div className="h-0.5 w-7 rounded-full bg-[#8B5CF6] mt-2 mb-4" />
+                <div className="h-0.5 w-7 rounded-full bg-[#8B5CF6] mt-2 mb-4" data-customization-role="footerAccent" />
               </div>
 
               {/* Branch Cards: 2 cards side by side on desktop/tablet */}
@@ -610,9 +613,9 @@ export default async function Footer() {
               <div className="pt-2">
                 <Link
                   href="/contact"
-                  className="text-[#C084FC] hover:text-white transition-colors font-semibold text-xs sm:text-sm inline-flex items-center gap-1.5"
+                  className="text-[#C084FC] hover:text-white transition-colors font-semibold text-xs sm:text-sm inline-flex items-center gap-1.5" data-customization-role="footerLink"
                 >
-                  <span>View All Branches</span>
+                  <span data-customization-role="footerText">View All Branches</span>
                   <ArrowRightIcon className="h-3.5 w-3.5" />
                 </Link>
               </div>
@@ -642,23 +645,23 @@ export default async function Footer() {
 
         {/* Bottom Bar - Unchanged */}
         <div className="mt-14 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
-          <p>
+          <p data-customization-role="footerText">
             © {currentYear} Salvora. A Product of{" "}
             <a
               href="https://raxwo.net/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-stone-300 font-medium hover:text-[#C4B5FD] hover:underline transition-colors"
+              className="text-stone-300 font-medium hover:text-[#C4B5FD] hover:underline transition-colors" data-customization-role="footerLink"
             >
               Raxwo (Pvt) Ltd
             </a>
             . All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="hover:text-stone-300 transition-colors">
+            <Link href="/privacy" className="hover:text-stone-300 transition-colors" data-customization-role="footerLink">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="hover:text-stone-300 transition-colors">
+            <Link href="/terms" className="hover:text-stone-300 transition-colors" data-customization-role="footerLink">
               Terms & Conditions
             </Link>
           </div>

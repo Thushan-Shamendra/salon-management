@@ -26,6 +26,7 @@ import TopPages, { TopPageItem } from "@/components/admin/analytics/TopPages";
 import BranchPerformance, { BranchPerformanceItem } from "@/components/admin/analytics/BranchPerformance";
 import WebsiteHealth, { WebsiteHealthData } from "@/components/admin/analytics/WebsiteHealth";
 import RecentActivity, { RecentActivityItem } from "@/components/admin/analytics/RecentActivity";
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 
 type DateRange = "today" | "7d" | "30d";
 
@@ -80,6 +81,7 @@ interface AnalyticsData {
 }
 
 export default function AdminDashboardPage() {
+  const customization = useSectionCustomization("page");
   const [range, setRange] = useState<DateRange>("30d");
   const [contentStats, setContentStats] = useState<ContentStats | null>(null);
   const [websiteHealth, setWebsiteHealth] = useState<WebsiteHealthData | null>(null);
@@ -205,15 +207,15 @@ export default function AdminDashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-stone-200/80 pb-5">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900">
-              SALVORA Salon Dashboard
+            <h1 data-customization-role="heading" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900">
+              {customization.text("heading", "SALVORA Salon Dashboard")}
             </h1>
             <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-bold text-[#7C3AED]">
               Live
             </span>
           </div>
-          <p className="mt-1 text-xs sm:text-sm text-stone-500">
-            Executive overview of your salon content, branch operations, and customer analytics.
+          <p data-customization-role="description" data-customization-admin-body className="mt-1 text-xs sm:text-sm text-stone-500">
+            {customization.text("description", "Executive overview of your salon content, branch operations, and customer analytics.")}
           </p>
         </div>
 
@@ -278,7 +280,7 @@ export default function AdminDashboardPage() {
       <div>
         <div className="flex items-center justify-between mb-3.5">
           <div>
-            <h2 className="text-base font-bold text-stone-900">Salon Content Overview</h2>
+            <h2 data-customization-role="sectionHeading" className="text-base font-bold text-stone-900">Salon Content Overview</h2>
             <p className="text-xs text-stone-500">
               Live records across all salon operations and public website catalogs
             </p>
@@ -459,7 +461,7 @@ export default function AdminDashboardPage() {
       <div>
         <div className="flex items-center justify-between mb-3.5">
           <div>
-            <h2 className="text-base font-bold text-stone-900">Website Engagement</h2>
+            <h2 data-customization-role="sectionHeading" className="text-base font-bold text-stone-900">Website Engagement</h2>
             <p className="text-xs text-stone-500">
               First-party traffic and conversion metrics for {range === "today" ? "today" : `the past ${range.replace("d", " days")}`}
             </p>
@@ -699,7 +701,7 @@ export default function AdminDashboardPage() {
       <div className="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-xs">
         <div className="flex items-center gap-2 mb-1">
           <CheckCircleIcon className="h-5 w-5 text-emerald-600" />
-          <h2 className="text-base font-bold text-stone-900">Quick Actions</h2>
+          <h2 data-customization-role="sectionHeading" className="text-base font-bold text-stone-900">Quick Actions</h2>
         </div>
         <p className="text-xs text-stone-500 mb-5">
           Fast shortcuts to manage branches, services, staff, brands, and settings.

@@ -1,3 +1,6 @@
+"use client";
+
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 import React from "react";
 import Image from "next/image";
 import { ArrowRightIcon } from "@/components/ui/icons";
@@ -10,16 +13,18 @@ interface WeddingConsultationCTAProps {
 export default function WeddingConsultationCTA({
   bookingUrl = "",
 }: WeddingConsultationCTAProps) {
+  const custom = useSectionCustomization("consultation-cta");
+
   return (
-    <section className="relative overflow-hidden bg-[#0C0A14] text-white py-20 sm:py-24 lg:py-28">
+    <section className="relative overflow-hidden bg-[#0C0A14] text-white py-20 sm:py-24 lg:py-28" data-customization-section="consultation-cta">
       {/* Background Banner with Dark Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/wedding-consultation-cta.png"
+          src={custom.image("/images/wedding-consultation-cta.png")}
           alt="Wedding Consultation"
           fill
           sizes="100vw"
-          className="object-cover object-center opacity-70 sm:opacity-85"
+          className="object-cover object-center opacity-70 sm:opacity-85" data-customization-role="backgroundImage" unoptimized={Boolean(custom.style.backgroundImage?.url)}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0C0A14]/95 via-[#0C0A14]/75 to-[#0C0A14]/35" />
       </div>
@@ -29,21 +34,21 @@ export default function WeddingConsultationCTA({
           {/* Label / Pill with Signature Dot */}
           <div className="inline-flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#C4B5FD]">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#C4B5FD]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               LET&apos;S PLAN YOUR PERFECT LOOK
-            </span>
+            </>}</span>
           </div>
 
           {/* Heading */}
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             Book Your Wedding Beauty Consultation
-          </h2>
+          </>}</h2>
 
           {/* Description */}
-          <p className="text-base sm:text-lg text-stone-200 leading-relaxed font-normal max-w-xl">
+          <p className="text-base sm:text-lg text-stone-200 leading-relaxed font-normal max-w-xl" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
             Schedule a personalized consultation with our bridal experts and let
             us bring your dream look to life.
-          </p>
+          </>}</p>
 
           {/* Button */}
           <div className="pt-3">
@@ -59,9 +64,9 @@ export default function WeddingConsultationCTA({
                     },
                   });
                 }}
-                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-9 py-4 text-sm font-semibold text-white shadow-xl shadow-purple-600/40 transition-all hover:bg-[#6D28D9] hover:shadow-purple-600/60 hover:gap-3 active:scale-[0.98]"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-9 py-4 text-sm font-semibold text-white shadow-xl shadow-purple-600/40 transition-all hover:bg-[#6D28D9] hover:shadow-purple-600/60 hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
               >
-                <span>Book Consultation</span>
+                <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Book Consultation</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />
               </a>
             ) : (
@@ -69,9 +74,9 @@ export default function WeddingConsultationCTA({
                 type="button"
                 disabled
                 title="Online booking link not yet configured"
-                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED]/60 px-9 py-4 text-sm font-semibold text-white/80 cursor-not-allowed shadow-none"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED]/60 px-9 py-4 text-sm font-semibold text-white/80 cursor-not-allowed shadow-none" data-customization-role="primaryButton"
               >
-                <span>Book Consultation</span>
+                <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Book Consultation</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />
               </button>
             )}

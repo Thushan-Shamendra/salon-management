@@ -49,7 +49,8 @@ export async function DELETE(request: Request) {
         trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.GALLERY) ||
         trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.BEAUTICIANS) ||
         trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.RETAIL_PRODUCTS) ||
-        trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.PROMOTIONS)) &&
+        trimmedPublicId.startsWith(CLOUDINARY_FOLDERS.PROMOTIONS) ||
+        trimmedPublicId.startsWith("salon-management/customization/")) &&
       user.role !== "admin"
     ) {
       return NextResponse.json(

@@ -209,7 +209,7 @@ export default function BranchContactSection({
   // Render Skeleton when initially loading
   if (loading) {
     return (
-      <section className="bg-white py-12 sm:py-16 border-b border-stone-100">
+      <section className="bg-white py-12 sm:py-16 border-b border-stone-100" data-customization-section="branch-contact">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="animate-pulse space-y-8">
             <div className="flex gap-3 justify-center">
@@ -237,7 +237,7 @@ export default function BranchContactSection({
   const branchAddress = selectedBranch ? selectedBranch.address : fallbackSettings?.address || "";
 
   return (
-    <section className="bg-white py-12 sm:py-16 lg:py-20 border-b border-stone-100">
+    <section className="bg-white py-12 sm:py-16 lg:py-20 border-b border-stone-100" data-customization-section="branch-contact">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* ========================================================== */}
         {/* BRANCH SELECTOR TABS (WHEN BRANCH RECORDS EXIST)           */}

@@ -1,3 +1,4 @@
+import { PageCustomization } from "@/components/customization/PageCustomization";
 import React from "react";
 import type { Metadata } from "next";
 import Navbar from "@/components/layout/Navbar";
@@ -32,6 +33,7 @@ export default async function ReviewsPage() {
   const bookingUrl = await getBookingUrl();
 
   return (
+    <PageCustomization scope="public" pageKey="reviews">
     <div className="min-h-screen flex flex-col bg-white text-stone-900 selection:bg-purple-100 selection:text-[#7C3AED]">
       {/* 1. Navbar */}
       <Navbar />
@@ -58,5 +60,6 @@ export default async function ReviewsPage() {
       {/* 7. Footer */}
       <Footer />
     </div>
+    </PageCustomization>
   );
 }

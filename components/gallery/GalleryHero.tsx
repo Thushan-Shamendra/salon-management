@@ -1,19 +1,24 @@
+"use client";
+
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function GalleryHero() {
+  const custom = useSectionCustomization("hero");
+
   return (
-    <section className="relative overflow-hidden bg-[#0C0A14] text-white py-16 sm:py-20 lg:py-24">
+    <section className="relative overflow-hidden bg-[#0C0A14] text-white py-16 sm:py-20 lg:py-24" data-customization-section="hero">
       {/* Background Salon Treatment / Transformation Photo */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/gallery-hero.jpg"
+          src={custom.image("/images/gallery-hero.jpg")}
           alt="Salvora Salon Transformations Gallery"
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center opacity-70 sm:opacity-85"
+          className="object-cover object-center opacity-70 sm:opacity-85" data-customization-role="backgroundImage" unoptimized={Boolean(custom.style.backgroundImage?.url)}
         />
         {/* Controlled gradient overlay for crisp text readability */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#0C0A14] via-[#0C0A14]/90 to-[#0C0A14]/35" />
@@ -24,24 +29,24 @@ export default function GalleryHero() {
           {/* Label / Pill */}
           <div className="inline-flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#C4B5FD]">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#C4B5FD]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               OUR GALLERY
-            </span>
+            </>}</span>
           </div>
 
           {/* Heading */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
-            Moments of Beauty{" "}
-            <span className="block bg-gradient-to-r from-[#C4B5FD] via-[#A78BFA] to-[#8B5CF6] bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
+            Moments of Beauty{" "}</>}
+            <span className="block bg-gradient-to-r from-[#C4B5FD] via-[#A78BFA] to-[#8B5CF6] bg-clip-text text-transparent" data-customization-role="highlight">{custom.has("highlightedText") ? custom.text("highlightedText", "") : <>
               Real Transformations
-            </span>
+            </>}</span>
           </h1>
 
           {/* Short Description */}
-          <p className="text-sm sm:text-base text-stone-200 leading-relaxed font-normal max-w-xl">
+          <p className="text-sm sm:text-base text-stone-200 leading-relaxed font-normal max-w-xl" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
             Explore our gallery of real salon moments, treatments, styling and
             client transformations at Salvora.
-          </p>
+          </>}</p>
 
           {/* Breadcrumb Navigation */}
           <nav aria-label="Breadcrumb" className="pt-2 flex items-center gap-2 text-xs font-medium">

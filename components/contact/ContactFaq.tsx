@@ -1,5 +1,8 @@
 "use client";
 
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
+
+
 import React, { useState } from "react";
 import Image from "next/image";
 import { PlusIcon, MinusIcon } from "@/components/ui/icons";
@@ -9,6 +12,8 @@ interface ContactFaqProps {
 }
 
 export default function ContactFaq({ address = "" }: ContactFaqProps) {
+  const custom = useSectionCustomization("quick-information");
+
   const [openIndex, setOpenIndex] = useState<number | null>(0); // First open by default
 
   const faqs = [
@@ -40,7 +45,7 @@ export default function ContactFaq({ address = "" }: ContactFaqProps) {
   };
 
   return (
-    <section className="bg-white py-16 sm:py-20 lg:py-24 border-b border-stone-100">
+    <section className="bg-white py-16 sm:py-20 lg:py-24 border-b border-stone-100" data-customization-section="quick-information">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           {/* Left Column: Modern Salon Interior Image (Matches Mockup) */}
@@ -63,21 +68,21 @@ export default function ContactFaq({ address = "" }: ContactFaqProps) {
               {/* Label */}
               <div className="inline-flex items-center gap-2 mb-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                   FREQUENTLY ASKED
-                </span>
+                </>}</span>
               </div>
 
               {/* Heading */}
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900 leading-tight">
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900 leading-tight" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
                 Quick Information
-              </h2>
+              </>}</h2>
 
               {/* Subtitle */}
-              <p className="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+              <p className="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
                 Here are some common questions to help you get started. If you need
                 further assistance, feel free to contact us.
-              </p>
+              </>}</p>
             </div>
 
             {/* Accordion List */}

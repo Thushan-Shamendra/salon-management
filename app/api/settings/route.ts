@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import SalonSettings from "@/models/SalonSettings";
+import SalonSettings, { normalizePageVisibility } from "@/models/SalonSettings";
 
 // GET /api/settings - Public access to salon configuration
 export async function GET() {
@@ -14,6 +14,7 @@ export async function GET() {
         settings: {
           salonName: "LUMINA Luxury Salon",
           logo: "",
+          pageVisibility: normalizePageVisibility(null),
         },
       });
     }
@@ -40,6 +41,7 @@ export async function GET() {
           registerUrl: "",
           bookingUrl: "",
         },
+        pageVisibility: normalizePageVisibility(settings.pageVisibility),
       },
     });
   } catch (error) {

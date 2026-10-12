@@ -1,11 +1,16 @@
+"use client";
+
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRightIcon, SparklesIcon, HeartIcon } from "@/components/ui/icons";
 
 export default function AboutPreview() {
+  const custom = useSectionCustomization("about-preview");
+
   return (
-    <section className="relative overflow-hidden bg-[#FAF8F5] py-16 sm:py-20 lg:py-24">
+    <section className="relative overflow-hidden bg-[#FAF8F5] py-16 sm:py-20 lg:py-24" data-customization-section="about-preview">
       {/* Subtle Decorative Botanical Accent */}
       <div
         className="pointer-events-none absolute right-0 top-8 w-60 h-80 opacity-25 text-purple-200 hidden xl:block"
@@ -38,23 +43,23 @@ export default function AboutPreview() {
           <div className="lg:col-span-6 space-y-5">
             {/* Tag: About Salvora */}
             <div className="inline-flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                 ✦ About Salvora
-              </span>
+              </>}</span>
             </div>
 
             {/* Heading */}
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-stone-900 leading-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-stone-900 leading-tight" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
               Where Beauty<br />
               Meets Confidence
-            </h2>
+            </>}</h2>
 
             {/* Introduction Paragraph */}
-            <p className="text-base sm:text-lg text-stone-600 leading-relaxed font-normal">
+            <p className="text-base sm:text-lg text-stone-600 leading-relaxed font-normal" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
               At Salvora, we believe beauty is more than a look — it&apos;s a feeling.
               Our professional team is dedicated to bringing out your natural beauty
               with personalized care and modern techniques.
-            </p>
+            </>}</p>
 
             {/* Feature Highlights for perfect vertical balance */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -76,9 +81,9 @@ export default function AboutPreview() {
             <div className="pt-3">
               <Link
                 href="/about"
-                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-8 py-3.5 text-sm font-semibold text-white shadow-md shadow-purple-500/20 transition-all hover:bg-[#6D28D9] hover:shadow-purple-500/35 hover:gap-3 active:scale-[0.98]"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-8 py-3.5 text-sm font-semibold text-white shadow-md shadow-purple-500/20 transition-all hover:bg-[#6D28D9] hover:shadow-purple-500/35 hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
               >
-                <span>Discover Our Story</span>
+                <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Discover Our Story</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />
               </Link>
             </div>

@@ -1,6 +1,10 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { ChevronRightIcon } from "@/components/ui/icons";
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
+import AdminButton from "./AdminButton";
 
 interface BreadcrumbItem {
   label: string;
@@ -20,6 +24,25 @@ export default function AdminPageHeader({
   breadcrumbs,
   action,
 }: AdminPageHeaderProps) {
+  const customization = useSectionCustomization("page");
+  // Only the explicit page-header action is editable. Never walk form buttons,
+  // table rows, icons or destructive actions elsewhere in the page.
+  let presentationAction = action;
+  if (React.isValidElement<{ children?: React.ReactNode; variant?: string }>(action) &&
+      (action.type === "button" || action.type === AdminButton) && action.props.variant !== "danger") {
+    const children = React.Children.map(action.props.children, (child) => {
+      if (!customization.has("primaryButtonText")) return child;
+      if (typeof child === "string") return customization.text("primaryButtonText", child);
+      if (React.isValidElement<{ children?: React.ReactNode }>(child) && child.type === "span" && typeof child.props.children === "string") {
+        return React.cloneElement(child, {}, customization.text("primaryButtonText", child.props.children));
+      }
+      return child;
+    });
+    presentationAction = React.cloneElement(action as React.ReactElement<Record<string, unknown>>, {
+      "data-customization-role": "primaryButton",
+      "data-customization-admin-primary": "true",
+    }, children);
+  }
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
       <div>
@@ -52,18 +75,18 @@ export default function AdminPageHeader({
           </nav>
         )}
 
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900">
-          {title}
+        <h1 data-customization-role="heading" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900">
+          {customization.text("heading", title)}
         </h1>
 
         {description && (
-          <p className="mt-1 text-xs sm:text-sm text-stone-600 max-w-2xl leading-relaxed">
-            {description}
+          <p data-customization-role="description" data-customization-admin-body className="mt-1 text-xs sm:text-sm text-stone-600 max-w-2xl leading-relaxed">
+            {customization.text("description", description)}
           </p>
         )}
       </div>
 
-      {action && <div className="flex items-center gap-3 shrink-0">{action}</div>}
+      {presentationAction && <div className="flex items-center gap-3 shrink-0">{presentationAction}</div>}
     </div>
   );
 }

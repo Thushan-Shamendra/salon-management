@@ -22,7 +22,7 @@ export default function ServicesGrid({
   };
 
   return (
-    <section className="bg-white pb-20 sm:pb-24 lg:pb-28">
+    <section className="bg-white pb-20 sm:pb-24 lg:pb-28" data-customization-section="services-grid">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Empty State */}
         {services.length === 0 ? (

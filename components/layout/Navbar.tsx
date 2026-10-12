@@ -18,6 +18,14 @@ interface ExternalSystemLinks {
   bookingUrl: string;
 }
 
+interface PageVisibilityLinks {
+  products: boolean;
+  promotions: boolean;
+  wedding: boolean;
+  vendors: boolean;
+  gallery: boolean;
+}
+
 export default function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -28,6 +36,13 @@ export default function Navbar() {
     loginUrl: "",
     registerUrl: "",
     bookingUrl: "",
+  });
+  const [pageVisibility, setPageVisibility] = useState<PageVisibilityLinks>({
+    products: true,
+    promotions: true,
+    wedding: true,
+    vendors: true,
+    gallery: true,
   });
 
   // Fetch external system links and branding from Website Settings
@@ -50,6 +65,16 @@ export default function Navbar() {
               bookingUrl: data.settings.externalSystem.bookingUrl || "",
             });
           }
+          if (data.settings.pageVisibility) {
+            const pv = data.settings.pageVisibility;
+            setPageVisibility({
+              products: pv.products !== undefined ? Boolean(pv.products) : true,
+              promotions: pv.promotions !== undefined ? Boolean(pv.promotions) : true,
+              wedding: pv.wedding !== undefined ? Boolean(pv.wedding) : true,
+              vendors: pv.vendors !== undefined ? Boolean(pv.vendors) : true,
+              gallery: pv.gallery !== undefined ? Boolean(pv.gallery) : true,
+            });
+          }
         }
       })
       .catch(() => {});
@@ -68,18 +93,22 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navLinks = [
+  const allNavLinks = [
     { name: "Home", href: "/" },
     { name: "Services", href: "/services" },
-    { name: "Products", href: "/products" },
-    { name: "Promotions", href: "/promotions" },
+    { name: "Products", href: "/products", visibilityKey: "products" as const },
+    { name: "Promotions", href: "/promotions", visibilityKey: "promotions" as const },
     { name: "About", href: "/about" },
-    { name: "Wedding", href: "/wedding" },
-    { name: "Vendors", href: "/vendors" },
-    { name: "Gallery", href: "/gallery" },
+    { name: "Wedding", href: "/wedding", visibilityKey: "wedding" as const },
+    { name: "Vendors", href: "/vendors", visibilityKey: "vendors" as const },
+    { name: "Gallery", href: "/gallery", visibilityKey: "gallery" as const },
     { name: "Reviews", href: "/reviews" },
     { name: "Contact", href: "/contact" },
   ];
+
+  const navLinks = allNavLinks.filter(
+    (link) => !link.visibilityKey || pageVisibility[link.visibilityKey]
+  );
 
   return (
     <header
@@ -87,7 +116,7 @@ export default function Navbar() {
         isScrolled
           ? "bg-white/95 backdrop-blur-md shadow-xs border-b border-stone-200/70"
           : "bg-white border-b border-stone-100"
-      }`}
+      }`} data-customization-header="public"
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 h-20">
         {/* SALVORA Brand Logo */}
@@ -120,11 +149,11 @@ export default function Navbar() {
                   isActive
                     ? "text-[#7C3AED] font-semibold"
                     : "text-stone-700"
-                }`}
+                }`} data-customization-active={isActive}
               >
                 {link.name}
                 {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7C3AED] rounded-full" />
+                  <span data-customization-role="headerAccent" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7C3AED] rounded-full" />
                 )}
               </Link>
             );
@@ -163,7 +192,7 @@ export default function Navbar() {
                   },
                 });
               }}
-              className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-[#6D28D9] hover:shadow-md hover:shadow-purple-500/20 active:scale-[0.98]"
+              className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-[#6D28D9] hover:shadow-md hover:shadow-purple-500/20 active:scale-[0.98]" data-customization-role="primaryButton"
             >
               <span>Book Appointment</span>
               <ArrowRightIcon className="h-4 w-4" />
@@ -173,7 +202,7 @@ export default function Navbar() {
               type="button"
               disabled
               title="Online booking link not yet configured"
-              className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED]/50 px-6 py-2.5 text-sm font-medium text-white/80 cursor-not-allowed shadow-none"
+              className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED]/50 px-6 py-2.5 text-sm font-medium text-white/80 cursor-not-allowed shadow-none" data-customization-role="primaryButton"
             >
               <span>Book Appointment</span>
               <ArrowRightIcon className="h-4 w-4" />
@@ -195,7 +224,7 @@ export default function Navbar() {
                   },
                 });
               }}
-              className="rounded-full bg-[#7C3AED] px-4 py-2 text-xs font-medium text-white shadow-xs hover:bg-[#6D28D9]"
+              className="rounded-full bg-[#7C3AED] px-4 py-2 text-xs font-medium text-white shadow-xs hover:bg-[#6D28D9]" data-customization-role="primaryButton"
             >
               Book
             </a>
@@ -231,7 +260,7 @@ export default function Navbar() {
                     isActive
                       ? "bg-purple-50 text-[#7C3AED] font-semibold"
                       : "text-stone-800 hover:bg-stone-50 hover:text-[#7C3AED]"
-                  }`}
+                  }`} data-customization-active={isActive}
                 >
                   <span>{link.name}</span>
                   <ArrowRightIcon className="h-3.5 w-3.5 opacity-60" />
@@ -254,7 +283,7 @@ export default function Navbar() {
                     },
                   });
                 }}
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-[#7C3AED] py-3 text-sm font-medium text-white shadow-sm hover:bg-[#6D28D9] transition-colors"
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-[#7C3AED] py-3 text-sm font-medium text-white shadow-sm hover:bg-[#6D28D9] transition-colors" data-customization-role="primaryButton"
               >
                 <CalendarIcon className="h-4 w-4" />
                 <span>Book Appointment</span>

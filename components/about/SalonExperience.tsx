@@ -1,11 +1,16 @@
+"use client";
+
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRightIcon } from "@/components/ui/icons";
 
 export default function SalonExperience() {
+  const custom = useSectionCustomization("salon-experience");
+
   return (
-    <section id="experience" className="bg-white py-16 sm:py-20 lg:py-24 border-b border-stone-100">
+    <section id="experience" className="bg-white py-16 sm:py-20 lg:py-24 border-b border-stone-100" data-customization-section="salon-experience">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           {/* Left Column: Salon Experience & Treatment Products Image */}
@@ -28,32 +33,32 @@ export default function SalonExperience() {
               {/* Small Label */}
               <div className="inline-flex items-center gap-2 mb-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                   OUR SALON
-                </span>
+                </>}</span>
               </div>
 
               {/* Heading */}
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900 leading-tight">
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900 leading-tight" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
                 A Modern Space <br className="hidden sm:inline" />
                 Designed for You
-              </h2>
+              </>}</h2>
             </div>
 
             {/* Description */}
-            <p className="text-base text-stone-600 leading-relaxed font-normal">
+            <p className="text-base text-stone-600 leading-relaxed font-normal" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
               Our salon is designed to give you a comfortable and relaxing experience.
               With modern equipment, a clean environment, and a friendly team, Salvora
               is the perfect place to take time for yourself and feel your best.
-            </p>
+            </>}</p>
 
             {/* Action Button */}
             <div className="pt-2">
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-7 py-3.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-purple-600/20 transition-all hover:bg-[#6D28D9] hover:gap-3 active:scale-[0.98]"
+                className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-7 py-3.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-purple-600/20 transition-all hover:bg-[#6D28D9] hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
               >
-                <span>Visit Our Salon</span>
+                <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Visit Our Salon</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />
               </Link>
             </div>

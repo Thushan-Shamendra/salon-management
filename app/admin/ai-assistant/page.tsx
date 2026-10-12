@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/icons";
 import { StructuredInsights } from "@/app/api/admin/ai/insights/route";
 import { WebsiteContext } from "@/lib/ai/buildWebsiteContext";
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 
 type DateRange = "7d" | "30d" | "this_month" | "prev_month";
 type ActiveTab = "overview" | "performance" | "branches" | "audit";
@@ -94,6 +95,7 @@ function formatMarkdownToCleanElements(text: string) {
 }
 
 export default function AiAssistantPage() {
+  const customization = useSectionCustomization("page");
   const [range, setRange] = useState<DateRange>("30d");
   const [activeTab, setActiveTab] = useState<ActiveTab>("overview");
   const [insights, setInsights] = useState<StructuredInsights | null>(null);
@@ -238,12 +240,12 @@ export default function AiAssistantPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100 shadow-2xs">
               <SparklesIcon className="h-5 w-5" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900">
-              AI Website Assistant
+            <h1 data-customization-role="heading" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900">
+              {customization.text("heading", "AI Website Assistant")}
             </h1>
           </div>
-          <p className="mt-1 text-xs sm:text-sm text-stone-500 max-w-2xl">
-            Use SALVORA&apos;s real website analytics and content data to understand performance, identify issues, and discover opportunities for improvement.
+          <p data-customization-role="description" data-customization-admin-body className="mt-1 text-xs sm:text-sm text-stone-500 max-w-2xl">
+            {customization.text("description", "Use SALVORA's real website analytics and content data to understand performance, identify issues, and discover opportunities for improvement.")}
           </p>
         </div>
 
@@ -300,10 +302,12 @@ export default function AiAssistantPage() {
             type="button"
             onClick={handleManualAnalyze}
             disabled={loadingInsights}
+            data-customization-role="primaryButton"
+            data-customization-admin-primary="true"
             className="inline-flex items-center gap-2 rounded-xl bg-[#7C3AED] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#6D28D9] transition-all disabled:opacity-60 cursor-pointer"
           >
             <SparklesIcon className={`h-4 w-4 ${loadingInsights ? "animate-spin" : ""}`} />
-            <span>{loadingInsights ? "Analyzing..." : "Analyze Website"}</span>
+            <span>{loadingInsights ? "Analyzing..." : customization.text("primaryButtonText", "Analyze Website")}</span>
           </button>
         </div>
       </div>
@@ -350,7 +354,7 @@ export default function AiAssistantPage() {
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED]">
               <SearchIcon className="h-4 w-4" />
             </div>
-            <h2 className="text-base font-bold text-stone-900">Ask SALVORA AI</h2>
+            <h2 data-customization-role="sectionHeading" className="text-base font-bold text-stone-900">Ask SALVORA AI</h2>
           </div>
           <span className="text-[11px] text-stone-400 font-medium">
             Answers strictly from real MongoDB data

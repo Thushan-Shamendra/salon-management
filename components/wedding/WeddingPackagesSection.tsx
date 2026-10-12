@@ -1,3 +1,6 @@
+"use client";
+
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 import React from "react";
 import WeddingPackageCard, {
   WeddingPackageCardData,
@@ -12,31 +15,33 @@ export default function WeddingPackagesSection({
   packages,
   bookingUrl = "",
 }: WeddingPackagesSectionProps) {
+  const custom = useSectionCustomization("wedding-packages");
+
   // If zero packages created by admin, hide cleanly as per requirements
   if (!packages || packages.length === 0) {
     return null;
   }
 
   return (
-    <section className="py-16 sm:py-24 bg-[#FAF7FE] border-b border-purple-100/70">
+    <section className="py-16 sm:py-24 bg-[#FAF7FE] border-b border-purple-100/70" data-customization-section="wedding-packages">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 mb-2">
             <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               SPECIAL OFFERS
-            </span>
+            </>}</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             Wedding Packages
-          </h2>
+          </>}</h2>
 
-          <p className="mt-3 text-sm sm:text-base text-stone-600 leading-relaxed">
+          <p className="mt-3 text-sm sm:text-base text-stone-600 leading-relaxed" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
             Our carefully curated wedding packages offer a complete beauty
             experience for you and your loved ones.
-          </p>
+          </>}</p>
         </div>
 
         {/* Responsive Grid: Desktop 3, Tablet 2, Mobile 1 */}

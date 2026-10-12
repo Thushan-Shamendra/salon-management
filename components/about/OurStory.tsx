@@ -1,3 +1,6 @@
+"use client";
+
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,6 +12,8 @@ import {
 } from "@/components/ui/icons";
 
 export default function OurStory() {
+  const custom = useSectionCustomization("our-story");
+
   const highlights = [
     { title: "Professional Care", icon: HeartIcon },
     { title: "Modern Techniques", icon: SparklesIcon },
@@ -16,7 +21,7 @@ export default function OurStory() {
   ];
 
   return (
-    <section className="bg-white py-16 sm:py-20 lg:py-24 border-b border-stone-100">
+    <section className="bg-white py-16 sm:py-20 lg:py-24 border-b border-stone-100" data-customization-section="our-story">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           {/* Left Column: Modern Salon Interior Image */}
@@ -38,24 +43,24 @@ export default function OurStory() {
               {/* Small Label */}
               <div className="inline-flex items-center gap-2 mb-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                   OUR STORY
-                </span>
+                </>}</span>
               </div>
 
               {/* Heading */}
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900 leading-tight">
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900 leading-tight" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
                 Where Beauty <br className="hidden sm:inline" />
                 Meets Confidence
-              </h2>
+              </>}</h2>
             </div>
 
             {/* Paragraph */}
-            <p className="text-base text-stone-600 leading-relaxed font-normal">
+            <p className="text-base text-stone-600 leading-relaxed font-normal" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
               At Salvora, we believe beauty is more than a look — it is a feeling.
               Our professional team is dedicated to bringing out your natural beauty
               with personalized care and modern techniques, in a clean and relaxing environment.
-            </p>
+            </>}</p>
 
             {/* Small Highlight Items Row */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -77,9 +82,9 @@ export default function OurStory() {
             <div className="pt-2">
               <Link
                 href="/services"
-                className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-7 py-3.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-purple-600/20 transition-all hover:bg-[#6D28D9] hover:gap-3 active:scale-[0.98]"
+                className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-7 py-3.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-purple-600/20 transition-all hover:bg-[#6D28D9] hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
               >
-                <span>Discover Our Story</span>
+                <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Discover Our Story</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />
               </Link>
             </div>

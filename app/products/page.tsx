@@ -1,10 +1,12 @@
+import { PageCustomization } from "@/components/customization/PageCustomization";
 import React from "react";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { connectDB } from "@/lib/mongodb";
 import RetailProduct from "@/models/RetailProduct";
-import SalonSettings from "@/models/SalonSettings";
+import SalonSettings, { normalizePageVisibility } from "@/models/SalonSettings";
 import Branch from "@/models/Branch";
 import ProductsHero from "@/components/products/ProductsHero";
 import ProductsGridSection from "@/components/products/ProductsGridSection";
@@ -32,6 +34,7 @@ export default async function ProductsPage() {
   let products: PublicRetailProduct[] = [];
   let salonName = "Salvora";
   let whatsappNumber = "";
+  let isVisible = true;
 
   try {
     await connectDB();
@@ -47,8 +50,11 @@ export default async function ProductsPage() {
       SalonSettings.findOne().lean(),
     ]);
 
-    if (settings && settings.salonName) {
-      salonName = settings.salonName;
+    if (settings) {
+      isVisible = normalizePageVisibility(settings.pageVisibility).products;
+      if (settings.salonName) {
+        salonName = settings.salonName;
+      }
     }
 
     // Branch is the SINGLE SOURCE OF TRUTH for WhatsApp:
@@ -112,7 +118,12 @@ export default async function ProductsPage() {
     products = [];
   }
 
+  if (!isVisible) {
+    notFound();
+  }
+
   return (
+    <PageCustomization scope="public" pageKey="products">
     <div className="min-h-screen flex flex-col bg-[#FAF9FB] text-stone-900">
       <Navbar />
       <main className="flex-1">
@@ -130,5 +141,6 @@ export default async function ProductsPage() {
       </main>
       <Footer />
     </div>
+    </PageCustomization>
   );
 }

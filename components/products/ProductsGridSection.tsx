@@ -1,5 +1,8 @@
 "use client";
 
+import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
+
+
 import React, { useState, useMemo } from "react";
 import ProductCard, { PublicRetailProduct } from "./ProductCard";
 
@@ -23,6 +26,8 @@ export default function ProductsGridSection({
   whatsappNumber,
   salonName,
 }: ProductsGridSectionProps) {
+  const custom = useSectionCustomization("products-grid");
+
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const filteredProducts = useMemo(() => {
@@ -31,23 +36,23 @@ export default function ProductsGridSection({
   }, [initialProducts, activeCategory]);
 
   return (
-    <section className="bg-[#FAF9FB] py-16 sm:py-20">
+    <section className="bg-[#FAF9FB] py-16 sm:py-20" data-customization-section="products-grid">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header (Matches Mockup) */}
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#7C3AED]">
             <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span>Premium Collection</span>
+            <span data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>Premium Collection</>}</span>
           </div>
 
-          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-stone-900">
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             Shop Beauty Essentials
-          </h2>
+          </>}</h2>
 
-          <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+          <p className="text-xs sm:text-sm text-stone-600 leading-relaxed" data-customization-role="description">{custom.has("description") ? custom.text("description", "") : <>
             Discover our handpicked range of professional salon and beauty products. Trusted brands,
             salon-approved formulas, and everything you need for healthy, beautiful hair, skin and nails.
-          </p>
+          </>}</p>
         </div>
 
         {/* Category Filter Pills (Matches Mockup) */}
