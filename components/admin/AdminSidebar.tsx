@@ -137,6 +137,16 @@ export default function AdminSidebar({
       ],
     },
     {
+      title: "TOOLS",
+      items: [
+        {
+          name: "AI Assistant",
+          href: "/admin/ai-assistant",
+          icon: SparklesIcon,
+        },
+      ],
+    },
+    {
       title: null,
       items: [
         {

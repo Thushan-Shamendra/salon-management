@@ -803,10 +803,10 @@ export default function AdminDashboardPage() {
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-purple-100">
               <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-[10px] font-bold text-[#7C3AED] uppercase tracking-wider">
-                Coming in Group 5
+                Group 5 • AI Analytics
               </span>
-              <span className="rounded-full bg-purple-50 px-2 py-0.5 text-[10px] font-semibold text-purple-600 border border-purple-100">
-                Preview
+              <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-100">
+                Ready
               </span>
             </div>
 
@@ -825,7 +825,7 @@ export default function AdminDashboardPage() {
             </div>
 
             <p className="mt-3 text-xs text-stone-600 leading-relaxed">
-              SALVORA AI will continuously monitor your website analytics, customer inquiry channels, and branch performance to deliver executive intelligence.
+              SALVORA AI continuously monitors your website analytics, customer inquiry channels, and branch performance to deliver executive intelligence.
             </p>
 
             {/* Feature Highlights */}
@@ -846,14 +846,13 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="mt-5 pt-3 border-t border-purple-100/70">
-            <div className="rounded-xl bg-purple-50/80 p-3 text-center border border-purple-100">
-              <p className="text-xs font-bold text-purple-900">
-                Designed to run on Group 4 First-Party Analytics
-              </p>
-              <p className="text-[11px] text-purple-600 mt-0.5">
-                Full AI integration activates in Group 5
-              </p>
-            </div>
+            <Link
+              href="/admin/ai-assistant"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#7C3AED] px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-[#6D28D9] transition-all"
+            >
+              <SparklesIcon className="h-4 w-4" />
+              <span>Open AI Assistant →</span>
+            </Link>
           </div>
         </div>
       </div>
