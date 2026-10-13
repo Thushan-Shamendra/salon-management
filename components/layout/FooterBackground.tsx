@@ -5,15 +5,18 @@ import { useGlobalCustomization } from "@/components/customization/Customization
 
 export default function FooterBackground() {
   const global = useGlobalCustomization();
+  const customImageUrl = global.publicFooter?.style?.backgroundImage?.url;
+  if (!customImageUrl) return null;
+
   return (
     <Image
-      src={global.publicFooter?.style?.backgroundImage?.url ?? "/images/footer-bg.jpg"}
+      src={customImageUrl}
       alt="Footer background decoration"
       fill
       sizes="100vw"
       className="object-cover object-left-bottom opacity-75"
       data-customization-role="backgroundImage"
-      unoptimized={Boolean(global.publicFooter?.style?.backgroundImage?.url)}
+      unoptimized
     />
   );
 }

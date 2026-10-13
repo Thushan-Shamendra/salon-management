@@ -214,7 +214,7 @@ export default function AdminSidebar({
                     onClick={onClose}
                     className={`group flex items-center gap-3.5 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-150 ${
                       isActive
-                        ? "bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] text-white shadow-md shadow-purple-950/50"
+                        ? "bg-[#03BF62] text-white shadow-md shadow-black/25"
                         : "text-stone-400 hover:bg-white/5 hover:text-white"
                     }`}
                   >
@@ -251,14 +251,15 @@ export default function AdminSidebar({
       <div className="p-4 shrink-0 border-t border-white/5 space-y-1">
         <Link
           href="/admin/change-password"
+          data-customization-active={pathname === "/admin/change-password" ? "true" : "false"}
           onClick={onClose}
           className={`flex items-center gap-3.5 rounded-xl px-4 py-2.5 text-xs font-semibold transition-colors ${
             pathname === "/admin/change-password"
-              ? "bg-white/10 text-white"
+              ? "bg-[#03BF62] text-white shadow-md shadow-black/25"
               : "text-stone-400 hover:bg-white/5 hover:text-white"
           }`}
         >
-          <LockIcon className="h-4 w-4 text-stone-400" />
+          <LockIcon className={`h-4 w-4 ${pathname === "/admin/change-password" ? "text-white" : "text-stone-400"}`} />
           <span>Change Password</span>
         </Link>
 

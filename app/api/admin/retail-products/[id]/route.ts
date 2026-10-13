@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import RetailProduct, {
@@ -182,13 +183,13 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     if (body.salePrice !== undefined) {
       if (body.salePrice === null || body.salePrice === "") {
-        product.salePrice = undefined;
+        product.salePrice = null;
       } else {
         const num = parseFloat(body.salePrice);
         if (!isNaN(num) && num >= 0) {
           product.salePrice = num;
         } else {
-          product.salePrice = undefined;
+          product.salePrice = null;
         }
       }
     }
@@ -215,6 +216,40 @@ export async function PATCH(request: Request, context: RouteContext) {
       }
     }
 
+    if (body.isFeatured !== undefined) {
+      product.isFeatured = Boolean(body.isFeatured);
+    }
+
+    if (body.isMostPopular !== undefined) {
+      product.isMostPopular = Boolean(body.isMostPopular);
+    }
+
+    if (body.isFastMoving !== undefined) {
+      product.isFastMoving = Boolean(body.isFastMoving);
+    }
+
+    if (body.isDiscountProduct !== undefined) {
+      product.isDiscountProduct = Boolean(body.isDiscountProduct);
+    }
+
+    if (product.isDiscountProduct) {
+      if (
+        product.salePrice === undefined ||
+        product.salePrice === null ||
+        isNaN(product.salePrice) ||
+        product.salePrice < 0 ||
+        product.salePrice >= product.price
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Add a valid sale price before marking this as a Discount Product.",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     // Image change handling - delete old image from Cloudinary if replacing
     if (body.image && body.imagePublicId && body.imagePublicId !== product.imagePublicId) {
       const oldPublicId = product.imagePublicId;
@@ -228,10 +263,6 @@ export async function PATCH(request: Request, context: RouteContext) {
       }
     }
 
-    if (body.isFeatured !== undefined) {
-      product.isFeatured = Boolean(body.isFeatured);
-    }
-
     if (body.isActive !== undefined) {
       product.isActive = Boolean(body.isActive);
     }
@@ -241,6 +272,12 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     await product.save();
+
+    try {
+      revalidatePath("/products");
+    } catch {
+      // Ignore in non-Next contexts
+    }
 
     const populated = await RetailProduct.findById(product._id)
       .populate("branchIds", "_id name slug")
@@ -304,6 +341,12 @@ export async function DELETE(request: Request, context: RouteContext) {
     }
 
     await RetailProduct.findByIdAndDelete(id);
+
+    try {
+      revalidatePath("/products");
+    } catch {
+      // Ignore in non-Next contexts
+    }
 
     return NextResponse.json({
       success: true,

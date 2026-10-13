@@ -14,6 +14,9 @@ export async function GET(request: Request) {
     const category = searchParams.get("category");
     const branch = searchParams.get("branch");
     const featured = searchParams.get("featured");
+    const mostPopular = searchParams.get("mostPopular");
+    const fastMoving = searchParams.get("fastMoving");
+    const discount = searchParams.get("discount");
     const search = searchParams.get("search")?.trim();
 
     const query: Record<string, unknown> = {
@@ -26,6 +29,18 @@ export async function GET(request: Request) {
 
     if (featured === "true") {
       query.isFeatured = true;
+    }
+
+    if (mostPopular === "true") {
+      query.isMostPopular = true;
+    }
+
+    if (fastMoving === "true") {
+      query.isFastMoving = true;
+    }
+
+    if (discount === "true") {
+      query.isDiscountProduct = true;
     }
 
     if (branch && branch !== "all") {

@@ -23,6 +23,9 @@ export interface PublicRetailProduct {
   size?: string;
   sku?: string;
   isFeatured?: boolean;
+  isMostPopular?: boolean;
+  isFastMoving?: boolean;
+  isDiscountProduct?: boolean;
   branchWhatsapp?: string;
 }
 
@@ -41,9 +44,17 @@ export default function ProductCard({
   const { selectedBranchWhatsapp } = useBranchContext();
 
   const isOutOfStock = product.stockStatus === "out_of_stock";
-  const displayPrice = product.salePrice && product.salePrice < product.price
-    ? product.salePrice
-    : product.price;
+  const hasValidSalePrice =
+    typeof product.salePrice === "number" &&
+    product.salePrice >= 0 &&
+    product.salePrice < product.price;
+
+  const displayPrice = hasValidSalePrice ? (product.salePrice as number) : product.price;
+
+  const discountPercent =
+    hasValidSalePrice && product.price > 0
+      ? Math.round(((product.price - (product.salePrice as number)) / product.price) * 100)
+      : 0;
 
   const handleBuyClick = () => {
     trackEvent({
@@ -104,6 +115,13 @@ export default function ProductCard({
             </span>
           )}
 
+          {/* Discount / Sale Badge */}
+          {hasValidSalePrice && !isOutOfStock && (
+            <span className="absolute top-2 right-2 rounded-full bg-[#03BF62] px-2.5 py-0.5 text-[10px] font-bold text-white shadow-xs uppercase tracking-wider">
+              {discountPercent > 0 ? `${discountPercent}% OFF` : "SALE"}
+            </span>
+          )}
+
           {/* Out of Stock Overlay */}
           {isOutOfStock && (
             <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-[1px] flex items-center justify-center">
@@ -126,10 +144,10 @@ export default function ProductCard({
 
           {/* Pricing Row */}
           <div className="pt-2 flex items-baseline gap-2">
-            {product.salePrice && product.salePrice < product.price ? (
+            {hasValidSalePrice ? (
               <>
                 <span className="text-sm sm:text-base font-extrabold text-stone-900">
-                  LKR {product.salePrice.toLocaleString()}
+                  LKR {(product.salePrice as number).toLocaleString()}
                 </span>
                 <span className="text-xs text-stone-400 line-through">
                   LKR {product.price.toLocaleString()}

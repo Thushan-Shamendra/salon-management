@@ -28,7 +28,7 @@ const buttonRules = (selector: string, style?: ButtonStyle) => {
     "font-weight": weight(style.fontWeight), padding: style.size && Object.hasOwn(sizes, style.size) ? sizes[style.size] : undefined,
     "border-radius": pixels(style.borderRadius, 0, 100), "border-color": color(style.borderColor),
     "border-width": color(style.borderColor) ? "1px" : undefined, "border-style": color(style.borderColor) ? "solid" : undefined,
-  });
+  }) + rule(`${selector} svg`, { color: color(style.textColor) });
 };
 function backgroundRules(selector: string, style?: SectionStyle) {
   if (!style) return "";
@@ -48,7 +48,9 @@ export function buildCustomizationCss(scope: CustomizationScope, pageKey: string
   let css = rule(editableText, { color: color(website?.textColor), "font-family": font(website?.bodyFont) });
   css += rule(headings, {color: color(website?.headingColor), "font-family": font(website?.headingFont)});
   const sectionRoots = `${page} [data-customization-section]`;
+  const sectionIcons = `${sectionRoots} svg:not([data-customization-role="primaryButton"] svg):not([data-customization-role="secondaryButton"] svg)`;
   css += rule(`${page} > div,${sectionRoots}`, {"background-color": color(website?.backgroundColor)});
+  css += rule(sectionIcons, {color: color(website?.iconColor)});
   if (scope === "admin") {
     css += rule(`${page} [data-customization-admin-body]`, {color: color(website?.textColor), "font-family": font(website?.bodyFont)});
     css += buttonRules(`${page} [data-customization-admin-primary="true"]`, website?.primaryButton);
@@ -59,6 +61,7 @@ export function buildCustomizationCss(scope: CustomizationScope, pageKey: string
   css += backgroundRules(`${page} > div,${sectionRoots}`, pageStyle);
   css += rule(editableText, {color: color(pageStyle?.textColor), "font-family": font(pageStyle?.bodyFont)});
   css += rule(headings, {color: color(pageStyle?.headingColor), "font-family": font(pageStyle?.headingFont)});
+  css += rule(sectionIcons, {color: color(pageStyle?.iconColor)});
   css += headingRules(scope === "admin" ? role("heading") : headings, pageStyle?.heading);
   css += headingRules([role("sectionHeading"), role("subheading")].join(","), pageStyle?.sectionHeading);
   css += descriptionRules(role("description"), pageStyle?.description);
@@ -76,6 +79,7 @@ export function buildCustomizationCss(scope: CustomizationScope, pageKey: string
     css += headingRules([target("sectionHeading"), target("subheading")].join(","), s.sectionHeading);
     css += rule(target("highlight"), {color: color(s.highlightedText?.color)});
     css += descriptionRules(target("description"), s.description);
+    css += rule(`${section} svg:not([data-customization-role="primaryButton"] svg):not([data-customization-role="secondaryButton"] svg)`, {color: color(s.iconColor)});
     css += buttonRules(target("primaryButton"), s.primaryButton);
     css += buttonRules(target("secondaryButton"), s.secondaryButton);
   }
@@ -85,6 +89,7 @@ export function buildCustomizationCss(scope: CustomizationScope, pageKey: string
   css += backgroundRules(header, hs);
   css += rule(`${header},${header} a:not([data-customization-role="primaryButton"]),${header} button:not([data-customization-role="primaryButton"])`, {color: color(hs?.textColor)});
   css += rule(`${header} [data-customization-header-text]`, {color: color(hs?.textColor)});
+  css += rule(`${header} svg:not([data-customization-role="primaryButton"] svg)`, {color: color(hs?.iconColor)});
   css += rule(`${header} [data-customization-active="true"]`, {color: color(hs?.activeLinkColor)});
   css += rule(`${header} [data-customization-active="true"] [data-customization-role="headerAccent"]`, {"background-color": color(hs?.activeLinkColor)});
   css += rule(`${header} a:hover`, {color: color(hs?.hoverColor)});
@@ -98,13 +103,16 @@ export function buildCustomizationCss(scope: CustomizationScope, pageKey: string
     css += rule(`${footer} [data-customization-role="footerHeading"]`, {color: color(fs?.headingColor)});
     css += rule(`${footer} [data-customization-role="footerLink"]`, {color: color(fs?.linkColor)});
     css += rule(`${footer} [data-customization-role="footerAccent"]`, {color: color(fs?.accentColor)});
+    css += rule(`${footer} svg`, {color: color(fs?.iconColor)});
   } else {
     const sidebar = `${page} [data-customization-sidebar]`;
     const ss = global.adminSidebar?.style;
     css += backgroundRules(sidebar, ss);
-    css += rule(`${sidebar},${sidebar} a,${sidebar} button`, {color: color(ss?.textColor)});
+    css += rule(`${sidebar},${sidebar} p,${sidebar} a,${sidebar} button`, {color: color(ss?.textColor)});
+    css += rule(`${sidebar} svg`, {color: color(ss?.iconColor ?? ss?.textColor)});
     css += rule(`${sidebar} a:hover`, {"background-color": color(ss?.hoverBackground)});
     css += rule(`${sidebar} [data-customization-active="true"]`, {"background-color": color(ss?.activeItemBackground), "background-image": color(ss?.activeItemBackground) ? "none" : undefined, color: color(ss?.activeItemTextColor)});
+    css += rule(`${sidebar} [data-customization-active="true"] svg`, {color: color(ss?.activeItemIconColor ?? ss?.activeItemTextColor)});
   }
   return css;
 }

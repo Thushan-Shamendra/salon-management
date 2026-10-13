@@ -1971,10 +1971,10 @@ export default function AdminSettingsPage() {
                       type="button"
                       disabled={savingMainBranch}
                       onClick={() => handleSaveMainBranch(!mainBranch)}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-xs font-semibold text-white shadow-xs transition cursor-pointer disabled:opacity-50"
+                      className="inline-flex w-full sm:w-auto items-center justify-center gap-2 whitespace-nowrap shrink-0 px-4 py-2 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-xs font-semibold text-white shadow-xs transition cursor-pointer disabled:opacity-50"
                     >
                       {savingMainBranch && (
-                        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent shrink-0" />
                       )}
                       <span>Save Main Branch</span>
                     </button>
@@ -2124,14 +2124,14 @@ export default function AdminSettingsPage() {
                 {/* CARD B: MAIN BRANCH OPENING HOURS */}
                 <div
                   id="main-branch-hours"
-                  className="rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-6"
+                  className="rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-7 shadow-xs space-y-5 sm:space-y-6"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
-                    <div className="flex items-start gap-3.5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 border-b border-stone-100 pb-4">
+                    <div className="flex items-start gap-3.5 min-w-0">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100">
                         <ClockIcon className="h-5 w-5" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <h3 className="text-base font-bold text-stone-900 tracking-tight">
                           Main Branch Opening Hours
                         </h3>
@@ -2141,13 +2141,13 @@ export default function AdminSettingsPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto shrink-0">
                       <button
                         type="button"
                         onClick={handleCopyMondayHours}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 px-3 py-1.5 text-xs font-semibold text-[#7C3AED] transition cursor-pointer"
+                        className="inline-flex flex-1 sm:flex-initial items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 px-3 py-2 sm:py-1.5 text-xs font-semibold text-[#7C3AED] transition cursor-pointer"
                       >
-                        <SparklesIcon className="h-3.5 w-3.5" />
+                        <SparklesIcon className="h-3.5 w-3.5 shrink-0" />
                         <span>Copy Mon &rarr; Weekdays</span>
                       </button>
 
@@ -2155,10 +2155,10 @@ export default function AdminSettingsPage() {
                         type="button"
                         disabled={savingMainBranch}
                         onClick={() => handleSaveMainBranch(!mainBranch)}
-                        className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-xs font-semibold text-white shadow-xs transition cursor-pointer disabled:opacity-50"
+                        className="inline-flex flex-1 sm:flex-initial items-center justify-center gap-2 whitespace-nowrap px-3.5 py-2 sm:py-1.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-xs font-semibold text-white shadow-xs transition cursor-pointer disabled:opacity-50"
                       >
                         {savingMainBranch && (
-                          <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent shrink-0" />
                         )}
                         <span>Save Hours</span>
                       </button>
@@ -2166,48 +2166,56 @@ export default function AdminSettingsPage() {
                   </div>
 
                   {/* 7-Day Hours Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     {mainBranchForm.openingHours.map((h, idx) => (
                       <div
                         key={h.day}
-                        className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border transition ${
+                        className={`@container p-3 sm:p-3.5 rounded-xl border transition min-w-0 overflow-hidden ${
                           h.isClosed
-                            ? "border-stone-200 bg-stone-50/50 opacity-70"
+                            ? "border-stone-200 bg-stone-50/50 opacity-75"
                             : "border-stone-200 bg-white shadow-2xs"
                         }`}
                       >
-                        <div className="flex items-center justify-between sm:justify-start gap-3 w-full sm:w-32">
-                          <span className="text-xs font-bold text-stone-800">{h.day}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleHourChange(idx, "isClosed", !h.isClosed)}
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase transition cursor-pointer ${
-                              h.isClosed
-                                ? "bg-rose-100 text-rose-700"
-                                : "bg-emerald-100 text-emerald-700"
-                            }`}
-                          >
-                            {h.isClosed ? "Closed" : "Open"}
-                          </button>
-                        </div>
-
-                        {!h.isClosed && (
-                          <div className="flex items-center gap-2 text-xs">
-                            <input
-                              type="time"
-                              value={h.openTime}
-                              onChange={(e) => handleHourChange(idx, "openTime", e.target.value)}
-                              className="rounded-lg border border-stone-200 bg-stone-50 px-2.5 py-1 text-xs text-stone-800 outline-none focus:border-[#7C3AED]"
-                            />
-                            <span className="text-stone-400">to</span>
-                            <input
-                              type="time"
-                              value={h.closeTime}
-                              onChange={(e) => handleHourChange(idx, "closeTime", e.target.value)}
-                              className="rounded-lg border border-stone-200 bg-stone-50 px-2.5 py-1 text-xs text-stone-800 outline-none focus:border-[#7C3AED]"
-                            />
+                        <div className="flex flex-col @[360px]:flex-row @[360px]:items-center justify-between gap-2.5 @[360px]:gap-2 min-w-0">
+                          <div className="flex items-center justify-between @[360px]:justify-start gap-2 w-full @[360px]:w-auto shrink-0">
+                            <span className="text-xs font-bold text-stone-800 @[360px]:w-[68px] shrink-0">
+                              {h.day}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleHourChange(idx, "isClosed", !h.isClosed)}
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase transition cursor-pointer shrink-0 ${
+                                h.isClosed
+                                  ? "bg-rose-100 text-rose-700"
+                                  : "bg-emerald-100 text-emerald-700"
+                              }`}
+                            >
+                              {h.isClosed ? "Closed" : "Open"}
+                            </button>
                           </div>
-                        )}
+
+                          {!h.isClosed ? (
+                            <div className="flex items-center gap-1.5 sm:gap-2 text-xs w-full @[360px]:w-auto min-w-0">
+                              <input
+                                type="time"
+                                value={h.openTime}
+                                onChange={(e) => handleHourChange(idx, "openTime", e.target.value)}
+                                className="flex-1 @[360px]:flex-initial min-w-0 w-full @[360px]:w-auto rounded-lg border border-stone-200 bg-stone-50 px-2 py-1.5 @[360px]:py-1 text-xs text-stone-800 outline-none focus:border-[#7C3AED] focus:bg-white"
+                              />
+                              <span className="text-stone-400 text-[11px] shrink-0">to</span>
+                              <input
+                                type="time"
+                                value={h.closeTime}
+                                onChange={(e) => handleHourChange(idx, "closeTime", e.target.value)}
+                                className="flex-1 @[360px]:flex-initial min-w-0 w-full @[360px]:w-auto rounded-lg border border-stone-200 bg-stone-50 px-2 py-1.5 @[360px]:py-1 text-xs text-stone-800 outline-none focus:border-[#7C3AED] focus:bg-white"
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center @[360px]:justify-end rounded-lg border border-dashed border-stone-200/80 @[360px]:border-0 bg-stone-100/50 @[360px]:bg-transparent py-1.5 @[360px]:py-1 px-2.5 text-xs text-stone-400 italic w-full @[360px]:w-auto">
+                              Closed all day
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -2219,12 +2227,12 @@ export default function AdminSettingsPage() {
                   className="rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-6"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
-                    <div className="flex items-start gap-3.5">
+                    <div className="flex items-start gap-3.5 min-w-0">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100">
                         <StarIcon className="h-5 w-5" />
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
                           <h3 className="text-base font-bold text-stone-900 tracking-tight">
                             Main Branch Google Reviews
                           </h3>
@@ -2254,10 +2262,10 @@ export default function AdminSettingsPage() {
                       type="button"
                       disabled={savingMainBranch}
                       onClick={() => handleSaveMainBranch(!mainBranch)}
-                      className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-xs font-semibold text-white shadow-xs transition cursor-pointer disabled:opacity-50"
+                      className="inline-flex w-full sm:w-auto items-center justify-center gap-2 whitespace-nowrap shrink-0 px-3.5 py-2 sm:py-1.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-xs font-semibold text-white shadow-xs transition cursor-pointer disabled:opacity-50"
                     >
                       {savingMainBranch && (
-                        <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent shrink-0" />
                       )}
                       <span>Save Reviews</span>
                     </button>

@@ -51,6 +51,9 @@ interface RetailProductItem {
   sku?: string;
   branchIds?: BranchSummary[];
   isFeatured: boolean;
+  isMostPopular?: boolean;
+  isFastMoving?: boolean;
+  isDiscountProduct?: boolean;
   isActive: boolean;
   displayOrder: number;
   createdAt?: string;
@@ -72,6 +75,9 @@ interface ProductFormState {
   sku: string;
   selectedBranchIds: string[];
   isFeatured: boolean;
+  isMostPopular: boolean;
+  isFastMoving: boolean;
+  isDiscountProduct: boolean;
   isActive: boolean;
   displayOrder: string;
 }
@@ -91,6 +97,9 @@ const emptyForm: ProductFormState = {
   sku: "",
   selectedBranchIds: [],
   isFeatured: false,
+  isMostPopular: false,
+  isFastMoving: false,
+  isDiscountProduct: false,
   isActive: true,
   displayOrder: "0",
 };
@@ -103,6 +112,15 @@ export default function AdminRetailProductsPage() {
   const [form, setForm] = useState<ProductFormState>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  // Global Product Feature Sections state
+  const [productFeatureSections, setProductFeatureSections] = useState({
+    mostPopular: true,
+    fastMoving: true,
+    discounts: true,
+  });
+  const [savingDisplaySettings, setSavingDisplaySettings] = useState(false);
 
   // Stats state
   const [stats, setStats] = useState({
@@ -113,6 +131,9 @@ export default function AdminRetailProductsPage() {
     lowStock: 0,
     outOfStock: 0,
     featured: 0,
+    mostPopular: 0,
+    fastMoving: 0,
+    discount: 0,
   });
 
   // Search & filter state
@@ -121,6 +142,9 @@ export default function AdminRetailProductsPage() {
   const [stockFilter, setStockFilter] = useState<string>("all");
   const [branchFilter, setBranchFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "hidden">("all");
+  const [featureFilter, setFeatureFilter] = useState<
+    "all" | "most_popular" | "fast_moving" | "discount" | "featured"
+  >("all");
   const [sortBy, setSortBy] = useState<"order" | "name" | "price_asc" | "price_desc" | "newest">("order");
 
   // Notifications & modal state
@@ -146,7 +170,10 @@ export default function AdminRetailProductsPage() {
       if (data?.success) {
         setProducts(data.products || []);
         if (data.stats) {
-          setStats(data.stats);
+          setStats((prev) => ({ ...prev, ...data.stats }));
+        }
+        if (data.productFeatureSections) {
+          setProductFeatureSections(data.productFeatureSections);
         }
       }
     } catch {
@@ -167,7 +194,10 @@ export default function AdminRetailProductsPage() {
 
         if (isMounted && prodData?.success) {
           setProducts(prodData.products || []);
-          if (prodData.stats) setStats(prodData.stats);
+          if (prodData.stats) setStats((prev) => ({ ...prev, ...prodData.stats }));
+          if (prodData.productFeatureSections) {
+            setProductFeatureSections(prodData.productFeatureSections);
+          }
         }
         if (isMounted && branchData?.success && Array.isArray(branchData.branches)) {
           setBranches(branchData.branches);
@@ -183,6 +213,30 @@ export default function AdminRetailProductsPage() {
       isMounted = false;
     };
   }, []);
+
+  const handleSaveDisplaySettings = async () => {
+    try {
+      setSavingDisplaySettings(true);
+      const res = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productFeatureSections }),
+      });
+      const data = await res.json();
+      if (data?.success) {
+        if (data.settings?.productFeatureSections) {
+          setProductFeatureSections(data.settings.productFeatureSections);
+        }
+        showNotification("success", "Product display sections saved");
+      } else {
+        showNotification("error", data?.message || "Failed to save display settings");
+      }
+    } catch {
+      showNotification("error", "Failed to save display settings");
+    } finally {
+      setSavingDisplaySettings(false);
+    }
+  };
 
   // Client-side filtering & sorting
   const filteredAndSortedProducts = useMemo(() => {
@@ -213,6 +267,16 @@ export default function AdminRetailProductsPage() {
       list = list.filter((p) => !p.isActive);
     }
 
+    if (featureFilter === "most_popular") {
+      list = list.filter((p) => Boolean(p.isMostPopular));
+    } else if (featureFilter === "fast_moving") {
+      list = list.filter((p) => Boolean(p.isFastMoving));
+    } else if (featureFilter === "discount") {
+      list = list.filter((p) => Boolean(p.isDiscountProduct));
+    } else if (featureFilter === "featured") {
+      list = list.filter((p) => Boolean(p.isFeatured));
+    }
+
     if (branchFilter !== "all") {
       list = list.filter(
         (p) =>
@@ -235,16 +299,18 @@ export default function AdminRetailProductsPage() {
       default:
         return list.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
     }
-  }, [products, searchQuery, categoryFilter, stockFilter, statusFilter, branchFilter, sortBy]);
+  }, [products, searchQuery, categoryFilter, stockFilter, statusFilter, featureFilter, branchFilter, sortBy]);
 
   const handleOpenAddForm = () => {
     setEditingId(null);
     setForm(emptyForm);
+    setFormError(null);
     setIsFormOpen(true);
   };
 
   const handleOpenEditForm = (item: RetailProductItem) => {
     setEditingId(item._id);
+    setFormError(null);
     setForm({
       name: item.name,
       category: item.category,
@@ -253,8 +319,11 @@ export default function AdminRetailProductsPage() {
       imagePublicId: item.imagePublicId,
       description: item.description || "",
       shortDescription: item.shortDescription || "",
-      price: item.price ? item.price.toString() : "",
-      salePrice: item.salePrice ? item.salePrice.toString() : "",
+      price: item.price !== undefined && item.price !== null ? item.price.toString() : "",
+      salePrice:
+        item.salePrice !== undefined && item.salePrice !== null
+          ? item.salePrice.toString()
+          : "",
       stockStatus: item.stockStatus || "in_stock",
       size: item.size || "",
       sku: item.sku || "",
@@ -262,6 +331,9 @@ export default function AdminRetailProductsPage() {
         ? item.branchIds.map((b) => (typeof b === "object" ? b._id : b))
         : [],
       isFeatured: Boolean(item.isFeatured),
+      isMostPopular: Boolean(item.isMostPopular),
+      isFastMoving: Boolean(item.isFastMoving),
+      isDiscountProduct: Boolean(item.isDiscountProduct),
       isActive: item.isActive !== undefined ? item.isActive : true,
       displayOrder: (item.displayOrder || 0).toString(),
     });
@@ -272,23 +344,44 @@ export default function AdminRetailProductsPage() {
     if (formLoading) return;
     setIsFormOpen(false);
     setEditingId(null);
+    setFormError(null);
     setForm(emptyForm);
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setFormError(null);
+
     if (!form.name.trim()) {
+      setFormError("Product name is required");
       showNotification("error", "Product name is required");
       return;
     }
     if (!form.image || !form.imagePublicId) {
+      setFormError("Product image is required");
       showNotification("error", "Product image is required");
       return;
     }
     const priceNum = parseFloat(form.price);
     if (isNaN(priceNum) || priceNum < 0) {
+      setFormError("Valid price is required");
       showNotification("error", "Valid price is required");
       return;
+    }
+
+    const salePriceNum = form.salePrice.trim() !== "" ? parseFloat(form.salePrice) : null;
+    if (form.isDiscountProduct) {
+      if (
+        salePriceNum === null ||
+        isNaN(salePriceNum) ||
+        salePriceNum < 0 ||
+        salePriceNum >= priceNum
+      ) {
+        const msg = "Add a valid sale price before marking this as a Discount Product.";
+        setFormError(msg);
+        showNotification("error", msg);
+        return;
+      }
     }
 
     try {
@@ -302,12 +395,15 @@ export default function AdminRetailProductsPage() {
         description: form.description.trim(),
         shortDescription: form.shortDescription.trim(),
         price: priceNum,
-        salePrice: form.salePrice.trim() ? parseFloat(form.salePrice) : null,
+        salePrice: salePriceNum,
         stockStatus: form.stockStatus,
         size: form.size.trim(),
         sku: form.sku.trim(),
         branchIds: form.selectedBranchIds,
         isFeatured: form.isFeatured,
+        isMostPopular: form.isMostPopular,
+        isFastMoving: form.isFastMoving,
+        isDiscountProduct: form.isDiscountProduct,
         isActive: form.isActive,
         displayOrder: parseInt(form.displayOrder, 10) || 0,
       };
@@ -329,7 +425,9 @@ export default function AdminRetailProductsPage() {
         handleCloseForm();
         fetchProducts();
       } else {
-        showNotification("error", data?.message || "Failed to save product");
+        const errMsg = data?.message || "Failed to save product";
+        setFormError(errMsg);
+        showNotification("error", errMsg);
       }
     } catch (err) {
       console.error("Error saving product:", err);
@@ -468,33 +566,174 @@ export default function AdminRetailProductsPage() {
         }
       />
 
+      {/* Product Display Sections - Global Enable / Disable Card */}
+      <div className="rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3.5 border-b border-stone-100">
+          <div>
+            <h3 className="text-xs sm:text-sm font-bold text-stone-900 uppercase tracking-wider">
+              Product Display Sections
+            </h3>
+            <p className="text-[11px] sm:text-xs text-stone-500 mt-0.5">
+              Globally control which feature sections appear on the public /products page.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleSaveDisplaySettings}
+            disabled={savingDisplaySettings}
+            className="self-start sm:self-auto inline-flex items-center gap-1.5 rounded-xl bg-stone-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-stone-800 transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+          >
+            {savingDisplaySettings ? "Saving..." : "Save Display Settings"}
+          </button>
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+          {/* Most Popular Products */}
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-stone-200/80 bg-stone-50/60 p-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-stone-800 truncate">
+                  Most Popular Products
+                </span>
+                <span className="rounded-full bg-blue-100 px-1.5 py-0.2 text-[10px] font-bold text-blue-700">
+                  {stats.mostPopular}
+                </span>
+              </div>
+              <p className="text-[11px] text-stone-500 mt-0.5">Customer Favorites section</p>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                setProductFeatureSections((prev) => ({
+                  ...prev,
+                  mostPopular: !prev.mostPopular,
+                }))
+              }
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                productFeatureSections.mostPopular ? "bg-[#03BF62]" : "bg-stone-300"
+              }`}
+              role="switch"
+              aria-checked={productFeatureSections.mostPopular}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                  productFeatureSections.mostPopular ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Fast Moving Products */}
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-stone-200/80 bg-stone-50/60 p-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-stone-800 truncate">
+                  Fast Moving Products
+                </span>
+                <span className="rounded-full bg-amber-100 px-1.5 py-0.2 text-[10px] font-bold text-amber-700">
+                  {stats.fastMoving}
+                </span>
+              </div>
+              <p className="text-[11px] text-stone-500 mt-0.5">Selling Fast section</p>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                setProductFeatureSections((prev) => ({
+                  ...prev,
+                  fastMoving: !prev.fastMoving,
+                }))
+              }
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                productFeatureSections.fastMoving ? "bg-[#03BF62]" : "bg-stone-300"
+              }`}
+              role="switch"
+              aria-checked={productFeatureSections.fastMoving}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                  productFeatureSections.fastMoving ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Discount Products */}
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-stone-200/80 bg-stone-50/60 p-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-stone-800 truncate">
+                  Discount Products
+                </span>
+                <span className="rounded-full bg-emerald-100 px-1.5 py-0.2 text-[10px] font-bold text-emerald-700">
+                  {stats.discount}
+                </span>
+              </div>
+              <p className="text-[11px] text-stone-500 mt-0.5">Special Savings section</p>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                setProductFeatureSections((prev) => ({
+                  ...prev,
+                  discounts: !prev.discounts,
+                }))
+              }
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                productFeatureSections.discounts ? "bg-[#03BF62]" : "bg-stone-300"
+              }`}
+              role="switch"
+              aria-checked={productFeatureSections.discounts}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                  productFeatureSections.discounts ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Statistics Strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5">
-        <div className="rounded-xl border border-stone-200/80 bg-white p-3.5 shadow-2xs">
-          <p className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">Total</p>
-          <p className="text-xl font-extrabold text-stone-900 mt-0.5">{stats.total}</p>
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+        <div className="rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs">
+          <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Total</p>
+          <p className="text-lg font-extrabold text-stone-900 mt-0.5">{stats.total}</p>
         </div>
-        <div className="rounded-xl border border-emerald-200/70 bg-emerald-50/40 p-3.5 shadow-2xs">
-          <p className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider">In Stock</p>
-          <p className="text-xl font-extrabold text-emerald-900 mt-0.5">{stats.inStock}</p>
+        <div className="rounded-xl border border-emerald-200/70 bg-emerald-50/40 p-3 shadow-2xs">
+          <p className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wider">In Stock</p>
+          <p className="text-lg font-extrabold text-emerald-900 mt-0.5">{stats.inStock}</p>
         </div>
-        <div className="rounded-xl border border-amber-200/70 bg-amber-50/40 p-3.5 shadow-2xs">
-          <p className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider">Low Stock</p>
-          <p className="text-xl font-extrabold text-amber-900 mt-0.5">{stats.lowStock}</p>
+        <div className="rounded-xl border border-amber-200/70 bg-amber-50/40 p-3 shadow-2xs">
+          <p className="text-[10px] font-semibold text-amber-700 uppercase tracking-wider">Low Stock</p>
+          <p className="text-lg font-extrabold text-amber-900 mt-0.5">{stats.lowStock}</p>
         </div>
-        <div className="rounded-xl border border-red-200/70 bg-red-50/40 p-3.5 shadow-2xs">
-          <p className="text-[11px] font-semibold text-red-700 uppercase tracking-wider">Out of Stock</p>
-          <p className="text-xl font-extrabold text-red-900 mt-0.5">{stats.outOfStock}</p>
+        <div className="rounded-xl border border-red-200/70 bg-red-50/40 p-3 shadow-2xs">
+          <p className="text-[10px] font-semibold text-red-700 uppercase tracking-wider">Out of Stock</p>
+          <p className="text-lg font-extrabold text-red-900 mt-0.5">{stats.outOfStock}</p>
         </div>
-        <div className="col-span-2 sm:col-span-1 rounded-xl border border-purple-200/70 bg-purple-50/40 p-3.5 shadow-2xs">
-          <p className="text-[11px] font-semibold text-purple-700 uppercase tracking-wider">Featured</p>
-          <p className="text-xl font-extrabold text-purple-900 mt-0.5">{stats.featured}</p>
+        <div className="rounded-xl border border-blue-200/70 bg-blue-50/40 p-3 shadow-2xs">
+          <p className="text-[10px] font-semibold text-blue-700 uppercase tracking-wider">Popular</p>
+          <p className="text-lg font-extrabold text-blue-900 mt-0.5">{stats.mostPopular}</p>
+        </div>
+        <div className="rounded-xl border border-amber-200/70 bg-amber-50/40 p-3 shadow-2xs">
+          <p className="text-[10px] font-semibold text-amber-700 uppercase tracking-wider">Fast Moving</p>
+          <p className="text-lg font-extrabold text-amber-900 mt-0.5">{stats.fastMoving}</p>
+        </div>
+        <div className="rounded-xl border border-emerald-200/70 bg-emerald-50/40 p-3 shadow-2xs">
+          <p className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wider">Discounts</p>
+          <p className="text-lg font-extrabold text-emerald-900 mt-0.5">{stats.discount}</p>
+        </div>
+        <div className="rounded-xl border border-purple-200/70 bg-purple-50/40 p-3 shadow-2xs">
+          <p className="text-[10px] font-semibold text-purple-700 uppercase tracking-wider">Featured</p>
+          <p className="text-lg font-extrabold text-purple-900 mt-0.5">{stats.featured}</p>
         </div>
       </div>
 
       {/* Filters & Search Controls */}
       <div className="rounded-2xl border border-stone-200/80 bg-white p-4 shadow-2xs space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
           {/* Search */}
           <div className="relative">
             <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
@@ -506,6 +745,19 @@ export default function AdminRetailProductsPage() {
               className="w-full rounded-xl border border-stone-200 pl-10 pr-3 py-2 text-xs text-stone-800 placeholder-stone-400 focus:border-[#7C3AED] focus:outline-none focus:ring-1 focus:ring-[#7C3AED]"
             />
           </div>
+
+          {/* Product Feature Filter */}
+          <select
+            value={featureFilter}
+            onChange={(e) => setFeatureFilter(e.target.value as typeof featureFilter)}
+            className="rounded-xl border border-stone-200 px-3 py-2 text-xs text-stone-800 focus:border-[#7C3AED] focus:outline-none focus:ring-1 focus:ring-[#7C3AED]"
+          >
+            <option value="all">All Products</option>
+            <option value="most_popular">Most Popular</option>
+            <option value="fast_moving">Fast Moving</option>
+            <option value="discount">Discount Products</option>
+            <option value="featured">Featured Products</option>
+          </select>
 
           {/* Category Filter */}
           <select
@@ -559,17 +811,22 @@ export default function AdminRetailProductsPage() {
           </select>
 
           {/* Sort By */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="rounded-xl border border-stone-200 px-3 py-2 text-xs text-stone-800 focus:border-[#7C3AED] focus:outline-none focus:ring-1 focus:ring-[#7C3AED]"
-          >
-            <option value="order">Display Order</option>
-            <option value="name">Name (A-Z)</option>
-            <option value="price_asc">Price (Low to High)</option>
-            <option value="price_desc">Price (High to Low)</option>
-            <option value="newest">Newest First</option>
-          </select>
+          <div className="sm:col-span-2 lg:col-span-6 flex justify-end">
+            <div className="flex items-center gap-2 text-xs text-stone-500">
+              <span>Sort by:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                className="rounded-xl border border-stone-200 px-3 py-1.5 text-xs text-stone-800 focus:border-[#7C3AED] focus:outline-none focus:ring-1 focus:ring-[#7C3AED]"
+              >
+                <option value="order">Display Order</option>
+                <option value="name">Name (A-Z)</option>
+                <option value="price_asc">Price (Low to High)</option>
+                <option value="price_desc">Price (High to Low)</option>
+                <option value="newest">Newest First</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -653,6 +910,27 @@ export default function AdminRetailProductsPage() {
                       </span>
                     )}
                   </div>
+
+                  {/* Feature Badges (Subtle Styling) */}
+                  {(item.isMostPopular || item.isFastMoving || item.isDiscountProduct) && (
+                    <div className="pt-2 flex flex-wrap gap-1">
+                      {item.isMostPopular && (
+                        <span className="inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-blue-700 border border-blue-200/70 uppercase">
+                          Most Popular
+                        </span>
+                      )}
+                      {item.isFastMoving && (
+                        <span className="inline-flex items-center rounded-md bg-amber-50 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-amber-700 border border-amber-200/70 uppercase">
+                          Fast Moving
+                        </span>
+                      )}
+                      {item.isDiscountProduct && (
+                        <span className="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-emerald-700 border border-emerald-200/70 uppercase">
+                          Discount
+                        </span>
+                      )}
+                    </div>
+                  )}
 
                   {/* Size & SKU */}
                   {(item.size || item.sku) && (
@@ -765,6 +1043,13 @@ export default function AdminRetailProductsPage() {
                 <XIcon className="h-5 w-5" />
               </button>
             </div>
+
+            {formError && (
+              <div className="mt-4 flex items-center gap-2 rounded-xl bg-red-50 p-3 text-xs font-semibold text-red-800 border border-red-200">
+                <AlertCircleIcon className="h-4 w-4 shrink-0 text-red-600" />
+                <span>{formError}</span>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-5">
               {/* Image Upload */}
@@ -888,9 +1173,85 @@ export default function AdminRetailProductsPage() {
                     step="0.01"
                     value={form.salePrice}
                     onChange={(e) => setForm((prev) => ({ ...prev, salePrice: e.target.value }))}
-                    placeholder="e.g. 2500 (leave empty if no discount)"
+                    placeholder="e.g. 2300"
                     className="w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 focus:border-[#7C3AED] focus:outline-none focus:ring-1 focus:ring-[#7C3AED]"
                   />
+                  {form.isDiscountProduct &&
+                    (!form.salePrice ||
+                      parseFloat(form.salePrice) >= parseFloat(form.price || "0") ||
+                      parseFloat(form.salePrice) < 0) && (
+                      <p className="mt-1 text-[11px] font-semibold text-amber-600">
+                        * Add a valid sale price before marking this as a Discount Product.
+                      </p>
+                    )}
+                </div>
+              </div>
+
+              {/* Product Features Section */}
+              <div className="rounded-2xl border border-stone-200 bg-stone-50/70 p-4 space-y-3">
+                <div>
+                  <h3 className="text-xs font-bold text-stone-900 uppercase tracking-wider">
+                    Product Features
+                  </h3>
+                  <p className="text-[11px] text-stone-500 mt-0.5">
+                    Choose where this product should be highlighted on the public Products page.
+                  </p>
+                </div>
+
+                <div className="space-y-2.5 pt-1">
+                  {/* Most Popular */}
+                  <label className="flex items-start gap-3 rounded-xl border border-stone-200/80 bg-white p-3 cursor-pointer hover:border-purple-200 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={form.isMostPopular}
+                      onChange={(e) =>
+                        setForm((prev) => ({ ...prev, isMostPopular: e.target.checked }))
+                      }
+                      className="mt-0.5 h-4 w-4 rounded-sm text-purple-600 focus:ring-purple-500 border-stone-300"
+                    />
+                    <div className="text-xs">
+                      <span className="font-bold text-stone-900">Most Popular Product</span>
+                      <p className="text-[11px] text-stone-500">
+                        Highlight this product in the Most Popular section.
+                      </p>
+                    </div>
+                  </label>
+
+                  {/* Fast Moving */}
+                  <label className="flex items-start gap-3 rounded-xl border border-stone-200/80 bg-white p-3 cursor-pointer hover:border-purple-200 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={form.isFastMoving}
+                      onChange={(e) =>
+                        setForm((prev) => ({ ...prev, isFastMoving: e.target.checked }))
+                      }
+                      className="mt-0.5 h-4 w-4 rounded-sm text-purple-600 focus:ring-purple-500 border-stone-300"
+                    />
+                    <div className="text-xs">
+                      <span className="font-bold text-stone-900">Fast Moving Product</span>
+                      <p className="text-[11px] text-stone-500">
+                        Highlight this product in the Fast Moving section.
+                      </p>
+                    </div>
+                  </label>
+
+                  {/* Discount Product */}
+                  <label className="flex items-start gap-3 rounded-xl border border-stone-200/80 bg-white p-3 cursor-pointer hover:border-purple-200 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={form.isDiscountProduct}
+                      onChange={(e) =>
+                        setForm((prev) => ({ ...prev, isDiscountProduct: e.target.checked }))
+                      }
+                      className="mt-0.5 h-4 w-4 rounded-sm text-purple-600 focus:ring-purple-500 border-stone-300"
+                    />
+                    <div className="text-xs">
+                      <span className="font-bold text-stone-900">Discount Product</span>
+                      <p className="text-[11px] text-stone-500">
+                        Highlight this product in the Discount Products section.
+                      </p>
+                    </div>
+                  </label>
                 </div>
               </div>
 

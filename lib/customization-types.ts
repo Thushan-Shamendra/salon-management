@@ -49,8 +49,10 @@ export interface SectionStyle {
   hoverColor?: string;
   linkColor?: string;
   accentColor?: string;
+  iconColor?: string;
   activeItemBackground?: string;
   activeItemTextColor?: string;
+  activeItemIconColor?: string;
   hoverBackground?: string;
 }
 export type StyleField = keyof SectionStyle;

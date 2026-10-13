@@ -35,7 +35,8 @@ const STYLE_LABELS: Record<StyleField, string> = {
   primaryButton: "Primary button", secondaryButton: "Secondary button", sectionHeading: "Section headings",
   textColor: "Text color", headingColor: "Heading color", headingFont: "Default heading font", bodyFont: "Default body font",
   activeLinkColor: "Active link color", hoverColor: "Hover color", linkColor: "Link color", accentColor: "Accent color",
-  activeItemBackground: "Active item background", activeItemTextColor: "Active item text color", hoverBackground: "Hover background",
+  iconColor: "Icon color",
+  activeItemBackground: "Active item background", activeItemTextColor: "Active item text color", activeItemIconColor: "Active item icon color", hoverBackground: "Hover background",
 };
 const color = (key: string, label: string, defaultValue = "#7C3AED"): FieldDefinition => ({ key, label, kind: "color", defaultValue });
 const number = (key: string, label: string, defaultValue: number, min: number, max: number, step = 1): FieldDefinition => ({ key, label, kind: "number", defaultValue, min, max, step });
@@ -126,6 +127,8 @@ function DraftPreview({ draft, registration, size }: { draft: SectionOverride; r
   const image = style.backgroundImage?.url || registration.defaultImage;
   const headingSize = size === "mobile" ? heading.fontSizeMobile : size === "tablet" ? heading.fontSizeTablet : heading.fontSizeDesktop;
   const headingStyle: CSSProperties = { color: isHex(heading.color) ? heading.color : isHex(style.headingColor) ? style.headingColor : undefined, fontFamily: fontCss(heading.fontFamily || style.headingFont), fontSize: headingSize, fontWeight: heading.fontWeight };
+  const resolvedIconColor = isHex(style.iconColor) ? style.iconColor : isHex(style.textColor) ? style.textColor : "#7C3AED";
+  const resolvedActiveIconColor = isHex(style.activeItemIconColor) ? style.activeItemIconColor : isHex(style.activeItemTextColor) ? style.activeItemTextColor : "#FFFFFF";
   const buttonStyle = (role: "primaryButton" | "secondaryButton"): CSSProperties => {
     const button = style[role] || {};
     return { backgroundColor: isHex(button.backgroundColor) ? button.backgroundColor : undefined, color: isHex(button.textColor) ? button.textColor : undefined, fontFamily: fontCss(button.fontFamily), fontSize: button.fontSize, fontWeight: button.fontWeight, borderRadius: button.borderRadius, border: button.borderColor && isHex(button.borderColor) ? `1px solid ${button.borderColor}` : undefined, padding: button.size === "small" ? "8px 14px" : button.size === "large" ? "16px 24px" : "12px 20px" };
@@ -137,6 +140,20 @@ function DraftPreview({ draft, registration, size }: { draft: SectionOverride; r
         <h2 className="text-2xl font-bold leading-tight text-stone-900" style={headingStyle}>{text("heading", registration.label)}{text("highlightedText") && <> <span className="text-purple-700" style={{ color: isHex(style.highlightedText?.color) ? style.highlightedText?.color : undefined }}>{text("highlightedText")}</span></>}</h2>
         {text("subheading") && <p className="mt-3 text-lg font-semibold text-stone-700">{text("subheading")}</p>}
         <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-stone-600" style={{ fontFamily: fontCss(description.fontFamily || style.bodyFont), fontSize: description.fontSize, color: isHex(description.color) ? description.color : isHex(style.textColor) ? style.textColor : undefined }}>{text("description", "Preview the selected colors and typography here.")}</p>
+        {registration.styles.includes("iconColor") && (
+          <div className="mt-4 flex flex-wrap items-center gap-2.5 text-xs font-semibold">
+            <span className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-black/5 px-3 py-1.5">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 shrink-0" style={{ color: resolvedIconColor }}><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" /></svg>
+              <span>Icon preview</span>
+            </span>
+            {registration.styles.includes("activeItemBackground") && (
+              <span className="inline-flex items-center gap-2 rounded-lg bg-[#03BF62] px-3 py-1.5 text-white" style={{ backgroundColor: isHex(style.activeItemBackground) ? style.activeItemBackground : "#03BF62", color: isHex(style.activeItemTextColor) ? style.activeItemTextColor : undefined }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 shrink-0" style={{ color: resolvedActiveIconColor }}><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" /></svg>
+                <span>Active item</span>
+              </span>
+            )}
+          </div>
+        )}
         {(registration.styles.includes("primaryButton") || text("primaryButtonText")) && <span className="mt-5 inline-block rounded-xl bg-purple-600 text-sm font-semibold text-white" style={buttonStyle("primaryButton")}>{text("primaryButtonText", "Book Appointment")}</span>}
         {(registration.styles.includes("secondaryButton") || text("secondaryButtonText")) && <span className="ml-2 mt-5 inline-block rounded-xl border border-stone-300 bg-white text-sm font-semibold text-stone-700" style={buttonStyle("secondaryButton")}>{text("secondaryButtonText", "Explore More")}</span>}
       </div>
@@ -252,7 +269,8 @@ export default function WebsiteCustomizerPage() {
       </div>;
     }
     const nested = key === "heading" || key === "sectionHeading" ? HEADING_FIELDS : key === "description" ? DESCRIPTION_FIELDS : key === "primaryButton" || key === "secondaryButton" ? BUTTON_FIELDS : key === "highlightedText" ? [color("color", "Text color")] : undefined;
-    const single: FieldDefinition = key === "alignment" ? { key, label: STYLE_LABELS[key], kind: "select", defaultValue: "left", options: ["left", "center", "right"] } : key === "headingFont" || key === "bodyFont" ? { key, label: STYLE_LABELS[key], kind: "font", defaultValue: "Geist" } : color(key, STYLE_LABELS[key], key === "backgroundColor" ? "#FFFFFF" : key === "textColor" || key === "headingColor" ? "#1C1917" : "#7C3AED");
+    const isFooter = tab === "global" && selectedGroup.key === "publicFooter";
+    const single: FieldDefinition = key === "alignment" ? { key, label: STYLE_LABELS[key], kind: "select", defaultValue: "left", options: ["left", "center", "right"] } : key === "headingFont" || key === "bodyFont" ? { key, label: STYLE_LABELS[key], kind: "font", defaultValue: "Geist" } : color(key, STYLE_LABELS[key], key === "backgroundColor" ? (isFooter ? "#000000" : "#FFFFFF") : key === "activeItemTextColor" || key === "activeItemIconColor" ? "#FFFFFF" : key === "activeItemBackground" || (isFooter && (key === "accentColor" || key === "iconColor")) ? "#03BF62" : key === "textColor" || key === "headingColor" ? "#1C1917" : "#7C3AED");
     return <div key={key} className="rounded-2xl border border-stone-200 bg-white p-4">
       <h3 className="mb-3 text-sm font-bold text-stone-900">{STYLE_LABELS[key]}</h3>
       <div className={nested ? "grid gap-3 sm:grid-cols-2" : ""}>{(nested || [single]).map((definition) => <OverrideField key={definition.key} definition={definition} path={`style.${key}${nested ? `.${definition.key}` : ""}`} draft={draft} onChange={change} />)}</div>

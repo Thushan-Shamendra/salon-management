@@ -1,17 +1,24 @@
-import { publicPages } from "./customization-public-registry";
+import { publicPages as rawPublicPages } from "./customization-public-registry";
 import { adminPages } from "./customization-admin-registry";
-import type { CustomizationScope, GlobalGroupKey, GlobalRegistration } from "./customization-types";
+import type { CustomizationScope, GlobalGroupKey, GlobalRegistration, PageRegistration } from "./customization-types";
 import type { CloudinaryFolder } from "./cloudinary-constants";
 
-export { publicPages, adminPages };
+export const publicPages: PageRegistration[] = rawPublicPages.map((page) => ({
+  ...page,
+  sections: page.sections.map((section) => ({
+    ...section,
+    styles: section.styles.includes("iconColor") ? section.styles : [...section.styles, "iconColor" as const],
+  })),
+}));
+export { adminPages };
 
 export const globalGroups: GlobalRegistration[] = [
-  { key: "publicHeader", label: "Public Header", scope: "public", styles: ["backgroundColor", "backgroundImage", "textColor", "activeLinkColor", "hoverColor", "primaryButton"] },
-  { key: "publicWebsite", label: "Public Website", scope: "public", styles: ["backgroundColor", "textColor", "headingColor", "headingFont", "bodyFont"] },
-  { key: "publicFooter", label: "Public Footer", scope: "public", styles: ["backgroundColor", "backgroundImage", "textColor", "headingColor", "linkColor", "accentColor"] },
-  { key: "adminHeader", label: "Admin Header", scope: "admin", styles: ["backgroundColor", "textColor"] },
-  { key: "adminSidebar", label: "Admin Sidebar", scope: "admin", styles: ["backgroundColor", "textColor", "activeItemBackground", "activeItemTextColor", "hoverBackground"] },
-  { key: "adminWebsite", label: "Admin Website", scope: "admin", styles: ["backgroundColor", "textColor", "headingColor", "headingFont", "bodyFont", "primaryButton"] },
+  { key: "publicHeader", label: "Public Header", scope: "public", styles: ["backgroundColor", "backgroundImage", "textColor", "iconColor", "activeLinkColor", "hoverColor", "primaryButton"] },
+  { key: "publicWebsite", label: "Public Website", scope: "public", styles: ["backgroundColor", "textColor", "headingColor", "iconColor", "headingFont", "bodyFont"] },
+  { key: "publicFooter", label: "Public Footer", scope: "public", styles: ["backgroundColor", "backgroundImage", "textColor", "headingColor", "linkColor", "accentColor", "iconColor"] },
+  { key: "adminHeader", label: "Admin Header", scope: "admin", styles: ["backgroundColor", "textColor", "iconColor"] },
+  { key: "adminSidebar", label: "Admin Sidebar", scope: "admin", styles: ["backgroundColor", "textColor", "iconColor", "activeItemBackground", "activeItemTextColor", "activeItemIconColor", "hoverBackground"] },
+  { key: "adminWebsite", label: "Admin Website", scope: "admin", styles: ["backgroundColor", "textColor", "headingColor", "iconColor", "headingFont", "bodyFont", "primaryButton"] },
 ];
 
 export function isCustomizationScope(scope: string): scope is CustomizationScope {

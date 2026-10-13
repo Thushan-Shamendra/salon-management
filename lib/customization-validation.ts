@@ -97,7 +97,7 @@ function textStyle(value: unknown, label: string, kind: "heading" | "description
   return result;
 }
 
-const colorFields = ["backgroundColor", "textColor", "headingColor", "activeLinkColor", "hoverColor", "linkColor", "accentColor", "activeItemBackground", "activeItemTextColor", "hoverBackground"];
+const colorFields = ["backgroundColor", "textColor", "headingColor", "activeLinkColor", "hoverColor", "linkColor", "accentColor", "iconColor", "activeItemBackground", "activeItemTextColor", "activeItemIconColor", "hoverBackground"];
 const contentLimits: Record<ContentField, number> = { eyebrow: 120, heading: 240, highlightedText: 240, subheading: 400, description: 2000, primaryButtonText: 80, secondaryButtonText: 80 };
 
 /** Reject unknown fields instead of silently accepting structural or CSS changes. */

@@ -12,7 +12,7 @@ function page(
     key: "page",
     label: "Page presentation",
     content: { heading, description, ...(primaryButtonText ? { primaryButtonText } : {}) },
-    styles: ["backgroundColor", "heading", "description", ...(primaryButtonText ? ["primaryButton" as const] : []), ...(sectionHeadings ? ["sectionHeading" as const] : [])],
+    styles: ["backgroundColor", "iconColor", "heading", "description", ...(primaryButtonText ? ["primaryButton" as const] : []), ...(sectionHeadings ? ["sectionHeading" as const] : [])],
   };
   return { key, label, sections: [section] };
 }
@@ -26,7 +26,7 @@ export const adminPages: PageRegistration[] = [
   page("gallery", "Gallery", "Gallery", "Manage photos displayed on the SALVORA website gallery.", "Add Photo"),
   // The Wedding action changes with the selected CRUD tab, so its wording is
   // preserved while its appearance can be customized.
-  { ...page("wedding", "Wedding", "Wedding", "Manage wedding services and bridal beauty packages displayed on the website."), sections: [{ key: "page", label: "Page presentation", content: { heading: "Wedding", description: "Manage wedding services and bridal beauty packages displayed on the website." }, styles: ["backgroundColor", "heading", "description", "primaryButton", "sectionHeading"] }] },
+  { ...page("wedding", "Wedding", "Wedding", "Manage wedding services and bridal beauty packages displayed on the website."), sections: [{ key: "page", label: "Page presentation", content: { heading: "Wedding", description: "Manage wedding services and bridal beauty packages displayed on the website." }, styles: ["backgroundColor", "iconColor", "heading", "description", "primaryButton", "sectionHeading"] }] },
   page("products", "Product Brands", "Products & Brands", "Manage the professional product lines and beauty brands showcased on the SALVORA website.", "Add Brand / Product"),
   page("retail-products", "Selling Products", "Selling Products", "Manage retail salon products available for customer purchase and WhatsApp enquiry.", "Add Product"),
   page("promotions", "Promotions", "Promotions", "Manage active seasonal discounts, package deals, branch specials, and promotional campaigns.", "Add Promotion"),
@@ -36,7 +36,7 @@ export const adminPages: PageRegistration[] = [
   page("backup", "Backup & Restore", "Backup & Restore", "Protect SALVORA website content by downloading backups and safely restoring previous data.", "Download Backup", true),
   page("settings", "Website Settings", "Website Settings", "Manage global website branding, logos, social media, and your Main Branch configuration.", "Save Global Settings", true),
   page("customize", "Website Customizer", "Website Customizer", "Customize SALVORA website content, typography, colors, backgrounds and buttons without changing application structure.", "Save Changes", true),
-  { key: "change-password", label: "Change Password", sections: [{ key: "page", label: "Page design (security text protected)", styles: ["backgroundColor", "heading", "description", "sectionHeading"] }] },
+  { key: "change-password", label: "Change Password", sections: [{ key: "page", label: "Page design (security text protected)", styles: ["backgroundColor", "iconColor", "heading", "description", "sectionHeading"] }] },
 ];
 
 export function getAdminPageKey(pathname: string): string | undefined {

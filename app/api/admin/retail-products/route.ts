@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import RetailProduct, {
@@ -8,6 +9,7 @@ import RetailProduct, {
   RetailProductCategory,
   StockStatus,
 } from "@/models/RetailProduct";
+import SalonSettings, { normalizeProductFeatureSections } from "@/models/SalonSettings";
 import Branch from "@/models/Branch";
 
 function slugify(text: string): string {
@@ -63,6 +65,7 @@ export async function GET(request: Request) {
     const stockStatus = searchParams.get("stockStatus");
     const branchId = searchParams.get("branchId");
     const status = searchParams.get("status");
+    const feature = searchParams.get("feature");
     const search = searchParams.get("search")?.trim();
 
     const query: Record<string, unknown> = {};
@@ -81,6 +84,16 @@ export async function GET(request: Request) {
       query.isActive = false;
     }
 
+    if (feature === "most_popular" || feature === "mostPopular") {
+      query.isMostPopular = true;
+    } else if (feature === "fast_moving" || feature === "fastMoving") {
+      query.isFastMoving = true;
+    } else if (feature === "discount") {
+      query.isDiscountProduct = true;
+    } else if (feature === "featured") {
+      query.isFeatured = true;
+    }
+
     if (branchId && branchId !== "all") {
       if (mongoose.Types.ObjectId.isValid(branchId)) {
         query.branchIds = new mongoose.Types.ObjectId(branchId);
@@ -96,24 +109,43 @@ export async function GET(request: Request) {
       ];
     }
 
-    const [products, totalCount, inStockCount, lowStockCount, outOfStockCount, featuredCount, activeCount, hiddenCount] =
-      await Promise.all([
-        RetailProduct.find(query)
-          .populate("branchIds", "_id name slug")
-          .sort({ displayOrder: 1, createdAt: -1 })
-          .lean(),
-        RetailProduct.countDocuments(),
-        RetailProduct.countDocuments({ stockStatus: "in_stock" }),
-        RetailProduct.countDocuments({ stockStatus: "low_stock" }),
-        RetailProduct.countDocuments({ stockStatus: "out_of_stock" }),
-        RetailProduct.countDocuments({ isFeatured: true }),
-        RetailProduct.countDocuments({ isActive: true }),
-        RetailProduct.countDocuments({ isActive: false }),
-      ]);
+    const [
+      products,
+      totalCount,
+      inStockCount,
+      lowStockCount,
+      outOfStockCount,
+      featuredCount,
+      mostPopularCount,
+      fastMovingCount,
+      discountCount,
+      activeCount,
+      hiddenCount,
+      settingsDoc,
+    ] = await Promise.all([
+      RetailProduct.find(query)
+        .populate("branchIds", "_id name slug")
+        .sort({ displayOrder: 1, createdAt: -1 })
+        .lean(),
+      RetailProduct.countDocuments(),
+      RetailProduct.countDocuments({ stockStatus: "in_stock" }),
+      RetailProduct.countDocuments({ stockStatus: "low_stock" }),
+      RetailProduct.countDocuments({ stockStatus: "out_of_stock" }),
+      RetailProduct.countDocuments({ isFeatured: true }),
+      RetailProduct.countDocuments({ isMostPopular: true }),
+      RetailProduct.countDocuments({ isFastMoving: true }),
+      RetailProduct.countDocuments({ isDiscountProduct: true }),
+      RetailProduct.countDocuments({ isActive: true }),
+      RetailProduct.countDocuments({ isActive: false }),
+      SalonSettings.findOne().select("productFeatureSections").lean(),
+    ]);
 
     return NextResponse.json({
       success: true,
       products,
+      productFeatureSections: normalizeProductFeatureSections(
+        settingsDoc?.productFeatureSections
+      ),
       stats: {
         total: totalCount,
         active: activeCount,
@@ -122,6 +154,9 @@ export async function GET(request: Request) {
         lowStock: lowStockCount,
         outOfStock: outOfStockCount,
         featured: featuredCount,
+        mostPopular: mostPopularCount,
+        fastMoving: fastMovingCount,
+        discount: discountCount,
       },
     });
   } catch (error) {
@@ -169,6 +204,9 @@ export async function POST(request: Request) {
       sku,
       branchIds,
       isFeatured,
+      isMostPopular,
+      isFastMoving,
+      isDiscountProduct,
       isActive,
       displayOrder,
     } = body;
@@ -218,6 +256,23 @@ export async function POST(request: Request) {
       }
     }
 
+    if (Boolean(isDiscountProduct)) {
+      if (
+        parsedSalePrice === null ||
+        isNaN(parsedSalePrice) ||
+        parsedSalePrice < 0 ||
+        parsedSalePrice >= parsedPrice
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Add a valid sale price before marking this as a Discount Product.",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     const validatedStockStatus: StockStatus =
       stockStatus && STOCK_STATUSES.includes(stockStatus as StockStatus)
         ? (stockStatus as StockStatus)
@@ -249,9 +304,18 @@ export async function POST(request: Request) {
       sku: sku ? sku.trim() : "",
       branchIds: cleanBranchIds,
       isFeatured: Boolean(isFeatured),
+      isMostPopular: Boolean(isMostPopular),
+      isFastMoving: Boolean(isFastMoving),
+      isDiscountProduct: Boolean(isDiscountProduct),
       isActive: isActive !== undefined ? Boolean(isActive) : true,
       displayOrder: typeof displayOrder === "number" ? displayOrder : 0,
     });
+
+    try {
+      revalidatePath("/products");
+    } catch {
+      // Ignore in non-Next contexts
+    }
 
     const populated = await RetailProduct.findById(
       (newProduct as unknown as { _id: mongoose.Types.ObjectId })._id

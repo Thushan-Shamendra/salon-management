@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
-import SalonSettings, { normalizePageVisibility } from "@/models/SalonSettings";
+import SalonSettings, {
+  normalizePageVisibility,
+  normalizeProductFeatureSections,
+} from "@/models/SalonSettings";
 import { deleteCloudinaryImage, CLOUDINARY_FOLDERS } from "@/lib/cloudinary";
 
 // Helper to ensure singleton settings exist
@@ -37,6 +40,9 @@ export async function GET() {
     const settings = await getOrCreateSettings();
     const settingsObj = settings.toObject();
     settingsObj.pageVisibility = normalizePageVisibility(settingsObj.pageVisibility);
+    settingsObj.productFeatureSections = normalizeProductFeatureSections(
+      settingsObj.productFeatureSections
+    );
 
     return NextResponse.json({
       success: true,
@@ -360,6 +366,18 @@ export async function PUT(request: Request) {
       });
     }
 
+    if (
+      body.productFeatureSections !== undefined &&
+      typeof body.productFeatureSections === "object" &&
+      body.productFeatureSections !== null
+    ) {
+      const currentPfs = normalizeProductFeatureSections(settings.productFeatureSections);
+      settings.productFeatureSections = normalizeProductFeatureSections({
+        ...currentPfs,
+        ...body.productFeatureSections,
+      });
+    }
+
     // 1. Save to MongoDB successfully first
     await settings.save();
 
@@ -399,6 +417,9 @@ export async function PUT(request: Request) {
 
     const updatedObj = settings.toObject();
     updatedObj.pageVisibility = normalizePageVisibility(updatedObj.pageVisibility);
+    updatedObj.productFeatureSections = normalizeProductFeatureSections(
+      updatedObj.productFeatureSections
+    );
 
     return NextResponse.json({
       success: true,
@@ -414,7 +435,7 @@ export async function PUT(request: Request) {
   }
 }
 
-// PATCH /api/admin/settings - ADMIN ONLY: partial update (e.g., pageVisibility only)
+// PATCH /api/admin/settings - ADMIN ONLY: partial update (e.g., pageVisibility or productFeatureSections)
 export async function PATCH(request: Request) {
   try {
     const user = await getCurrentUser();
@@ -435,9 +456,14 @@ export async function PATCH(request: Request) {
 
     const body = await request.json();
 
-    if (!body.pageVisibility || typeof body.pageVisibility !== "object") {
+    const hasPageVisibility =
+      body.pageVisibility && typeof body.pageVisibility === "object";
+    const hasProductFeatureSections =
+      body.productFeatureSections && typeof body.productFeatureSections === "object";
+
+    if (!hasPageVisibility && !hasProductFeatureSections) {
       return NextResponse.json(
-        { success: false, message: "Invalid pageVisibility payload" },
+        { success: false, message: "Invalid settings payload" },
         { status: 400 }
       );
     }
@@ -445,11 +471,21 @@ export async function PATCH(request: Request) {
     await connectDB();
     const settings = await getOrCreateSettings();
 
-    const currentPv = normalizePageVisibility(settings.pageVisibility);
-    settings.pageVisibility = normalizePageVisibility({
-      ...currentPv,
-      ...body.pageVisibility,
-    });
+    if (hasPageVisibility) {
+      const currentPv = normalizePageVisibility(settings.pageVisibility);
+      settings.pageVisibility = normalizePageVisibility({
+        ...currentPv,
+        ...body.pageVisibility,
+      });
+    }
+
+    if (hasProductFeatureSections) {
+      const currentPfs = normalizeProductFeatureSections(settings.productFeatureSections);
+      settings.productFeatureSections = normalizeProductFeatureSections({
+        ...currentPfs,
+        ...body.productFeatureSections,
+      });
+    }
 
     await settings.save();
 
@@ -467,16 +503,21 @@ export async function PATCH(request: Request) {
 
     const updatedObj = settings.toObject();
     updatedObj.pageVisibility = normalizePageVisibility(updatedObj.pageVisibility);
+    updatedObj.productFeatureSections = normalizeProductFeatureSections(
+      updatedObj.productFeatureSections
+    );
 
     return NextResponse.json({
       success: true,
-      message: "Page visibility updated successfully.",
+      message: hasProductFeatureSections && !hasPageVisibility
+        ? "Product display sections updated successfully."
+        : "Page visibility updated successfully.",
       settings: updatedObj,
     });
   } catch (error) {
     console.error("PATCH /api/admin/settings error:", error);
     return NextResponse.json(
-      { success: false, message: "Unable to update page visibility." },
+      { success: false, message: "Unable to update settings." },
       { status: 500 }
     );
   }

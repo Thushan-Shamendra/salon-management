@@ -6,9 +6,13 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { connectDB } from "@/lib/mongodb";
 import RetailProduct from "@/models/RetailProduct";
-import SalonSettings, { normalizePageVisibility } from "@/models/SalonSettings";
+import SalonSettings, {
+  normalizePageVisibility,
+  normalizeProductFeatureSections,
+} from "@/models/SalonSettings";
 import Branch from "@/models/Branch";
 import ProductsHero from "@/components/products/ProductsHero";
+import ProductFeatureSection from "@/components/products/ProductFeatureSection";
 import ProductsGridSection from "@/components/products/ProductsGridSection";
 import WhyBuyFromSalvora from "@/components/products/WhyBuyFromSalvora";
 import ProductsBottomCTA from "@/components/products/ProductsBottomCTA";
@@ -35,6 +39,11 @@ export default async function ProductsPage() {
   let salonName = "Salvora";
   let whatsappNumber = "";
   let isVisible = true;
+  let featureSections = {
+    mostPopular: true,
+    fastMoving: true,
+    discounts: true,
+  };
 
   try {
     await connectDB();
@@ -52,6 +61,7 @@ export default async function ProductsPage() {
 
     if (settings) {
       isVisible = normalizePageVisibility(settings.pageVisibility).products;
+      featureSections = normalizeProductFeatureSections(settings.productFeatureSections);
       if (settings.salonName) {
         salonName = settings.salonName;
       }
@@ -109,6 +119,9 @@ export default async function ProductsPage() {
           size: p.size,
           sku: p.sku,
           isFeatured: Boolean(p.isFeatured),
+          isMostPopular: Boolean(p.isMostPopular),
+          isFastMoving: Boolean(p.isFastMoving),
+          isDiscountProduct: Boolean(p.isDiscountProduct),
           branchWhatsapp: productBranchWhatsapp || undefined,
         };
       });
@@ -122,17 +135,63 @@ export default async function ProductsPage() {
     notFound();
   }
 
+  const mostPopularProducts = products.filter((p) => p.isMostPopular);
+  const fastMovingProducts = products.filter((p) => p.isFastMoving);
+  const discountProducts = products.filter((p) => p.isDiscountProduct);
+
   return (
     <PageCustomization scope="public" pageKey="products">
     <div className="min-h-screen flex flex-col bg-[#FAF9FB] text-stone-900">
       <Navbar />
       <main className="flex-1">
         <ProductsHero salonName={salonName} />
+
+        {/* Premium Collection - Main Products Grid */}
         <ProductsGridSection
           initialProducts={products}
           whatsappNumber={whatsappNumber}
           salonName={salonName}
         />
+
+        {/* Most Popular Products */}
+        {featureSections.mostPopular && mostPopularProducts.length > 0 && (
+          <ProductFeatureSection
+            eyebrow="MOST POPULAR"
+            title="Customer Favorites"
+            description="Discover some of the most popular beauty products at SALVORA."
+            products={mostPopularProducts}
+            whatsappNumber={whatsappNumber}
+            salonName={salonName}
+            sectionKey="products-most-popular"
+          />
+        )}
+
+        {/* Fast Moving Products */}
+        {featureSections.fastMoving && fastMovingProducts.length > 0 && (
+          <ProductFeatureSection
+            eyebrow="FAST MOVING"
+            title="Selling Fast"
+            description="Popular beauty essentials currently moving quickly at SALVORA."
+            products={fastMovingProducts}
+            whatsappNumber={whatsappNumber}
+            salonName={salonName}
+            sectionKey="products-fast-moving"
+          />
+        )}
+
+        {/* Discount Products */}
+        {featureSections.discounts && discountProducts.length > 0 && (
+          <ProductFeatureSection
+            eyebrow="SPECIAL SAVINGS"
+            title="Discount Products"
+            description="Explore selected SALVORA products currently available at special prices."
+            products={discountProducts}
+            whatsappNumber={whatsappNumber}
+            salonName={salonName}
+            sectionKey="products-discount"
+          />
+        )}
+
         <WhyBuyFromSalvora salonName={salonName} />
         <ProductsBottomCTA
           whatsappNumber={whatsappNumber}

@@ -31,6 +31,9 @@ export interface IRetailProduct extends Document {
   sku?: string;
   branchIds: mongoose.Types.ObjectId[];
   isFeatured: boolean;
+  isMostPopular: boolean;
+  isFastMoving: boolean;
+  isDiscountProduct: boolean;
   isActive: boolean;
   displayOrder: number;
   createdAt: Date;
@@ -132,6 +135,21 @@ const RetailProductSchema = new Schema<IRetailProduct>(
       default: false,
       index: true,
     },
+    isMostPopular: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    isFastMoving: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    isDiscountProduct: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
     isActive: {
       type: Boolean,
       default: true,
@@ -151,6 +169,9 @@ const RetailProductSchema = new Schema<IRetailProduct>(
 // Compound indexes for public queries
 RetailProductSchema.index({ isActive: 1, category: 1, displayOrder: 1, createdAt: -1 });
 RetailProductSchema.index({ isActive: 1, isFeatured: 1, displayOrder: 1 });
+RetailProductSchema.index({ isActive: 1, isMostPopular: 1, displayOrder: 1, createdAt: -1 });
+RetailProductSchema.index({ isActive: 1, isFastMoving: 1, displayOrder: 1, createdAt: -1 });
+RetailProductSchema.index({ isActive: 1, isDiscountProduct: 1, displayOrder: 1, createdAt: -1 });
 
 // Avoid caching stale schema during Next.js hot module reloading in dev
 if (

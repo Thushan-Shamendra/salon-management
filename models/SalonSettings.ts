@@ -40,6 +40,22 @@ export function normalizePageVisibility(
   };
 }
 
+export interface IProductFeatureSectionsSettings {
+  mostPopular: boolean;
+  fastMoving: boolean;
+  discounts: boolean;
+}
+
+export function normalizeProductFeatureSections(
+  raw?: Partial<IProductFeatureSectionsSettings> | null
+): IProductFeatureSectionsSettings {
+  return {
+    mostPopular: raw?.mostPopular !== undefined ? Boolean(raw.mostPopular) : true,
+    fastMoving: raw?.fastMoving !== undefined ? Boolean(raw.fastMoving) : true,
+    discounts: raw?.discounts !== undefined ? Boolean(raw.discounts) : true,
+  };
+}
+
 export interface ISalonBranch {
   _id?: string;
   name: string;
@@ -73,6 +89,7 @@ export interface ISalonSettings extends Document {
   googleReviews?: IGoogleReviewsSettings;
   externalSystem?: IExternalSystemSettings;
   pageVisibility?: IPageVisibilitySettings;
+  productFeatureSections?: IProductFeatureSectionsSettings;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -236,11 +253,33 @@ const SalonSettingsSchema = new Schema<ISalonSettings>(
         default: true,
       },
     },
+    productFeatureSections: {
+      mostPopular: {
+        type: Boolean,
+        default: true,
+      },
+      fastMoving: {
+        type: Boolean,
+        default: true,
+      },
+      discounts: {
+        type: Boolean,
+        default: true,
+      },
+    },
   },
   {
     timestamps: true,
   }
 );
+
+if (
+  process.env.NODE_ENV !== "production" &&
+  mongoose.models &&
+  mongoose.models.SalonSettings
+) {
+  delete mongoose.models.SalonSettings;
+}
 
 const SalonSettings: Model<ISalonSettings> =
   mongoose.models.SalonSettings ||
