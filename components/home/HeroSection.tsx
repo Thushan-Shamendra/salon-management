@@ -41,8 +41,8 @@ export default function HeroSection({
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-2xl space-y-6">
           {/* Label: Professional Beauty & Wellness */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-purple-400/30 bg-purple-950/50 px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#C4B5FD] backdrop-blur-md">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#8B5CF6] animate-pulse" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#03BF62]/40 bg-[#03BF62]/15 px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#03BF62] backdrop-blur-md">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62] animate-pulse" />
             <span data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>Professional Beauty & Wellness</>}</span>
           </div>
 
@@ -50,7 +50,7 @@ export default function HeroSection({
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.12]" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             Beauty<br />
             Redefined<br /></>}
-            <span className="text-[#8B5CF6]" data-customization-role="highlight">{custom.has("highlightedText") ? custom.text("highlightedText", "") : <>For You</>}</span>
+            <span className="text-[#03BF62]" data-customization-role="highlight">{custom.has("highlightedText") ? custom.text("highlightedText", "") : <>For You</>}</span>
           </h1>
 
           {/* Subtitle */}
@@ -73,7 +73,7 @@ export default function HeroSection({
                     },
                   });
                 }}
-                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-purple-600/30 transition-all hover:bg-[#6D28D9] hover:shadow-purple-600/50 hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#03BF62] px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#03BF62]/25 transition-all hover:bg-[#029e51] hover:shadow-[#03BF62]/40 hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
               >
                 <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Book Appointment</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />
@@ -83,7 +83,7 @@ export default function HeroSection({
                 type="button"
                 disabled
                 title="Online booking link not yet configured"
-                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED]/60 px-8 py-3.5 text-sm font-semibold text-white/80 cursor-not-allowed shadow-none" data-customization-role="primaryButton"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#03BF62]/60 px-8 py-3.5 text-sm font-semibold text-white/90 cursor-not-allowed shadow-none" data-customization-role="primaryButton"
               >
                 <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Book Appointment</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />
@@ -126,7 +126,7 @@ export default function HeroSection({
               </div>
             ) : (
               <div className="flex items-center gap-3 text-xs text-stone-300">
-                <SparklesIcon className="h-4 w-4 text-[#C4B5FD]" />
+                <SparklesIcon className="h-4 w-4 text-[#03BF62]" />
                 <span>Personalized Consultations • Modern Salon Care</span>
               </div>
             )}
@@ -134,7 +134,7 @@ export default function HeroSection({
             {/* Subtle Scroll Down Indicator */}
             <div className="hidden sm:flex items-center gap-2 text-stone-400 text-xs tracking-wider uppercase opacity-85">
               <div className="h-7 w-4 rounded-full border border-stone-400/60 p-0.5 flex justify-center">
-                <div className="h-2 w-1 rounded-full bg-purple-400 animate-bounce" />
+                <div className="h-2 w-1 rounded-full bg-[#03BF62] animate-bounce" />
               </div>
               <span>Scroll Down</span>
             </div>

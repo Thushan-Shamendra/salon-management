@@ -92,7 +92,7 @@ export default function GalleryPreview() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               ✦ Our Gallery
             </>}</span>
             <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
@@ -102,7 +102,7 @@ export default function GalleryPreview() {
 
           <Link
             href="/gallery"
-            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="primaryButton"
+            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-[#03BF62]/40 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#03BF62] shadow-2xs transition-all hover:bg-[#03BF62] hover:text-white hover:border-[#03BF62] active:scale-[0.98]" data-customization-role="primaryButton"
           >
             <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View Gallery</>}</span>
             <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -128,7 +128,7 @@ export default function GalleryPreview() {
             </p>
             <Link
               href="/gallery"
-              className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2 text-xs font-semibold text-white"
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#03BF62] px-5 py-2 text-xs font-semibold text-white hover:bg-[#029e51]"
             >
               Explore Gallery
             </Link>
@@ -146,7 +146,7 @@ export default function GalleryPreview() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
                   <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-white pointer-events-none">
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-[#C4B5FD]">
+                      <p className="text-xs font-medium uppercase tracking-wider text-[#03BF62]">
                         {items[0].category || "Salon Portfolio"}
                       </p>
                       <h3 className="text-xl font-bold tracking-tight mt-0.5">
@@ -173,14 +173,14 @@ export default function GalleryPreview() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
                     <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-white pointer-events-none">
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-[#C4B5FD]">
+                        <p className="text-xs font-medium uppercase tracking-wider text-[#03BF62]">
                           {item.category || "Salon Portfolio"}
                         </p>
                         <h3 className="text-lg sm:text-xl font-bold tracking-tight mt-0.5">
                           {item.title}
                         </h3>
                       </div>
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white transition-transform group-hover:scale-110 group-hover:bg-[#7C3AED] pointer-events-auto">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white transition-transform group-hover:scale-110 group-hover:bg-[#03BF62] pointer-events-auto">
                         <ExternalLinkIcon className="h-4 w-4" />
                       </div>
                     </div>
@@ -204,7 +204,7 @@ export default function GalleryPreview() {
                     {renderItemImage(item, "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw")}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
                     <div className="absolute bottom-4 left-4 right-4 text-white pointer-events-none">
-                      <p className="text-[11px] font-medium uppercase tracking-wider text-[#C4B5FD]">
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-[#03BF62]">
                         {item.category || "Style"}
                       </p>
                       <h3 className="text-sm font-bold truncate">{item.title}</h3>
@@ -223,14 +223,14 @@ export default function GalleryPreview() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
                   <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-white pointer-events-none">
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-[#C4B5FD]">
+                      <p className="text-xs font-medium uppercase tracking-wider text-[#03BF62]">
                         {items[0].category || "Featured Style"}
                       </p>
                       <h3 className="text-xl font-bold tracking-tight mt-0.5">
                         {items[0].title}
                       </h3>
                     </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white transition-transform group-hover:scale-110 group-hover:bg-[#7C3AED] pointer-events-auto">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white transition-transform group-hover:scale-110 group-hover:bg-[#03BF62] pointer-events-auto">
                       <ExternalLinkIcon className="h-4 w-4" />
                     </div>
                   </div>

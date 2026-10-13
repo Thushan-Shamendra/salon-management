@@ -105,7 +105,7 @@ export default function FeaturedServices({ bookingUrl: propBookingUrl }: Feature
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               ✦ Our Services
             </>}</span>
             <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
@@ -115,7 +115,7 @@ export default function FeaturedServices({ bookingUrl: propBookingUrl }: Feature
 
           <Link
             href="/services"
-            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="primaryButton"
+            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-[#03BF62]/40 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#03BF62] shadow-2xs transition-all hover:bg-[#03BF62] hover:text-white hover:border-[#03BF62] active:scale-[0.98]" data-customization-role="primaryButton"
           >
             <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View All Services</>}</span>
             <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -149,7 +149,7 @@ export default function FeaturedServices({ bookingUrl: propBookingUrl }: Feature
         {/* 2. Error State */}
         {!loading && error && (
           <div className="rounded-2xl border border-stone-200 bg-white p-10 text-center shadow-xs max-w-xl mx-auto">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-purple-50 text-[#7C3AED]">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#03BF62]/15 text-[#03BF62]">
               <ScissorsIcon className="h-6 w-6" />
             </div>
             <h3 className="mt-4 text-base font-semibold text-stone-900">
@@ -160,13 +160,13 @@ export default function FeaturedServices({ bookingUrl: propBookingUrl }: Feature
               <button
                 type="button"
                 onClick={retryFetch}
-                className="rounded-full bg-[#7C3AED] px-5 py-2 text-xs font-medium text-white hover:bg-[#6D28D9] transition-colors"
+                className="rounded-full bg-[#03BF62] px-5 py-2 text-xs font-semibold text-white hover:bg-[#029e51] transition-colors"
               >
                 Try Again
               </button>
               <Link
                 href="/services"
-                className="rounded-full border border-stone-200 bg-white px-5 py-2 text-xs font-medium text-stone-700 hover:border-[#7C3AED]"
+                className="rounded-full border border-stone-200 bg-white px-5 py-2 text-xs font-medium text-stone-700 hover:border-[#03BF62] hover:text-[#03BF62]"
               >
                 Browse Services
               </Link>
@@ -182,7 +182,7 @@ export default function FeaturedServices({ bookingUrl: propBookingUrl }: Feature
             </p>
             <Link
               href="/services"
-              className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2 text-xs font-medium text-white"
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#03BF62] px-5 py-2 text-xs font-semibold text-white hover:bg-[#029e51]"
             >
               Explore Services
             </Link>
@@ -201,7 +201,7 @@ export default function FeaturedServices({ bookingUrl: propBookingUrl }: Feature
               return (
                 <div
                   key={service._id}
-                  className="group flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xs transition-all duration-300 hover:border-purple-300 hover:shadow-lg hover:-translate-y-1"
+                  className="group flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xs transition-all duration-300 hover:border-[#03BF62]/40 hover:shadow-lg hover:-translate-y-1"
                 >
                   <div>
                     {/* Prominent Service Image */}
@@ -218,7 +218,7 @@ export default function FeaturedServices({ bookingUrl: propBookingUrl }: Feature
 
                     {/* Service Name & Description */}
                     <div className="mt-4">
-                      <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#7C3AED] transition-colors truncate">
+                      <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#03BF62] transition-colors truncate">
                         {service.name}
                       </h3>
                       <p className="mt-1.5 text-xs sm:text-sm text-stone-500 line-clamp-2 leading-relaxed min-h-[36px]">
@@ -248,7 +248,7 @@ export default function FeaturedServices({ bookingUrl: propBookingUrl }: Feature
                     {bookingUrl ? (
                       <a
                         href={bookingUrl}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-stone-900 py-3 text-xs sm:text-sm font-semibold text-white transition-all hover:bg-[#7C3AED] hover:shadow-md active:scale-[0.98]"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-stone-900 py-3 text-xs sm:text-sm font-semibold text-white transition-all hover:bg-[#03BF62] hover:shadow-md active:scale-[0.98]"
                       >
                         <span>Book Appointment</span>
                         <ArrowRightIcon className="h-4 w-4" />

@@ -52,7 +52,7 @@ export default function WhyChooseUs({
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Centered Heading */}
         <div className="text-center max-w-xl mx-auto mb-14">
-          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">
+          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">
             <CustomizationText sectionKey="why-choose" field="eyebrow">{tag}</CustomizationText>
           </span>
           <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">
@@ -67,16 +67,16 @@ export default function WhyChooseUs({
             return (
               <div
                 key={feature.title}
-                className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-7 sm:p-8 min-h-[220px] shadow-xs transition-all duration-300 hover:border-purple-300 hover:shadow-lg hover:-translate-y-1"
+                className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-7 sm:p-8 min-h-[220px] shadow-xs transition-all duration-300 hover:border-[#03BF62]/40 hover:shadow-lg hover:-translate-y-1"
               >
                 <div>
                   {/* Large Icon Box with Enhanced Contrast */}
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EDE9FE] text-[#6D28D9] border border-[#DDD6FE] shadow-2xs transition-all duration-300 group-hover:bg-[#7C3AED] group-hover:text-white group-hover:border-[#7C3AED] mb-5">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#03BF62]/10 text-[#03BF62] border border-[#03BF62]/20 shadow-2xs transition-all duration-300 group-hover:bg-[#03BF62] group-hover:text-white group-hover:border-[#03BF62] mb-5">
                     <Icon className="h-7 w-7" />
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#7C3AED] transition-colors">
+                  <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#03BF62] transition-colors">
                     {feature.title}
                   </h3>
 

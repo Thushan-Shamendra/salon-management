@@ -36,8 +36,8 @@ export default function ProductsPreview({
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10 sm:mb-12">
           <div>
             <div className="inline-flex items-center gap-2 mb-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-              <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+              <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+              <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                 OUR PRODUCTS
               </>}</span>
             </div>
@@ -52,7 +52,7 @@ export default function ProductsPreview({
 
           <Link
             href="/products"
-            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="primaryButton"
+            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-[#03BF62]/40 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#03BF62] shadow-2xs transition-all hover:bg-[#03BF62] hover:text-white hover:border-[#03BF62] active:scale-[0.98]" data-customization-role="primaryButton"
           >
             <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View All Products</>}</span>
             <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -75,7 +75,7 @@ export default function ProductsPreview({
         <div className="mt-8 text-center sm:hidden">
           <Link
             href="/products"
-            className="group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="primaryButton"
+            className="group inline-flex items-center gap-2.5 rounded-full border border-[#03BF62]/40 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#03BF62] shadow-2xs transition-all hover:bg-[#03BF62] hover:text-white hover:border-[#03BF62] active:scale-[0.98]" data-customization-role="primaryButton"
           >
             <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View All Products</>}</span>
             <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />

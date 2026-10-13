@@ -51,8 +51,8 @@ function HomeWeddingPackageCard({ pkg }: { pkg: HomeWeddingPackageData }) {
     <div
       className={`group flex flex-col justify-between rounded-2xl bg-white p-5 sm:p-6 transition-all duration-300 ${
         pkg.isFeatured
-          ? "border-2 border-[#7C3AED] shadow-xl shadow-purple-500/10 ring-1 ring-[#7C3AED]/20 -translate-y-1"
-          : "border border-stone-200/90 shadow-xs hover:border-purple-300 hover:shadow-lg hover:-translate-y-1"
+          ? "border-2 border-[#03BF62] shadow-xl shadow-stone-900/10 ring-1 ring-[#03BF62]/30 -translate-y-1"
+          : "border border-stone-200/90 shadow-xs hover:border-[#03BF62]/40 hover:shadow-lg hover:-translate-y-1"
       }`}
     >
       <div>
@@ -69,7 +69,7 @@ function HomeWeddingPackageCard({ pkg }: { pkg: HomeWeddingPackageData }) {
 
           {pkg.isFeatured && (
             <div className="absolute top-3 left-3 z-10">
-              <span className="inline-flex items-center rounded-full bg-[#7C3AED] px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-white shadow-md shadow-purple-900/30">
+              <span className="inline-flex items-center rounded-full bg-[#03BF62] px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-white shadow-md shadow-[#03BF62]/25">
                 FEATURED
               </span>
             </div>
@@ -85,7 +85,7 @@ function HomeWeddingPackageCard({ pkg }: { pkg: HomeWeddingPackageData }) {
           >
             <h3
               className={`text-xl font-bold tracking-tight truncate ${
-                pkg.isFeatured ? "text-[#7C3AED]" : "text-stone-900 group-hover:text-[#7C3AED]"
+                pkg.isFeatured ? "text-[#03BF62]" : "text-stone-900 group-hover:text-[#03BF62]"
               } transition-colors`}
             >
               {pkg.name}
@@ -102,7 +102,7 @@ function HomeWeddingPackageCard({ pkg }: { pkg: HomeWeddingPackageData }) {
             <ul className="space-y-2 text-xs sm:text-sm text-stone-700">
               {displayedItems.map((item, idx) => (
                 <li key={idx} className="flex items-start gap-2.5">
-                  <span className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-purple-100 text-[#7C3AED] mt-0.5">
+                  <span className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-[#03BF62]/15 text-[#03BF62] mt-0.5">
                     <CheckIcon className="h-3 w-3 stroke-[3]" />
                   </span>
                   <span className="font-medium text-stone-700 leading-tight">
@@ -111,7 +111,7 @@ function HomeWeddingPackageCard({ pkg }: { pkg: HomeWeddingPackageData }) {
                 </li>
               ))}
               {remainingCount > 0 && (
-                <li className="pt-1 text-xs font-semibold text-[#7C3AED] flex items-center gap-1.5">
+                <li className="pt-1 text-xs font-semibold text-[#03BF62] flex items-center gap-1.5">
                   <span>+{remainingCount} more</span>
                 </li>
               )}
@@ -142,8 +142,8 @@ function HomeWeddingPackageCard({ pkg }: { pkg: HomeWeddingPackageData }) {
           onClick={handleCardClick}
           className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 text-xs sm:text-sm font-semibold transition-all active:scale-[0.98] ${
             pkg.isFeatured
-              ? "bg-[#7C3AED] text-white hover:bg-[#6D28D9] shadow-md shadow-purple-600/30"
-              : "bg-stone-900 text-white hover:bg-[#7C3AED]"
+              ? "bg-[#03BF62] text-white hover:bg-[#029e51] shadow-md shadow-[#03BF62]/25"
+              : "bg-stone-900 text-white hover:bg-[#03BF62]"
           }`}
         >
           <span>View Package</span>
@@ -174,8 +174,8 @@ export default function WeddingPackagesPreview({
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10 sm:mb-12">
           <div>
             <div className="inline-flex items-center gap-2 mb-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-              <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+              <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+              <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                 WEDDING PACKAGES
               </>}</span>
             </div>
@@ -197,7 +197,7 @@ export default function WeddingPackagesPreview({
                 },
               });
             }}
-            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="primaryButton"
+            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-[#03BF62]/40 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#03BF62] shadow-2xs transition-all hover:bg-[#03BF62] hover:text-white hover:border-[#03BF62] active:scale-[0.98]" data-customization-role="primaryButton"
           >
             <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View All Wedding Packages</>}</span>
             <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -223,7 +223,7 @@ export default function WeddingPackagesPreview({
                 },
               });
             }}
-            className="group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="primaryButton"
+            className="group inline-flex items-center gap-2.5 rounded-full border border-[#03BF62]/40 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#03BF62] shadow-2xs transition-all hover:bg-[#03BF62] hover:text-white hover:border-[#03BF62] active:scale-[0.98]" data-customization-role="primaryButton"
           >
             <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View All Wedding Packages</>}</span>
             <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />

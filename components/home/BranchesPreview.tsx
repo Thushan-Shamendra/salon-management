@@ -146,7 +146,7 @@ function HomeBranchCard({ branch }: { branch: HomeBranchCardData }) {
   return (
     <div
       className={`group h-full flex flex-col justify-between rounded-2xl bg-white border border-stone-200/80 shadow-2xs hover:shadow-lg transition-all duration-300 overflow-hidden ${
-        branch.isMain ? "ring-2 ring-[#7C3AED]/30" : ""
+        branch.isMain ? "ring-2 ring-[#03BF62]/30" : ""
       }`}
     >
       <div>
@@ -172,11 +172,11 @@ function HomeBranchCard({ branch }: { branch: HomeBranchCardData }) {
         <div className="p-4 sm:p-5 space-y-3">
           {/* Branch Title & Main Badge */}
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-base sm:text-lg font-bold text-stone-900 leading-snug group-hover:text-[#7C3AED] transition-colors line-clamp-1">
+            <h3 className="text-base sm:text-lg font-bold text-stone-900 leading-snug group-hover:text-[#03BF62] transition-colors line-clamp-1">
               {branch.name}
             </h3>
             {branch.isMain && (
-              <span className="shrink-0 rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[#7C3AED] border border-purple-200">
+              <span className="shrink-0 rounded-full bg-[#03BF62]/10 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[#03BF62] border border-[#03BF62]/30">
                 MAIN BRANCH
               </span>
             )}
@@ -184,16 +184,16 @@ function HomeBranchCard({ branch }: { branch: HomeBranchCardData }) {
 
           {/* Address */}
           <div className="flex items-start gap-2.5 text-xs sm:text-sm text-stone-600">
-            <MapPinIcon className="h-4 w-4 shrink-0 text-[#7C3AED] mt-0.5" />
+            <MapPinIcon className="h-4 w-4 shrink-0 text-[#03BF62] mt-0.5" />
             <span className="leading-relaxed line-clamp-2">{branch.address}</span>
           </div>
 
           {/* Phone */}
           <div className="flex items-center gap-2.5 text-xs sm:text-sm text-stone-700">
-            <PhoneIcon className="h-4 w-4 shrink-0 text-[#7C3AED]" />
+            <PhoneIcon className="h-4 w-4 shrink-0 text-[#03BF62]" />
             <a
               href={`tel:${branch.phone}`}
-              className="hover:text-[#7C3AED] transition-colors font-medium truncate"
+              className="hover:text-[#03BF62] transition-colors font-medium truncate"
               onClick={() => {
                 trackEvent({
                   eventType: "CALL_CLICK",
@@ -210,10 +210,10 @@ function HomeBranchCard({ branch }: { branch: HomeBranchCardData }) {
           {/* Email (if available) */}
           {branch.email && (
             <div className="flex items-center gap-2.5 text-xs sm:text-sm text-stone-600">
-              <MailIcon className="h-4 w-4 shrink-0 text-[#7C3AED]" />
+              <MailIcon className="h-4 w-4 shrink-0 text-[#03BF62]" />
               <a
                 href={`mailto:${branch.email}`}
-                className="hover:text-[#7C3AED] transition-colors truncate"
+                className="hover:text-[#03BF62] transition-colors truncate"
               >
                 {branch.email}
               </a>
@@ -222,7 +222,7 @@ function HomeBranchCard({ branch }: { branch: HomeBranchCardData }) {
 
           {/* Opening Hours Summary */}
           <div className="flex items-start gap-2.5 text-xs sm:text-sm text-stone-600 pt-1">
-            <ClockIcon className="h-4 w-4 shrink-0 text-[#7C3AED] mt-0.5" />
+            <ClockIcon className="h-4 w-4 shrink-0 text-[#03BF62] mt-0.5" />
             <div className="space-y-0.5">
               {hoursSummary && hoursSummary.length > 0 ? (
                 hoursSummary.map((h, i) => (
@@ -234,7 +234,7 @@ function HomeBranchCard({ branch }: { branch: HomeBranchCardData }) {
               ) : (
                 <Link
                   href="/contact"
-                  className="text-xs font-semibold text-[#7C3AED] hover:underline"
+                  className="text-xs font-semibold text-[#03BF62] hover:underline"
                 >
                   View Opening Hours
                 </Link>
@@ -257,7 +257,7 @@ function HomeBranchCard({ branch }: { branch: HomeBranchCardData }) {
                 metadata: { source: "home-branch-card", label: branch.name },
               });
             }}
-            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-stone-200 bg-white py-2 px-3 text-xs sm:text-sm font-semibold text-stone-800 hover:border-[#7C3AED] hover:text-[#7C3AED] transition-colors shadow-2xs"
+            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-stone-200 bg-white py-2 px-3 text-xs sm:text-sm font-semibold text-stone-800 hover:border-[#03BF62] hover:text-[#03BF62] transition-colors shadow-2xs"
           >
             <PhoneIcon className="h-3.5 w-3.5" />
             <span>Call Us</span>
@@ -275,7 +275,7 @@ function HomeBranchCard({ branch }: { branch: HomeBranchCardData }) {
                 metadata: { source: "home-branch-card", label: branch.name },
               });
             }}
-            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-[#7C3AED] py-2 px-3 text-xs sm:text-sm font-semibold text-white hover:bg-[#6D28D9] transition-colors shadow-2xs shadow-purple-950/15"
+            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-[#03BF62] py-2 px-3 text-xs sm:text-sm font-semibold text-white hover:bg-[#029e51] transition-colors shadow-2xs shadow-stone-900/15"
           >
             <CompassIcon className="h-3.5 w-3.5" />
             <span>Directions</span>
@@ -315,8 +315,8 @@ export default function BranchesPreview({ branches }: BranchesPreviewProps) {
       <section className="bg-white py-14 sm:py-20 border-t border-stone-200/60" data-customization-section="branches">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-2 mb-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+            <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+            <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               VISIT SALVORA
             </>}</span>
           </div>
@@ -333,7 +333,7 @@ export default function BranchesPreview({ branches }: BranchesPreviewProps) {
             </p>
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#7C3AED] px-5 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-[#6D28D9] transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#03BF62] px-5 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-[#029e51] transition-colors"
             >
               <span>Contact Us</span>
               <ArrowRightIcon className="h-4 w-4" />
@@ -354,8 +354,8 @@ export default function BranchesPreview({ branches }: BranchesPreviewProps) {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10 sm:mb-12">
           <div>
             <div className="inline-flex items-center gap-2 mb-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-              <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.text("eyebrow", "VISIT SALVORA")}</span>
+              <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+              <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.text("eyebrow", "VISIT SALVORA")}</span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-stone-900 leading-tight" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
               Contact Us
@@ -367,7 +367,7 @@ export default function BranchesPreview({ branches }: BranchesPreviewProps) {
 
           <Link
             href="/contact"
-            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="primaryButton"
+            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-[#03BF62]/40 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#03BF62] shadow-2xs transition-all hover:bg-[#03BF62] hover:text-white hover:border-[#03BF62] active:scale-[0.98]" data-customization-role="primaryButton"
           >
             <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View All Branches</>}</span>
             <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -405,7 +405,7 @@ export default function BranchesPreview({ branches }: BranchesPreviewProps) {
         <div className="mt-10 sm:mt-12 text-center">
           <Link
             href="/contact"
-            className="group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="primaryButton"
+            className="group inline-flex items-center gap-2.5 rounded-full border border-[#03BF62]/40 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#03BF62] shadow-2xs transition-all hover:bg-[#03BF62] hover:text-white hover:border-[#03BF62] active:scale-[0.98]" data-customization-role="primaryButton"
           >
             <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View All Branches</>}</span>
             <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />

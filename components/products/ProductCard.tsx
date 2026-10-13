@@ -134,7 +134,7 @@ export default function ProductCard({
 
         {/* Product Info */}
         <div className="mt-3 space-y-1">
-          <h3 className="text-sm sm:text-base font-bold text-stone-900 leading-snug line-clamp-1 group-hover:text-[#7C3AED] transition-colors">
+          <h3 className="text-sm sm:text-base font-bold text-stone-900 leading-snug line-clamp-1 group-hover:text-[#03BF62] transition-colors">
             {product.name}
           </h3>
 
@@ -171,7 +171,7 @@ export default function ProductCard({
           className={`w-full rounded-xl py-2 px-3 text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             isOutOfStock
               ? "bg-stone-100 text-stone-400 cursor-not-allowed"
-              : "bg-[#ECEBEF] text-stone-800 hover:bg-[#7C3AED] hover:text-white shadow-2xs active:scale-[0.98]"
+              : "bg-[#ECEBEF] text-stone-800 hover:bg-[#03BF62] hover:text-white shadow-2xs active:scale-[0.98]"
           }`}
           aria-label={isOutOfStock ? `${product.name} is out of stock` : `Buy ${product.name}`}
         >

@@ -63,7 +63,7 @@ export default function ReviewPreview() {
         {/* Section Header */}
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               ✦ Client Love
             </>}</span>
             <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
@@ -97,7 +97,7 @@ export default function ReviewPreview() {
                 href={businessUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#6D28D9] active:scale-[0.98]" data-customization-role="primaryButton"
+                className="inline-flex items-center gap-2 rounded-full bg-[#03BF62] px-5 py-2 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#029e51] active:scale-[0.98]" data-customization-role="primaryButton"
               >
                 <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View on Google</>}</span>
                 <ArrowRightIcon className="h-3 w-3" />
@@ -111,7 +111,7 @@ export default function ReviewPreview() {
           {reviews.map((review, idx) => (
             <div
               key={idx}
-              className="flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-[#FAF8F5] p-6 shadow-xs transition-all duration-300 hover:border-purple-300 hover:shadow-md hover:-translate-y-1"
+              className="flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-[#FAF8F5] p-6 shadow-xs transition-all duration-300 hover:border-[#03BF62]/40 hover:shadow-md hover:-translate-y-1"
             >
               <div>
                 {/* Author Info & Rating */}
@@ -122,13 +122,13 @@ export default function ReviewPreview() {
                       <img
                         src={review.authorPhoto}
                         alt={review.authorName}
-                        className="h-10 w-10 rounded-full object-cover border border-purple-100"
+                        className="h-10 w-10 rounded-full object-cover border border-[#03BF62]/30"
                         onError={(e) => {
                           e.currentTarget.style.display = "none";
                         }}
                       />
                     ) : (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 text-[#7C3AED] font-bold text-xs">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#03BF62]/15 text-[#03BF62] font-bold text-xs">
                         {review.authorName.charAt(0)}
                       </div>
                     )}

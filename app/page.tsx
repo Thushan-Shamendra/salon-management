@@ -200,7 +200,7 @@ export default async function HomePage() {
 
   return (
     <PageCustomization scope="public" pageKey="home">
-    <div className="min-h-screen flex flex-col bg-white text-stone-900 selection:bg-purple-200 selection:text-purple-950">
+    <div className="min-h-screen flex flex-col bg-white text-stone-900 selection:bg-[#03BF62]/30 selection:text-stone-900">
       {/* 1. Navbar */}
       <Navbar />
 

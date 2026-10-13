@@ -39,7 +39,7 @@ export default function BookingCTA({
         <div className="max-w-2xl space-y-5 text-left">
           {/* Tag */}
           <div className="inline-flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#C4B5FD]" data-customization-role="eyebrow">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">
               {custom.text("eyebrow", tag)}
             </span>
           </div>
@@ -67,7 +67,7 @@ export default function BookingCTA({
                     },
                   });
                 }}
-                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-9 py-4 text-sm font-semibold text-white shadow-xl shadow-purple-600/40 transition-all hover:bg-[#6D28D9] hover:shadow-purple-600/60 hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#03BF62] px-9 py-4 text-sm font-semibold text-white shadow-xl shadow-[#03BF62]/30 transition-all hover:bg-[#029e51] hover:shadow-[#03BF62]/50 hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
               >
                 <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Book Appointment</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />
@@ -77,7 +77,7 @@ export default function BookingCTA({
                 type="button"
                 disabled
                 title="Online booking link not yet configured"
-                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED]/60 px-9 py-4 text-sm font-semibold text-white/80 cursor-not-allowed shadow-none" data-customization-role="primaryButton"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#03BF62]/60 px-9 py-4 text-sm font-semibold text-white/80 cursor-not-allowed shadow-none" data-customization-role="primaryButton"
               >
                 <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Book Appointment</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />

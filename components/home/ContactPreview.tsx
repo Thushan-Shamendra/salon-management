@@ -215,7 +215,7 @@ export default function ContactPreview({ initialSettings }: ContactPreviewProps 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="max-w-2xl mb-12">
-          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]">
             ✦ Get In Touch
           </span>
           <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
@@ -232,7 +232,7 @@ export default function ContactPreview({ initialSettings }: ContactPreviewProps 
           <div className="lg:col-span-6 space-y-6">
             {/* Visit Our Salon */}
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-purple-100 text-[#7C3AED]">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#03BF62]/10 text-[#03BF62]">
                 <MapPinIcon className="h-6 w-6" />
               </div>
               <div>
@@ -245,14 +245,14 @@ export default function ContactPreview({ initialSettings }: ContactPreviewProps 
 
             {/* Call Us */}
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-purple-100 text-[#7C3AED]">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#03BF62]/10 text-[#03BF62]">
                 <PhoneIcon className="h-6 w-6" />
               </div>
               <div>
                 <h3 className="text-base font-bold text-stone-900">Call Us</h3>
                 <a
                   href={`tel:${settings.phone?.replace(/\s+/g, "")}`}
-                  className="text-sm text-stone-600 hover:text-[#7C3AED] transition-colors mt-1 block font-medium"
+                  className="text-sm text-stone-600 hover:text-[#03BF62] transition-colors mt-1 block font-medium"
                 >
                   {settings.phone || "+94 76 123 4567"}
                 </a>
@@ -261,14 +261,14 @@ export default function ContactPreview({ initialSettings }: ContactPreviewProps 
 
             {/* Email Us */}
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-purple-100 text-[#7C3AED]">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#03BF62]/10 text-[#03BF62]">
                 <MailIcon className="h-6 w-6" />
               </div>
               <div>
                 <h3 className="text-base font-bold text-stone-900">Email Us</h3>
                 <a
                   href={`mailto:${settings.email}`}
-                  className="text-sm text-stone-600 hover:text-[#7C3AED] transition-colors mt-1 block font-medium"
+                  className="text-sm text-stone-600 hover:text-[#03BF62] transition-colors mt-1 block font-medium"
                 >
                   {settings.email || "info@salvora.lk"}
                 </a>
@@ -277,7 +277,7 @@ export default function ContactPreview({ initialSettings }: ContactPreviewProps 
 
             {/* Opening Hours */}
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-purple-100 text-[#7C3AED]">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#03BF62]/10 text-[#03BF62]">
                 <ClockIcon className="h-6 w-6" />
               </div>
               <div>
@@ -302,7 +302,7 @@ export default function ContactPreview({ initialSettings }: ContactPreviewProps 
                     },
                   });
                 }}
-                className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-6 py-3 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-[#7C3AED] transition-colors"
+                className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-6 py-3 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-[#03BF62] transition-colors"
               >
                 <PhoneIcon className="h-4 w-4" />
                 <span>Call Us</span>
@@ -322,7 +322,7 @@ export default function ContactPreview({ initialSettings }: ContactPreviewProps 
                 }}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-6 py-3 text-xs sm:text-sm font-semibold text-stone-700 shadow-xs hover:border-[#7C3AED] hover:text-[#7C3AED] transition-colors"
+                className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-6 py-3 text-xs sm:text-sm font-semibold text-stone-700 shadow-xs hover:border-[#03BF62] hover:text-[#03BF62] transition-colors"
               >
                 <MapPinIcon className="h-4 w-4" />
                 <span>Get Directions</span>

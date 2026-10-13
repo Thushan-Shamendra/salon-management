@@ -149,9 +149,9 @@ export default function PromotionCard({
             loading="lazy"
           />
 
-          {/* Floating Purple Pill Badge (Top-Left) */}
+          {/* Floating Pill Badge (Top-Left) */}
           <div className="absolute top-3 left-3">
-            <span className="rounded-full bg-[#7C3AED] px-3 py-1 text-xs font-bold text-white shadow-md shadow-purple-950/25">
+            <span className="rounded-full bg-[#03BF62] px-3 py-1 text-xs font-bold text-white shadow-md shadow-[#03BF62]/25">
               {promotion.badgeText}
             </span>
           </div>
@@ -159,7 +159,7 @@ export default function PromotionCard({
 
         {/* Promotion Details */}
         <div className="mt-4 space-y-1.5">
-          <h3 className="text-base sm:text-lg font-bold text-stone-900 leading-snug line-clamp-1 group-hover:text-[#7C3AED] transition-colors">
+          <h3 className="text-base sm:text-lg font-bold text-stone-900 leading-snug line-clamp-1 group-hover:text-[#03BF62] transition-colors">
             {promotion.title}
           </h3>
 
@@ -197,7 +197,7 @@ export default function PromotionCard({
         <button
           type="button"
           onClick={handleCtaClick}
-          className="w-full rounded-xl py-2.5 px-4 text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 bg-[#ECEBEF] text-stone-800 hover:bg-[#7C3AED] hover:text-white transition-all shadow-2xs active:scale-[0.98] cursor-pointer"
+          className="w-full rounded-xl py-2.5 px-4 text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 bg-[#ECEBEF] text-stone-800 hover:bg-[#03BF62] hover:text-white transition-all shadow-2xs active:scale-[0.98] cursor-pointer"
           aria-label={`Claim offer: ${promotion.title}`}
         >
           <span>{getCtaLabel()}</span>

@@ -10,12 +10,12 @@ export default function WeddingPreview() {
   const custom = useSectionCustomization("wedding-beauty");
 
   return (
-    <section className="relative overflow-hidden bg-[#FAF6FE] py-14 sm:py-16 border-y border-purple-100/80" data-customization-section="wedding-beauty">
+    <section className="relative overflow-hidden bg-[#F9FAF8] py-14 sm:py-16 border-y border-stone-200/80" data-customization-section="wedding-beauty">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Bridal Image */}
           <div className="lg:col-span-5">
-            <div className="relative aspect-[16/11] w-full overflow-hidden rounded-2xl bg-purple-100 shadow-md group">
+            <div className="relative aspect-[16/11] w-full overflow-hidden rounded-2xl bg-emerald-50 shadow-md group">
               <Image
                 src="/images/wedding-hero.jpg"
                 alt="Bridal Beauty at Salvora"
@@ -35,10 +35,10 @@ export default function WeddingPreview() {
           {/* Right Column: Promotional Content */}
           <div className="lg:col-span-7 space-y-4">
             <div className="inline-flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100 text-[#7C3AED]">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#03BF62]/15 text-[#03BF62]">
                 <SparklesIcon className="h-3.5 w-3.5" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-widest text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+              <span className="text-xs font-bold uppercase tracking-widest text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                 SPECIAL OCCASIONS
               </>}</span>
             </div>
@@ -59,7 +59,7 @@ export default function WeddingPreview() {
             <div className="pt-2">
               <Link
                 href="/wedding"
-                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-6 py-3 text-sm font-semibold text-white shadow-md shadow-purple-500/20 transition-all hover:bg-[#6D28D9] hover:shadow-purple-500/35 hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#03BF62] px-6 py-3 text-sm font-semibold text-white shadow-md shadow-[#03BF62]/25 transition-all hover:bg-[#029e51] hover:shadow-[#03BF62]/40 hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
               >
                 <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Explore Wedding Services</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />

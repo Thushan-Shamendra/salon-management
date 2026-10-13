@@ -13,7 +13,7 @@ export default function AboutPreview() {
     <section className="relative overflow-hidden bg-[#FAF8F5] py-16 sm:py-20 lg:py-24" data-customization-section="about-preview">
       {/* Subtle Decorative Botanical Accent */}
       <div
-        className="pointer-events-none absolute right-0 top-8 w-60 h-80 opacity-25 text-purple-200 hidden xl:block"
+        className="pointer-events-none absolute right-0 top-8 w-60 h-80 opacity-25 text-emerald-200 hidden xl:block"
         aria-hidden="true"
       >
         <svg viewBox="0 0 200 300" fill="none" stroke="currentColor" strokeWidth="1.2">
@@ -43,7 +43,7 @@ export default function AboutPreview() {
           <div className="lg:col-span-6 space-y-5">
             {/* Tag: About Salvora */}
             <div className="inline-flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                 ✦ About Salvora
               </>}</span>
             </div>
@@ -64,13 +64,13 @@ export default function AboutPreview() {
             {/* Feature Highlights for perfect vertical balance */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               <div className="flex items-center gap-2.5 text-xs text-stone-700 font-medium">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100 text-[#7C3AED]">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#03BF62]/15 text-[#03BF62]">
                   <SparklesIcon className="h-3.5 w-3.5" />
                 </div>
                 <span>Individualized Care</span>
               </div>
               <div className="flex items-center gap-2.5 text-xs text-stone-700 font-medium">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100 text-[#7C3AED]">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#03BF62]/15 text-[#03BF62]">
                   <HeartIcon className="h-3.5 w-3.5" />
                 </div>
                 <span>Relaxing Sanctuary</span>
@@ -81,7 +81,7 @@ export default function AboutPreview() {
             <div className="pt-3">
               <Link
                 href="/about"
-                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-8 py-3.5 text-sm font-semibold text-white shadow-md shadow-purple-500/20 transition-all hover:bg-[#6D28D9] hover:shadow-purple-500/35 hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#03BF62] px-8 py-3.5 text-sm font-semibold text-white shadow-md shadow-[#03BF62]/25 transition-all hover:bg-[#029e51] hover:shadow-[#03BF62]/40 hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
               >
                 <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Discover Our Story</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />

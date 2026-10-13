@@ -122,7 +122,7 @@ export default function Navbar() {
         {/* SALVORA Brand Logo */}
         <Link
           href="/"
-          className="group flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] rounded-lg transition-transform hover:opacity-90"
+          className="group flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#03BF62] rounded-lg transition-transform hover:opacity-90"
           aria-label={`${salonName} Home`}
         >
           {headerLogo ? (
@@ -145,15 +145,15 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-[#7C3AED] relative py-1 ${
+                className={`text-sm font-medium transition-colors hover:text-[#03BF62] relative py-1 ${
                   isActive
-                    ? "text-[#7C3AED] font-semibold"
+                    ? "text-[#03BF62] font-semibold"
                     : "text-stone-700"
                 }`} data-customization-active={isActive}
               >
                 {link.name}
                 {isActive && (
-                  <span data-customization-role="headerAccent" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7C3AED] rounded-full" />
+                  <span data-customization-role="headerAccent" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#03BF62] rounded-full" />
                 )}
               </Link>
             );
@@ -165,7 +165,7 @@ export default function Navbar() {
           {externalSystem.loginUrl && (
             <a
               href={externalSystem.loginUrl}
-              className="text-sm font-medium text-stone-700 hover:text-[#7C3AED] transition-colors px-2 py-1.5"
+              className="text-sm font-medium text-stone-700 hover:text-[#03BF62] transition-colors px-2 py-1.5"
             >
               Login
             </a>
@@ -174,7 +174,7 @@ export default function Navbar() {
           {externalSystem.registerUrl && (
             <a
               href={externalSystem.registerUrl}
-              className="text-sm font-medium text-stone-700 hover:text-[#7C3AED] transition-colors px-2 py-1.5"
+              className="text-sm font-medium text-stone-700 hover:text-[#03BF62] transition-colors px-2 py-1.5"
             >
               Register
             </a>
@@ -192,7 +192,7 @@ export default function Navbar() {
                   },
                 });
               }}
-              className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-[#6D28D9] hover:shadow-md hover:shadow-purple-500/20 active:scale-[0.98]" data-customization-role="primaryButton"
+              className="inline-flex items-center gap-2 rounded-full bg-[#03BF62] px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-[#029e51] hover:shadow-md hover:shadow-stone-900/20 active:scale-[0.98]" data-customization-role="primaryButton"
             >
               <span>Book Appointment</span>
               <ArrowRightIcon className="h-4 w-4" />
@@ -202,7 +202,7 @@ export default function Navbar() {
               type="button"
               disabled
               title="Online booking link not yet configured"
-              className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED]/50 px-6 py-2.5 text-sm font-medium text-white/80 cursor-not-allowed shadow-none" data-customization-role="primaryButton"
+              className="inline-flex items-center gap-2 rounded-full bg-[#03BF62]/50 px-6 py-2.5 text-sm font-medium text-white/80 cursor-not-allowed shadow-none" data-customization-role="primaryButton"
             >
               <span>Book Appointment</span>
               <ArrowRightIcon className="h-4 w-4" />
@@ -224,7 +224,7 @@ export default function Navbar() {
                   },
                 });
               }}
-              className="rounded-full bg-[#7C3AED] px-4 py-2 text-xs font-medium text-white shadow-xs hover:bg-[#6D28D9]" data-customization-role="primaryButton"
+              className="rounded-full bg-[#03BF62] px-4 py-2 text-xs font-medium text-white shadow-xs hover:bg-[#029e51]" data-customization-role="primaryButton"
             >
               Book
             </a>
@@ -232,7 +232,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-800 hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-800 hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-[#03BF62]"
             aria-label="Toggle navigation menu"
             aria-expanded={mobileMenuOpen}
           >
@@ -258,8 +258,8 @@ export default function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-purple-50 text-[#7C3AED] font-semibold"
-                      : "text-stone-800 hover:bg-stone-50 hover:text-[#7C3AED]"
+                      ? "bg-[#03BF62]/10 text-[#03BF62] font-semibold"
+                      : "text-stone-800 hover:bg-stone-50 hover:text-[#03BF62]"
                   }`} data-customization-active={isActive}
                 >
                   <span>{link.name}</span>
@@ -283,7 +283,7 @@ export default function Navbar() {
                     },
                   });
                 }}
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-[#7C3AED] py-3 text-sm font-medium text-white shadow-sm hover:bg-[#6D28D9] transition-colors" data-customization-role="primaryButton"
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-[#03BF62] py-3 text-sm font-medium text-white shadow-sm hover:bg-[#029e51] transition-colors" data-customization-role="primaryButton"
               >
                 <CalendarIcon className="h-4 w-4" />
                 <span>Book Appointment</span>
@@ -292,7 +292,7 @@ export default function Navbar() {
               <button
                 type="button"
                 disabled
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-[#7C3AED]/50 py-3 text-sm font-medium text-white/80 cursor-not-allowed"
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-[#03BF62]/50 py-3 text-sm font-medium text-white/80 cursor-not-allowed"
               >
                 <CalendarIcon className="h-4 w-4" />
                 <span>Book Appointment</span>
@@ -303,7 +303,7 @@ export default function Navbar() {
               {externalSystem.loginUrl ? (
                 <a
                   href={externalSystem.loginUrl}
-                  className="flex items-center justify-center rounded-xl border border-stone-200 py-2.5 text-xs font-medium text-stone-700 hover:border-[#7C3AED] hover:text-[#7C3AED] transition-colors"
+                  className="flex items-center justify-center rounded-xl border border-stone-200 py-2.5 text-xs font-medium text-stone-700 hover:border-[#03BF62] hover:text-[#03BF62] transition-colors"
                 >
                   Login
                 </a>
@@ -312,7 +312,7 @@ export default function Navbar() {
               {externalSystem.registerUrl ? (
                 <a
                   href={externalSystem.registerUrl}
-                  className="flex items-center justify-center rounded-xl border border-stone-200 py-2.5 text-xs font-medium text-stone-700 hover:border-[#7C3AED] hover:text-[#7C3AED] transition-colors"
+                  className="flex items-center justify-center rounded-xl border border-stone-200 py-2.5 text-xs font-medium text-stone-700 hover:border-[#03BF62] hover:text-[#03BF62] transition-colors"
                 >
                   Register
                 </a>

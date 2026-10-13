@@ -115,7 +115,7 @@ export default function BeauticiansPreview() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               ✦ Our Team
             </>}</span>
             <h2 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
@@ -125,7 +125,7 @@ export default function BeauticiansPreview() {
 
           <Link
             href="/about"
-            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-purple-200 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="primaryButton"
+            className="self-start md:self-auto shrink-0 group inline-flex items-center gap-2.5 rounded-full border border-[#03BF62]/40 bg-white px-6 sm:px-7 py-3 text-sm font-semibold text-[#03BF62] shadow-2xs transition-all hover:bg-[#03BF62] hover:text-white hover:border-[#03BF62] active:scale-[0.98]" data-customization-role="primaryButton"
           >
             <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View Our Team</>}</span>
             <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -148,7 +148,7 @@ export default function BeauticiansPreview() {
         {/* Empty State */}
         {!loading && beauticians.length === 0 && (
           <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-12 text-center max-w-md mx-auto">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-purple-50 text-[#7C3AED] mb-3">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#03BF62]/10 text-[#03BF62] mb-3">
               <UserIcon className="h-6 w-6" />
             </div>
             <p className="text-sm font-medium text-stone-800">
@@ -172,7 +172,7 @@ export default function BeauticiansPreview() {
               return (
                 <div
                   key={person._id}
-                  className={`group flex flex-col justify-between rounded-3xl border border-stone-200/90 bg-white ${layout.cardPadding} shadow-xs transition-all duration-300 hover:border-purple-300 hover:shadow-xl hover:-translate-y-1`}
+                  className={`group flex flex-col justify-between rounded-3xl border border-stone-200/90 bg-white ${layout.cardPadding} shadow-xs transition-all duration-300 hover:border-[#03BF62]/40 hover:shadow-xl hover:-translate-y-1`}
                 >
                   <div>
                     {/* Portrait Photo */}
@@ -189,7 +189,7 @@ export default function BeauticiansPreview() {
 
                     {/* Details */}
                     <div className="mt-4">
-                      <h3 className={`${layout.nameClass} group-hover:text-[#7C3AED] transition-colors truncate`}>
+                      <h3 className={`${layout.nameClass} group-hover:text-[#03BF62] transition-colors truncate`}>
                         {person.name}
                       </h3>
                       <p className={`${layout.titleClass} capitalize mt-0.5`}>
@@ -215,7 +215,7 @@ export default function BeauticiansPreview() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label={`${person.name} Instagram`}
-                                className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
+                                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#03BF62]/10 text-[#03BF62] hover:bg-[#03BF62] hover:text-white transition-colors"
                               >
                                 <InstagramIcon className="h-3.5 w-3.5" />
                               </a>
@@ -226,7 +226,7 @@ export default function BeauticiansPreview() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label={`${person.name} Facebook`}
-                                className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
+                                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#03BF62]/10 text-[#03BF62] hover:bg-[#03BF62] hover:text-white transition-colors"
                               >
                                 <FacebookIcon className="h-3.5 w-3.5" />
                               </a>
