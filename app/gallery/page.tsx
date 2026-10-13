@@ -72,7 +72,7 @@ export default async function PublicGalleryPage() {
 
   return (
     <PageCustomization scope="public" pageKey="gallery">
-    <div className="min-h-screen flex flex-col bg-white text-stone-900 selection:bg-purple-100 selection:text-[#7C3AED]">
+    <div className="min-h-screen flex flex-col bg-white text-stone-900 selection:bg-[#03BF62]/30 selection:text-stone-900">
       {/* 1. Navbar */}
       <Navbar />
 

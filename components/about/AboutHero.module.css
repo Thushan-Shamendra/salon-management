@@ -15,10 +15,10 @@
   gap: 8px;
   margin: 0;
   padding: 5px 16px;
-  border: 1px solid rgba(196, 181, 253, 0.8);
+  border: 1px solid rgba(3, 191, 98, 0.4);
   border-radius: 999px;
-  background: rgba(245, 243, 255, 0.7);
-  color: #7c3aed;
+  background: rgba(3, 191, 98, 0.08);
+  color: #03BF62;
   font-size: 12px;
   font-weight: 700;
   line-height: 1.4;
@@ -50,7 +50,7 @@
 .heading span {
   display: block;
   margin-top: 0;
-  color: #7c3aed;
+  color: #03BF62;
 }
 /* Reference coordinates: 1156 x 473. Every desktop layer scales together. */
 .composition {

@@ -45,8 +45,8 @@ export default function OurValues() {
         {/* Section Heading */}
         <div className="text-left mb-12">
           <div className="inline-flex items-center gap-2 mb-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+            <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               OUR VALUES
             </>}</span>
           </div>
@@ -62,16 +62,16 @@ export default function OurValues() {
             return (
               <div
                 key={item.title}
-                className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-7 min-h-[220px] shadow-xs transition-all duration-300 hover:border-purple-300 hover:shadow-lg hover:-translate-y-1"
+                className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-7 min-h-[220px] shadow-xs transition-all duration-300 hover:border-[#03BF62]/40 hover:shadow-lg hover:-translate-y-1"
               >
                 <div>
                   {/* Icon Badge */}
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#EDE9FE] text-[#6D28D9] border border-[#DDD6FE] shadow-2xs mb-5 transition-colors duration-300 group-hover:bg-[#7C3AED] group-hover:text-white group-hover:border-[#7C3AED]">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#03BF62]/10 text-[#03BF62] border border-[#03BF62]/20 shadow-2xs mb-5 transition-colors duration-300 group-hover:bg-[#03BF62] group-hover:text-white group-hover:border-[#03BF62]">
                     <Icon className="h-6 w-6" />
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#7C3AED] transition-colors">
+                  <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#03BF62] transition-colors">
                     {item.title}
                   </h3>
 

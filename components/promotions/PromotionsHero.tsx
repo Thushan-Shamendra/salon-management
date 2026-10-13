@@ -32,15 +32,15 @@ export default function PromotionsHero({ salonName = "Salvora" }: PromotionsHero
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl space-y-4">
           {/* Eyebrow */}
-          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#A78BFA]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#A78BFA]" />
+          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#03BF62]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
             <span data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>Our Offers</>}</span>
           </div>
 
           {/* Heading */}
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             Promotions Crafted <br className="hidden sm:inline" /></>}
-            <span className="bg-gradient-to-r from-[#A78BFA] to-[#C4B5FD] bg-clip-text text-transparent" data-customization-role="highlight">{custom.has("highlightedText") ? custom.text("highlightedText", "") : <>
+            <span className="bg-gradient-to-r from-[#03BF62] to-[#21C81E] bg-clip-text text-transparent" data-customization-role="highlight">{custom.has("highlightedText") ? custom.text("highlightedText", "") : <>
               For You
             </>}</span>
           </h1>

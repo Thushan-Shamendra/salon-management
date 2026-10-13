@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 
 import { BranchProvider } from "@/components/context/BranchContext";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import ScrollProgressButton from "@/components/ui/ScrollProgressButton";
 import PageViewTracker from "@/components/analytics/PageViewTracker";
 
 export const metadata: Metadata = {
@@ -38,6 +39,7 @@ export default function RootLayout({
           <PageViewTracker />
           {children}
           <FloatingWhatsApp />
+          <ScrollProgressButton />
         </BranchProvider>
       </body>
     </html>

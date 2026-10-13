@@ -42,8 +42,8 @@ export default function OurStory() {
             <div>
               {/* Small Label */}
               <div className="inline-flex items-center gap-2 mb-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+                <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                   OUR STORY
                 </>}</span>
               </div>
@@ -71,7 +71,7 @@ export default function OurStory() {
                     key={item.title}
                     className="inline-flex items-center gap-2 text-xs font-semibold text-stone-700 bg-stone-50 border border-stone-200/80 px-3.5 py-2 rounded-xl"
                   >
-                    <Icon className="h-4 w-4 text-[#7C3AED]" />
+                    <Icon className="h-4 w-4 text-[#03BF62]" />
                     <span>{item.title}</span>
                   </div>
                 );
@@ -82,7 +82,7 @@ export default function OurStory() {
             <div className="pt-2">
               <Link
                 href="/services"
-                className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-7 py-3.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-purple-600/20 transition-all hover:bg-[#6D28D9] hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
+                className="inline-flex items-center gap-2 rounded-full bg-[#03BF62] px-7 py-3.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-emerald-600/20 transition-all hover:bg-[#029e51] hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
               >
                 <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Discover Our Story</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />

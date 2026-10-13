@@ -22,7 +22,7 @@ export default function ProductFeatureSection({
   whatsappNumber,
   salonName,
   sectionKey,
-  accentColor = "blue",
+  accentColor = "green",
 }: ProductFeatureSectionProps) {
   if (!products || products.length === 0) {
     return null;
@@ -33,16 +33,16 @@ export default function ProductFeatureSection({
 
   const accentStyles = {
     blue: {
-      text: "text-blue-600",
-      dot: "bg-blue-600",
+      text: "text-[#03BF62]",
+      dot: "bg-[#03BF62]",
     },
     green: {
       text: "text-[#03BF62]",
       dot: "bg-[#03BF62]",
     },
     purple: {
-      text: "text-[#7C3AED]",
-      dot: "bg-[#7C3AED]",
+      text: "text-[#03BF62]",
+      dot: "bg-[#03BF62]",
     },
   }[accentColor];
 

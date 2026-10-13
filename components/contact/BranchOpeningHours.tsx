@@ -275,13 +275,13 @@ export default function BranchOpeningHours({
     activeBranch?.address || fallbackSettings?.address || "";
 
   return (
-    <section className="bg-[#F8F5FF] py-14 sm:py-16 lg:py-20 border-b border-purple-100/80" data-customization-section="opening-hours">
+    <section className="bg-[#FAF8F5] py-14 sm:py-16 lg:py-20 border-b border-stone-200/60" data-customization-section="opening-hours">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
           <div className="inline-flex items-center gap-2 mb-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-bold uppercase tracking-[0.22em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+            <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+            <span className="text-xs font-bold uppercase tracking-[0.22em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               OPENING HOURS
             </>}</span>
           </div>
@@ -309,13 +309,13 @@ export default function BranchOpeningHours({
                     onClick={() => handleSelectBranch(b)}
                     className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer ${
                       isSelected
-                        ? "bg-[#7C3AED] text-white border border-[#7C3AED] shadow-md shadow-purple-600/25"
-                        : "bg-white text-stone-700 hover:bg-purple-50/70 hover:text-[#7C3AED] hover:border-purple-200 border border-stone-200/90 shadow-2xs"
+                        ? "bg-[#03BF62] text-white border border-[#03BF62] shadow-md shadow-emerald-600/25"
+                        : "bg-white text-stone-700 hover:bg-[#03BF62]/10 hover:text-[#03BF62] hover:border-[#03BF62]/30 border border-stone-200/90 shadow-2xs"
                     }`}
                   >
                     <StoreIcon
                       className={`h-4 w-4 shrink-0 ${
-                        isSelected ? "text-white" : "text-[#7C3AED]"
+                        isSelected ? "text-white" : "text-[#03BF62]"
                       }`}
                     />
                     <span>{formattedTabName}</span>
@@ -328,7 +328,7 @@ export default function BranchOpeningHours({
 
         {/* Single Large Schedule Card */}
         <div className="mx-auto max-w-6xl">
-          <div className="rounded-3xl border border-purple-100/90 bg-white p-5 sm:p-7 lg:p-8 shadow-sm">
+          <div className="rounded-3xl border border-[#03BF62]/20 bg-white p-5 sm:p-7 lg:p-8 shadow-sm">
             {/* Card Header: Branch Name & Address on Left, Live Status Badge on Right */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 mb-6 border-b border-stone-100">
               <div>
@@ -337,7 +337,7 @@ export default function BranchOpeningHours({
                 </h3>
                 {branchAddress && (
                   <p className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-stone-500 mt-1">
-                    <MapPinIcon className="h-3.5 w-3.5 text-[#7C3AED] shrink-0" />
+                    <MapPinIcon className="h-3.5 w-3.5 text-[#03BF62] shrink-0" />
                     <span>{branchAddress}</span>
                   </p>
                 )}
@@ -384,14 +384,14 @@ export default function BranchOpeningHours({
                     key={item.day}
                     className={`flex flex-col items-center justify-center text-center px-2.5 py-5 transition-colors ${
                       isToday
-                        ? "bg-purple-50/90 ring-1 ring-inset ring-purple-200/80"
+                        ? "bg-[#03BF62]/10 ring-1 ring-inset ring-[#03BF62]/30"
                         : "hover:bg-stone-50/80"
                     }`}
                   >
                     <span
                       className={`text-sm ${
                         isToday
-                          ? "font-extrabold text-[#7C3AED]"
+                          ? "font-extrabold text-[#03BF62]"
                           : "font-bold text-stone-800"
                       }`}
                     >
@@ -407,7 +407,7 @@ export default function BranchOpeningHours({
                         <span
                           className={`whitespace-nowrap ${
                             isToday
-                              ? "font-bold text-[#7C3AED]"
+                              ? "font-bold text-[#03BF62]"
                               : "font-medium text-stone-600"
                           }`}
                         >
@@ -419,7 +419,7 @@ export default function BranchOpeningHours({
                     </div>
 
                     {isToday && (
-                      <span className="mt-2.5 inline-flex items-center rounded-full bg-[#7C3AED] px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-2xs">
+                      <span className="mt-2.5 inline-flex items-center rounded-full bg-[#03BF62] px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-2xs">
                         Today
                       </span>
                     )}
@@ -439,7 +439,7 @@ export default function BranchOpeningHours({
                     key={item.day}
                     className={`flex flex-col justify-between rounded-2xl p-4 border transition-colors ${
                       isToday
-                        ? "bg-purple-50/90 border-purple-200/90 shadow-2xs"
+                        ? "bg-[#03BF62]/10 border-[#03BF62]/30 shadow-2xs"
                         : "bg-stone-50/40 border-stone-100"
                     }`}
                   >
@@ -447,14 +447,14 @@ export default function BranchOpeningHours({
                       <span
                         className={`text-sm ${
                           isToday
-                            ? "font-extrabold text-[#7C3AED]"
+                            ? "font-extrabold text-[#03BF62]"
                             : "font-bold text-stone-800"
                         }`}
                       >
                         {item.day}
                       </span>
                       {isToday && (
-                        <span className="rounded-full bg-[#7C3AED] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                        <span className="rounded-full bg-[#03BF62] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
                           Today
                         </span>
                       )}
@@ -469,7 +469,7 @@ export default function BranchOpeningHours({
                         <span
                           className={
                             isToday
-                              ? "font-bold text-[#7C3AED]"
+                              ? "font-bold text-[#03BF62]"
                               : "font-medium text-stone-600"
                           }
                         >
@@ -495,7 +495,7 @@ export default function BranchOpeningHours({
                     key={item.day}
                     className={`flex items-center justify-between py-3 px-3.5 rounded-xl transition-colors ${
                       isToday
-                        ? "bg-purple-50/90 border border-purple-200/90 my-1"
+                        ? "bg-[#03BF62]/10 border border-[#03BF62]/30 my-1"
                         : ""
                     }`}
                   >
@@ -503,14 +503,14 @@ export default function BranchOpeningHours({
                       <span
                         className={`text-xs ${
                           isToday
-                            ? "font-extrabold text-[#7C3AED]"
+                            ? "font-extrabold text-[#03BF62]"
                             : "font-semibold text-stone-800"
                         }`}
                       >
                         {item.day}
                       </span>
                       {isToday && (
-                        <span className="rounded-full bg-[#7C3AED] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                        <span className="rounded-full bg-[#03BF62] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
                           Today
                         </span>
                       )}
@@ -525,7 +525,7 @@ export default function BranchOpeningHours({
                         <span
                           className={
                             isToday
-                              ? "font-bold text-[#7C3AED]"
+                              ? "font-bold text-[#03BF62]"
                               : "font-medium text-stone-700"
                           }
                         >

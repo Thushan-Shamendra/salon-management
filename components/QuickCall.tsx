@@ -32,11 +32,11 @@ export default function QuickCall({
 
   const variantStyles = {
     primary:
-      "bg-[#7C3AED] text-white hover:bg-[#6D28D9] shadow-sm shadow-purple-600/30",
+      "bg-[#03BF62] text-white hover:bg-[#029e51] shadow-sm shadow-emerald-600/30",
     secondary:
-      "bg-purple-50 text-[#7C3AED] hover:bg-purple-100 border border-purple-200",
+      "bg-[#03BF62]/10 text-[#03BF62] hover:bg-[#03BF62]/20 border border-[#03BF62]/30",
     outline:
-      "border border-stone-300 text-stone-700 hover:border-[#7C3AED] hover:text-[#7C3AED] bg-white",
+      "border border-stone-300 text-stone-700 hover:border-[#03BF62] hover:text-[#03BF62] bg-white",
   };
 
   const handleClick = () => {

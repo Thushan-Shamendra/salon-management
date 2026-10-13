@@ -43,7 +43,7 @@ export default function WeddingServiceCard({
       : service.image;
 
   return (
-    <div className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-5 shadow-xs transition-all duration-300 hover:border-purple-300 hover:shadow-lg hover:-translate-y-1">
+    <div className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-5 shadow-xs transition-all duration-300 hover:border-[#03BF62]/40 hover:shadow-lg hover:-translate-y-1">
       <div>
         {/* Service Image */}
         <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-stone-100">
@@ -72,7 +72,7 @@ export default function WeddingServiceCard({
             });
           }}
         >
-          <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#7C3AED] transition-colors truncate">
+          <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#03BF62] transition-colors truncate">
             {service.name}
           </h3>
           <p className="mt-2 text-xs sm:text-sm text-stone-500 line-clamp-2 leading-relaxed min-h-[40px]">
@@ -124,7 +124,7 @@ export default function WeddingServiceCard({
                 },
               });
             }}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-stone-900 py-3 text-xs sm:text-sm font-semibold text-white transition-all hover:bg-[#7C3AED] hover:shadow-md active:scale-[0.98]"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-stone-900 py-3 text-xs sm:text-sm font-semibold text-white transition-all hover:bg-[#03BF62] hover:shadow-md active:scale-[0.98]"
           >
             <span>Book Appointment</span>
             <ArrowRightIcon className="h-4 w-4" />

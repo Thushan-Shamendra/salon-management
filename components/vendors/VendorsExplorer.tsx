@@ -117,8 +117,8 @@ export default function VendorsExplorer({
         key={vendor._id}
         className={`group flex flex-col justify-between rounded-2xl border bg-white p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 ${
           isHighlight
-            ? "border-purple-200/90 shadow-md hover:shadow-xl hover:border-[#7C3AED]"
-            : "border-stone-200/90 shadow-xs hover:shadow-lg hover:border-purple-300"
+            ? "border-[#03BF62]/30 shadow-md hover:shadow-xl hover:border-[#03BF62]"
+            : "border-stone-200/90 shadow-xs hover:shadow-lg hover:border-[#03BF62]/40"
         }`}
       >
         <div>
@@ -159,7 +159,7 @@ export default function VendorsExplorer({
 
           {/* Details */}
           <div className="space-y-2.5">
-            <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#7C3AED] transition-colors line-clamp-1">
+            <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#03BF62] transition-colors line-clamp-1">
               {vendor.name}
             </h3>
 
@@ -176,7 +176,7 @@ export default function VendorsExplorer({
                 vendor.branchIds!.map((b) => (
                   <span
                     key={b._id}
-                    className="rounded-full bg-purple-50 border border-purple-200 px-2.5 py-0.5 text-[11px] font-semibold text-[#7C3AED]"
+                    className="rounded-full bg-[#03BF62]/10 border border-[#03BF62]/20 px-2.5 py-0.5 text-[11px] font-semibold text-[#03BF62]"
                   >
                     {b.name}
                   </span>
@@ -209,10 +209,10 @@ export default function VendorsExplorer({
                     },
                   });
                 }}
-                className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3.5 py-2 text-xs font-semibold text-stone-700 shadow-2xs hover:bg-stone-50 hover:border-purple-300 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3.5 py-2 text-xs font-semibold text-stone-700 shadow-2xs hover:bg-stone-50 hover:border-[#03BF62]/40 transition-colors cursor-pointer"
                 aria-label={`Call ${vendor.name}`}
               >
-                <PhoneIcon className="h-3.5 w-3.5 text-purple-600" />
+                <PhoneIcon className="h-3.5 w-3.5 text-[#03BF62]" />
                 <span>Call</span>
               </a>
             )}
@@ -261,7 +261,7 @@ export default function VendorsExplorer({
                 }}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3.5 py-2 text-xs font-semibold text-stone-700 shadow-2xs hover:bg-stone-50 hover:border-[#7C3AED] hover:text-[#7C3AED] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3.5 py-2 text-xs font-semibold text-stone-700 shadow-2xs hover:bg-stone-50 hover:border-[#03BF62] hover:text-[#03BF62] transition-colors cursor-pointer"
                 aria-label={`Visit ${vendor.name} website`}
               >
                 <span>Website</span>
@@ -309,7 +309,7 @@ export default function VendorsExplorer({
         <div className="space-y-6">
           {/* 1. Category Filter Pills */}
           <div className="flex flex-col items-center space-y-3">
-            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#7C3AED]">
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#03BF62]">
               BROWSE BY SPECIALTY
             </span>
             <div className="flex flex-wrap items-center justify-center gap-2">
@@ -322,7 +322,7 @@ export default function VendorsExplorer({
                     onClick={() => setSelectedCategory(cat)}
                     className={`rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                       isSelected
-                        ? "bg-[#7C3AED] text-white shadow-md shadow-purple-950/20 scale-102"
+                        ? "bg-[#03BF62] text-white shadow-md shadow-emerald-950/20 scale-102"
                         : "bg-stone-100 text-stone-700 hover:bg-stone-200"
                     }`}
                   >
@@ -380,7 +380,7 @@ export default function VendorsExplorer({
         {/* ============================================================== */}
         {filteredVendors.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-stone-300 bg-stone-50/50 p-12 text-center max-w-lg mx-auto">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-100 text-[#7C3AED] mb-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#03BF62]/10 text-[#03BF62] mb-4">
               <StoreIcon className="h-7 w-7" />
             </div>
             <h3 className="text-lg font-bold text-stone-900">
@@ -397,7 +397,7 @@ export default function VendorsExplorer({
                   setSelectedCategory("All");
                   setSelectedBranchId("all");
                 }}
-                className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-[#6D28D9] transition-all cursor-pointer"
+                className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#03BF62] px-5 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-[#029e51] transition-all cursor-pointer"
               >
                 Reset Filters
               </button>
@@ -415,7 +415,7 @@ export default function VendorsExplorer({
                     <StarIcon className="h-4 w-4 fill-amber-500 text-amber-500" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                       PREMIER HIGHLIGHTS
                     </>}</span>
                     <h2 className="text-xl sm:text-2xl font-bold text-stone-900" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>

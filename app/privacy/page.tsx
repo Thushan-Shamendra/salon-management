@@ -100,21 +100,21 @@ export default async function PrivacyPolicyPage() {
 
   return (
     <PageCustomization scope="public" pageKey="privacy">
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-stone-900 selection:bg-purple-100 selection:text-[#7C3AED]">
+    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-stone-900 selection:bg-[#03BF62]/30 selection:text-stone-900">
       {/* Main Navigation */}
       <Navbar />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-[#0C0A14] text-white py-14 sm:py-16 lg:py-20 border-b border-white/10" data-customization-section="hero">
         {/* Ambient subtle glow for luxury aesthetic */}
-        <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(124,58,237,0.22),rgba(255,255,255,0))]" />
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(3,191,98,0.22),rgba(255,255,255,0))]" />
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl space-y-3.5 text-left">
             {/* Eyebrow */}
             <div className="inline-flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#C4B5FD]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]">
                 LEGAL & PRIVACY
               </span>
             </div>
@@ -142,7 +142,7 @@ export default async function PrivacyPolicyPage() {
                 Home
               </Link>
               <span className="text-stone-600">/</span>
-              <span className="text-[#C4B5FD] font-semibold">Privacy Policy</span>
+              <span className="text-[#03BF62] font-semibold">Privacy Policy</span>
             </nav>
           </div>
         </div>
@@ -155,7 +155,7 @@ export default async function PrivacyPolicyPage() {
             {/* Optional Sticky Side TOC on Large Desktop */}
             <aside className="hidden lg:block lg:col-span-3 sticky top-24">
               <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xs">
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#7C3AED] mb-3">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#03BF62] mb-3">
                   On This Page
                 </p>
                 <nav aria-label="Table of Contents" className="space-y-1.5 max-h-[70vh] overflow-y-auto pr-1">
@@ -163,7 +163,7 @@ export default async function PrivacyPolicyPage() {
                     <a
                       key={item.id}
                       href={`#${item.id}`}
-                      className="block text-xs text-stone-600 hover:text-[#7C3AED] py-1 transition-colors leading-snug"
+                      className="block text-xs text-stone-600 hover:text-[#03BF62] py-1 transition-colors leading-snug"
                     >
                       {item.label}
                     </a>
@@ -178,7 +178,7 @@ export default async function PrivacyPolicyPage() {
                 {/* Page Header Metadata Bar */}
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 pb-5 text-xs text-stone-500">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold uppercase tracking-wider text-purple-700 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-100">
+                    <span className="font-semibold uppercase tracking-wider text-[#03BF62] bg-[#03BF62]/10 px-2.5 py-1 rounded-full border border-[#03BF62]/20">
                       Privacy Policy
                     </span>
                   </div>
@@ -188,30 +188,30 @@ export default async function PrivacyPolicyPage() {
                 </div>
 
                 {/* Privacy Summary Card */}
-                <div className="rounded-2xl border border-purple-100 bg-[#F8F5FF] p-5 sm:p-6">
+                <div className="rounded-2xl border border-[#03BF62]/20 bg-[#03BF62]/5 p-5 sm:p-6">
                   <div className="flex items-center gap-2.5 mb-3">
-                    <ShieldCheckIcon className="h-5 w-5 text-[#7C3AED] shrink-0" />
+                    <ShieldCheckIcon className="h-5 w-5 text-[#03BF62] shrink-0" />
                     <h2 className="text-sm sm:text-base font-bold text-stone-900" data-customization-role="sectionHeading">
                       Our Approach to Privacy
                     </h2>
                   </div>
                   <ul className="space-y-2 text-xs sm:text-sm text-stone-700">
                     <li className="flex items-start gap-2.5">
-                      <CheckCircleIcon className="h-4 w-4 text-[#7C3AED] shrink-0 mt-0.5" />
+                      <CheckCircleIcon className="h-4 w-4 text-[#03BF62] shrink-0 mt-0.5" />
                       <span>We collect only information needed for website functions.</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <CheckCircleIcon className="h-4 w-4 text-[#7C3AED] shrink-0 mt-0.5" />
+                      <CheckCircleIcon className="h-4 w-4 text-[#03BF62] shrink-0 mt-0.5" />
                       <span>We use first-party analytics to understand website interactions.</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <CheckCircleIcon className="h-4 w-4 text-[#7C3AED] shrink-0 mt-0.5" />
+                      <CheckCircleIcon className="h-4 w-4 text-[#03BF62] shrink-0 mt-0.5" />
                       <span>
                         External services such as Google and WhatsApp have their own privacy terms.
                       </span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <CheckCircleIcon className="h-4 w-4 text-[#7C3AED] shrink-0 mt-0.5" />
+                      <CheckCircleIcon className="h-4 w-4 text-[#03BF62] shrink-0 mt-0.5" />
                       <span>
                         Contact SALVORA if you have questions about information you submitted.
                       </span>
@@ -222,7 +222,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 1. Introduction */}
                 <section id="introduction" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       1
                     </span>
                     <span>Introduction</span>
@@ -248,7 +248,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 2. Information Users May Provide */}
                 <section id="information-provided" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       2
                     </span>
                     <span>Information Users May Provide</span>
@@ -273,7 +273,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 3. Information Collected Automatically */}
                 <section id="information-automatic" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       3
                     </span>
                     <span>Information Collected Automatically</span>
@@ -303,7 +303,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 4. Branch and Location Features */}
                 <section id="branch-location" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       4
                     </span>
                     <span>Branch and Location Features</span>
@@ -321,7 +321,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 5. Google Services */}
                 <section id="google-services" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       5
                     </span>
                     <span>Google Services</span>
@@ -339,7 +339,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 6. WhatsApp */}
                 <section id="whatsapp" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       6
                     </span>
                     <span>WhatsApp</span>
@@ -357,7 +357,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 7. External Booking System */}
                 <section id="external-booking" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       7
                     </span>
                     <span>External Booking System</span>
@@ -375,7 +375,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 8. Products and Promotions */}
                 <section id="products-promotions" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       8
                     </span>
                     <span>Products and Promotions</span>
@@ -393,7 +393,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 9. Wedding Services and Vendors */}
                 <section id="wedding-vendors" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       9
                     </span>
                     <span>Wedding Services and Vendors</span>
@@ -411,7 +411,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 10. Images and Cloudinary */}
                 <section id="images-cloudinary" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       10
                     </span>
                     <span>Images and Cloudinary</span>
@@ -426,7 +426,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 11. Admin Portal */}
                 <section id="admin-portal" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       11
                     </span>
                     <span>Admin Portal</span>
@@ -441,7 +441,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 12. AI Admin Features */}
                 <section id="ai-admin-features" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       12
                     </span>
                     <span>AI Admin Features</span>
@@ -456,7 +456,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 13. How Information Is Used */}
                 <section id="how-used" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       13
                     </span>
                     <span>How Information Is Used</span>
@@ -479,7 +479,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 14. Sharing of Information */}
                 <section id="sharing" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       14
                     </span>
                     <span>Sharing of Information</span>
@@ -501,7 +501,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 15. Data Security */}
                 <section id="data-security" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       15
                     </span>
                     <span>Data Security</span>
@@ -516,7 +516,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 16. Data Retention */}
                 <section id="data-retention" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       16
                     </span>
                     <span>Data Retention</span>
@@ -531,7 +531,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 17. Third-Party Links */}
                 <section id="third-party-links" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       17
                     </span>
                     <span>Third-Party Links</span>
@@ -546,7 +546,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 18. Children's Privacy */}
                 <section id="childrens-privacy" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       18
                     </span>
                     <span>Children&apos;s Privacy</span>
@@ -561,7 +561,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 19. Privacy Choices / Contact Requests */}
                 <section id="privacy-choices" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       19
                     </span>
                     <span>Privacy Choices &amp; Contact Requests</span>
@@ -576,7 +576,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 20. Changes to This Policy */}
                 <section id="changes" className="scroll-mt-24 space-y-3">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       20
                     </span>
                     <span>Changes to This Policy</span>
@@ -591,7 +591,7 @@ export default async function PrivacyPolicyPage() {
                 {/* 21. Contact SALVORA */}
                 <section id="contact-salvora" className="scroll-mt-24 space-y-4">
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                    <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                       21
                     </span>
                     <span>Contact SALVORA</span>
@@ -603,7 +603,7 @@ export default async function PrivacyPolicyPage() {
                   {/* Dynamic Main Branch / Global Contact Card */}
                   <div className="rounded-xl border border-stone-200 bg-[#FAF8F5]/80 p-5 sm:p-6 space-y-3.5 text-sm">
                     <div className="flex items-start gap-3">
-                      <MapPinIcon className="h-4 w-4 text-[#7C3AED] shrink-0 mt-0.5" />
+                      <MapPinIcon className="h-4 w-4 text-[#03BF62] shrink-0 mt-0.5" />
                       <div>
                         <p className="font-bold text-stone-900" data-customization-role="description">{contact.branchName}</p>
                         {contact.address && (
@@ -616,10 +616,10 @@ export default async function PrivacyPolicyPage() {
 
                     {contact.phone && (
                       <div className="flex items-center gap-3 text-stone-700">
-                        <PhoneIcon className="h-4 w-4 text-[#7C3AED] shrink-0" />
+                        <PhoneIcon className="h-4 w-4 text-[#03BF62] shrink-0" />
                         <a
                           href={`tel:${contact.phone.replace(/\s+/g, "")}`}
-                          className="text-stone-700 hover:text-[#7C3AED] transition-colors font-medium text-xs sm:text-sm"
+                          className="text-stone-700 hover:text-[#03BF62] transition-colors font-medium text-xs sm:text-sm"
                         >
                           {contact.phone}
                         </a>
@@ -628,10 +628,10 @@ export default async function PrivacyPolicyPage() {
 
                     {contact.email && (
                       <div className="flex items-center gap-3 text-stone-700">
-                        <MailIcon className="h-4 w-4 text-[#7C3AED] shrink-0" />
+                        <MailIcon className="h-4 w-4 text-[#03BF62] shrink-0" />
                         <a
                           href={`mailto:${contact.email}`}
-                          className="text-stone-700 hover:text-[#7C3AED] transition-colors font-medium text-xs sm:text-sm"
+                          className="text-stone-700 hover:text-[#03BF62] transition-colors font-medium text-xs sm:text-sm"
                         >
                           {contact.email}
                         </a>
@@ -641,7 +641,7 @@ export default async function PrivacyPolicyPage() {
                     <div className="pt-2">
                       <Link
                         href="/contact"
-                        className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-[#6D28D9] transition-all"
+                        className="inline-flex items-center gap-2 rounded-full bg-[#03BF62] px-5 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-[#029e51] transition-all"
                       >
                         <span>Contact Us</span>
                         <ArrowRightIcon className="h-3.5 w-3.5" />

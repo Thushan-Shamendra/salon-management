@@ -45,8 +45,8 @@ export default function WhyChooseWedding() {
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 mb-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+            <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               WHY CHOOSE US
             </>}</span>
           </div>
@@ -68,13 +68,13 @@ export default function WhyChooseWedding() {
             return (
               <div
                 key={index}
-                className="group rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs transition-all duration-300 hover:border-purple-300 hover:shadow-md hover:-translate-y-0.5"
+                className="group rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs transition-all duration-300 hover:border-[#03BF62]/40 hover:shadow-md hover:-translate-y-0.5"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-50 text-[#7C3AED] border border-purple-100 group-hover:bg-[#7C3AED] group-hover:text-white transition-colors duration-200">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#03BF62]/10 text-[#03BF62] border border-[#03BF62]/20 group-hover:bg-[#03BF62] group-hover:text-white transition-colors duration-200">
                   <Icon className="h-6 w-6" />
                 </div>
 
-                <h3 className="mt-5 text-base sm:text-lg font-bold text-stone-900 group-hover:text-[#7C3AED] transition-colors">
+                <h3 className="mt-5 text-base sm:text-lg font-bold text-stone-900 group-hover:text-[#03BF62] transition-colors">
                   {item.title}
                 </h3>
 

@@ -245,7 +245,7 @@ export default function BranchContactSection({
         {hasBranches && (
           <div className="mb-10 sm:mb-12">
             <div className="text-center mb-5">
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#7C3AED]">
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#03BF62]">
                 SELECT A LOCATION
               </span>
               <p className="text-xs sm:text-sm text-stone-500 mt-1">
@@ -264,13 +264,13 @@ export default function BranchContactSection({
                     onClick={() => handleSelectBranch(b._id)}
                     className={`inline-flex items-center gap-2 whitespace-nowrap rounded-full px-5 py-2.5 text-xs sm:text-sm font-bold transition-all duration-200 shrink-0 cursor-pointer ${
                       isSelected
-                        ? "bg-[#7C3AED] text-white shadow-md shadow-purple-600/30 scale-102"
+                        ? "bg-[#03BF62] text-white shadow-md shadow-emerald-600/30 scale-102"
                         : "bg-stone-100 text-stone-700 hover:bg-stone-200/80 hover:text-stone-900 border border-stone-200/60"
                     }`}
                   >
                     <MapPinIcon
                       className={`h-4 w-4 ${
-                        isSelected ? "text-white" : "text-[#7C3AED]"
+                        isSelected ? "text-white" : "text-[#03BF62]"
                       }`}
                     />
                     <span>{b.name}</span>
@@ -283,7 +283,7 @@ export default function BranchContactSection({
 
         {/* Fallback Notice if no branches configured yet */}
         {!hasBranches && (
-          <div className="mb-8 rounded-2xl border border-purple-100 bg-purple-50/60 p-4 text-center text-xs text-stone-600 max-w-2xl mx-auto">
+          <div className="mb-8 rounded-2xl border border-[#03BF62]/20 bg-[#03BF62]/10 p-4 text-center text-xs text-stone-600 max-w-2xl mx-auto">
             <span className="font-semibold text-stone-800">
               Welcome to SALVORA Salon
             </span>{" "}
@@ -301,8 +301,8 @@ export default function BranchContactSection({
               {/* Branch Title & Pill */}
               <div>
                 <div className="inline-flex items-center gap-2 mb-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#7C3AED]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#03BF62]">
                     BRANCH DETAILS
                   </span>
                 </div>
@@ -316,7 +316,7 @@ export default function BranchContactSection({
                 {/* Physical Address */}
                 {branchAddress && (
                   <div className="flex items-start gap-3.5">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#7C3AED] border border-stone-200/80 shadow-2xs mt-0.5">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#03BF62] border border-stone-200/80 shadow-2xs mt-0.5">
                       <MapPinIcon className="h-5 w-5" />
                     </div>
                     <div>
@@ -342,7 +342,7 @@ export default function BranchContactSection({
                       </p>
                       <a
                         href={`tel:${branchPhone.replace(/[^\d+]/g, "")}`}
-                        className="text-xs sm:text-sm font-semibold text-stone-900 hover:text-[#7C3AED] transition-colors mt-0.5 inline-block"
+                        className="text-xs sm:text-sm font-semibold text-stone-900 hover:text-[#03BF62] transition-colors mt-0.5 inline-block"
                       >
                         {branchPhone}
                       </a>
@@ -362,7 +362,7 @@ export default function BranchContactSection({
                       </p>
                       <a
                         href={`mailto:${branchEmail}`}
-                        className="text-xs sm:text-sm font-semibold text-stone-900 hover:text-[#7C3AED] transition-colors mt-0.5 inline-block"
+                        className="text-xs sm:text-sm font-semibold text-stone-900 hover:text-[#03BF62] transition-colors mt-0.5 inline-block"
                       >
                         {branchEmail}
                       </a>
@@ -483,7 +483,7 @@ export default function BranchContactSection({
                   }}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-5 py-2.5 text-xs sm:text-sm font-semibold text-stone-800 hover:border-[#7C3AED] hover:text-[#7C3AED] transition-all active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-5 py-2.5 text-xs sm:text-sm font-semibold text-stone-800 hover:border-[#03BF62] hover:text-[#03BF62] transition-all active:scale-[0.98]"
                 >
                   <CompassIcon className="h-4 w-4 shrink-0" />
                   <span>Get Directions</span>
@@ -515,7 +515,7 @@ export default function BranchContactSection({
               {mapData && (
                 <div className="bg-white/95 backdrop-blur-md p-4 sm:p-5 border-t border-stone-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-start gap-2.5 min-w-0">
-                    <MapPinIcon className="h-5 w-5 text-[#7C3AED] shrink-0 mt-0.5" />
+                    <MapPinIcon className="h-5 w-5 text-[#03BF62] shrink-0 mt-0.5" />
                     <div className="min-w-0">
                       <h4 className="text-xs sm:text-sm font-bold text-stone-900 truncate">
                         {branchName}
@@ -542,7 +542,7 @@ export default function BranchContactSection({
                       }}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-3.5 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 hover:text-[#7C3AED] transition-all"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-3.5 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 hover:text-[#03BF62] transition-all"
                     >
                       <span>Open Map</span>
                       <ExternalLinkIcon className="h-3 w-3" />
@@ -563,7 +563,7 @@ export default function BranchContactSection({
                       }}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-full border border-purple-200 bg-purple-50 px-3.5 py-1.5 text-xs font-semibold text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-all"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-[#03BF62]/30 bg-[#03BF62]/10 px-3.5 py-1.5 text-xs font-semibold text-[#03BF62] hover:bg-[#03BF62] hover:text-white transition-all"
                     >
                       <span>Directions</span>
                       <CompassIcon className="h-3 w-3" />

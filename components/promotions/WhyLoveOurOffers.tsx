@@ -44,8 +44,8 @@ export default function WhyLoveOurOffers({ salonName = "Salvora" }: WhyLoveOurOf
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-2 mb-12">
-          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#7C3AED]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
+          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#03BF62]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
             <span data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>Why Choose {salonName}</>}</span>
           </div>
 
@@ -61,9 +61,9 @@ export default function WhyLoveOurOffers({ salonName = "Salvora" }: WhyLoveOurOf
             return (
               <div
                 key={idx}
-                className="group rounded-2xl border border-stone-200/80 bg-white p-6 shadow-2xs hover:shadow-md hover:border-purple-200 transition-all duration-200"
+                className="group rounded-2xl border border-stone-200/80 bg-white p-6 shadow-2xs hover:shadow-md hover:border-[#03BF62]/30 transition-all duration-200"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100/80 group-hover:bg-[#7C3AED] group-hover:text-white transition-colors duration-200">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#03BF62]/10 text-[#03BF62] border border-[#03BF62]/20 group-hover:bg-[#03BF62] group-hover:text-white transition-colors duration-200">
                   <Icon className="h-6 w-6" />
                 </div>
 

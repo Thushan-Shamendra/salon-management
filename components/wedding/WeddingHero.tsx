@@ -34,16 +34,16 @@ export default function WeddingHero({ bookingUrl = "" }: WeddingHeroProps) {
         <div className="max-w-2xl space-y-4 text-left">
           {/* Label / Pill with Signature Dot */}
           <div className="inline-flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#C4B5FD]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+            <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               FOR YOUR MOST SPECIAL DAY
             </>}</span>
           </div>
 
-          {/* Heading with Brand Purple Gradient */}
+          {/* Heading with Brand Gradient */}
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             Wedding Beauty{" "}</>}
-            <span className="block bg-gradient-to-r from-[#C4B5FD] via-[#A78BFA] to-[#8B5CF6] bg-clip-text text-transparent" data-customization-role="highlight">{custom.has("highlightedText") ? custom.text("highlightedText", "") : <>
+            <span className="block bg-gradient-to-r from-[#03BF62] via-[#21C81E] to-[#03BF62] bg-clip-text text-transparent" data-customization-role="highlight">{custom.has("highlightedText") ? custom.text("highlightedText", "") : <>
               Services
             </>}</span>
           </h1>
@@ -69,7 +69,7 @@ export default function WeddingHero({ bookingUrl = "" }: WeddingHeroProps) {
                     },
                   });
                 }}
-                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED] px-7 py-3 text-sm font-semibold text-white shadow-md shadow-purple-900/30 transition-all hover:bg-[#6D28D9] hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#03BF62] px-7 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-900/30 transition-all hover:bg-[#029e51] hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
               >
                 <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Book Your Bridal Consultation</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />
@@ -79,7 +79,7 @@ export default function WeddingHero({ bookingUrl = "" }: WeddingHeroProps) {
                 type="button"
                 disabled
                 title="Online booking link not yet configured"
-                className="inline-flex items-center gap-2.5 rounded-full bg-[#7C3AED]/50 px-7 py-3 text-sm font-semibold text-white/80 cursor-not-allowed" data-customization-role="primaryButton"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#03BF62]/50 px-7 py-3 text-sm font-semibold text-white/80 cursor-not-allowed" data-customization-role="primaryButton"
               >
                 <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Book Your Bridal Consultation</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />
@@ -96,7 +96,7 @@ export default function WeddingHero({ bookingUrl = "" }: WeddingHeroProps) {
               Home
             </Link>
             <span className="text-stone-600">/</span>
-            <span className="text-[#C4B5FD] font-semibold">Wedding</span>
+            <span className="text-[#03BF62] font-semibold">Wedding</span>
           </nav>
         </div>
       </div>

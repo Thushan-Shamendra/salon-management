@@ -98,8 +98,8 @@ export default function ContactFormAndMap({
               <div>
                 {/* Eyebrow */}
                 <div className="inline-flex items-center gap-2 mb-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-                  <span className="text-xs font-bold uppercase tracking-[0.22em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+                  <span className="text-xs font-bold uppercase tracking-[0.22em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                     SEND US A MESSAGE
                   </>}</span>
                 </div>
@@ -117,9 +117,9 @@ export default function ContactFormAndMap({
 
                 {/* Success Notification */}
                 {dispatched && (
-                  <div className="mt-5 rounded-2xl border border-purple-200 bg-purple-50/70 p-4 text-stone-800">
+                  <div className="mt-5 rounded-2xl border border-[#03BF62]/30 bg-[#03BF62]/10 p-4 text-stone-800">
                     <div className="flex items-start gap-3">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100 text-[#7C3AED] shrink-0 mt-0.5">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#03BF62]/20 text-[#03BF62] shrink-0 mt-0.5">
                         <CheckIcon className="h-4 w-4" />
                       </div>
                       <div className="text-xs sm:text-sm">
@@ -142,7 +142,7 @@ export default function ContactFormAndMap({
                               message: "",
                             });
                           }}
-                          className="mt-2.5 text-xs font-semibold text-[#7C3AED] hover:underline cursor-pointer"
+                          className="mt-2.5 text-xs font-semibold text-[#03BF62] hover:underline cursor-pointer"
                         >
                           Reset Form
                         </button>
@@ -164,7 +164,7 @@ export default function ContactFormAndMap({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-800 mb-1.5">
-                        Full Name <span className="text-[#7C3AED]">*</span>
+                        Full Name <span className="text-[#03BF62]">*</span>
                       </label>
                       <div className="relative">
                         <UserIcon className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
@@ -176,14 +176,14 @@ export default function ContactFormAndMap({
                             setFormData({ ...formData, name: e.target.value })
                           }
                           placeholder="Your full name"
-                          className="w-full rounded-xl border border-stone-200 bg-white pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/15"
+                          className="w-full rounded-xl border border-stone-200 bg-white pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#03BF62] focus:ring-2 focus:ring-[#03BF62]/15"
                         />
                       </div>
                     </div>
 
                     <div>
                       <label className="block text-xs font-bold text-stone-800 mb-1.5">
-                        Email Address <span className="text-[#7C3AED]">*</span>
+                        Email Address <span className="text-[#03BF62]">*</span>
                       </label>
                       <div className="relative">
                         <MailIcon className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
@@ -195,7 +195,7 @@ export default function ContactFormAndMap({
                             setFormData({ ...formData, email: e.target.value })
                           }
                           placeholder="you@example.com"
-                          className="w-full rounded-xl border border-stone-200 bg-white pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/15"
+                          className="w-full rounded-xl border border-stone-200 bg-white pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#03BF62] focus:ring-2 focus:ring-[#03BF62]/15"
                         />
                       </div>
                     </div>
@@ -216,14 +216,14 @@ export default function ContactFormAndMap({
                             setFormData({ ...formData, phone: e.target.value })
                           }
                           placeholder="+94 77 123 4567"
-                          className="w-full rounded-xl border border-stone-200 bg-white pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/15"
+                          className="w-full rounded-xl border border-stone-200 bg-white pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#03BF62] focus:ring-2 focus:ring-[#03BF62]/15"
                         />
                       </div>
                     </div>
 
                     <div>
                       <label className="block text-xs font-bold text-stone-800 mb-1.5">
-                        Subject <span className="text-[#7C3AED]">*</span>
+                        Subject <span className="text-[#03BF62]">*</span>
                       </label>
                       <div className="relative">
                         <CheckCircleIcon className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
@@ -233,7 +233,7 @@ export default function ContactFormAndMap({
                           onChange={(e) =>
                             setFormData({ ...formData, subject: e.target.value })
                           }
-                          className="w-full appearance-none rounded-xl border border-stone-200 bg-white pl-10 pr-9 py-2.5 text-xs sm:text-sm text-stone-900 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/15"
+                          className="w-full appearance-none rounded-xl border border-stone-200 bg-white pl-10 pr-9 py-2.5 text-xs sm:text-sm text-stone-900 outline-none transition-all focus:border-[#03BF62] focus:ring-2 focus:ring-[#03BF62]/15"
                         >
                           <option value="">Select a subject</option>
                           <option value="General Inquiry">General Inquiry</option>
@@ -256,7 +256,7 @@ export default function ContactFormAndMap({
                   {/* Row 3: Message */}
                   <div>
                     <label className="block text-xs font-bold text-stone-800 mb-1.5">
-                      Message <span className="text-[#7C3AED]">*</span>
+                      Message <span className="text-[#03BF62]">*</span>
                     </label>
                     <textarea
                       required
@@ -266,7 +266,7 @@ export default function ContactFormAndMap({
                         setFormData({ ...formData, message: e.target.value })
                       }
                       placeholder="Type your message here..."
-                      className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/15 resize-y"
+                      className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#03BF62] focus:ring-2 focus:ring-[#03BF62]/15 resize-y"
                     />
                   </div>
 
@@ -275,7 +275,7 @@ export default function ContactFormAndMap({
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-md shadow-purple-600/25 transition-all hover:from-[#6D28D9] hover:to-[#5B21B6] active:scale-[0.98] disabled:opacity-60 cursor-pointer"
+                      className="inline-flex items-center gap-2.5 rounded-full bg-[#03BF62] px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-md shadow-emerald-600/25 transition-all hover:bg-[#029e51] active:scale-[0.98] disabled:opacity-60 cursor-pointer"
                     >
                       <span>{submitting ? "Sending..." : "Send Message"}</span>
                       <ArrowRightIcon className="h-4 w-4" />

@@ -46,8 +46,8 @@ export default function WeddingPackageCard({
     <div
       className={`group flex flex-col justify-between rounded-2xl bg-white p-5 sm:p-6 transition-all duration-300 ${
         pkg.isFeatured
-          ? "border-2 border-[#7C3AED] shadow-xl shadow-purple-500/10 ring-1 ring-[#7C3AED]/20 -translate-y-1"
-          : "border border-stone-200/90 shadow-xs hover:border-purple-300 hover:shadow-lg hover:-translate-y-1"
+          ? "border-2 border-[#03BF62] shadow-xl shadow-emerald-500/10 ring-1 ring-[#03BF62]/20 -translate-y-1"
+          : "border border-stone-200/90 shadow-xs hover:border-[#03BF62]/40 hover:shadow-lg hover:-translate-y-1"
       }`}
     >
       <div>
@@ -64,7 +64,7 @@ export default function WeddingPackageCard({
 
           {pkg.isFeatured && (
             <div className="absolute top-3 left-3 z-10">
-              <span className="inline-flex items-center rounded-full bg-[#7C3AED] px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-white shadow-md shadow-purple-900/30">
+              <span className="inline-flex items-center rounded-full bg-[#03BF62] px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-white shadow-md shadow-emerald-900/30">
                 MOST POPULAR
               </span>
             </div>
@@ -88,7 +88,7 @@ export default function WeddingPackageCard({
         >
           <h3
             className={`text-xl font-bold tracking-tight truncate ${
-              pkg.isFeatured ? "text-[#7C3AED]" : "text-stone-900 group-hover:text-[#7C3AED]"
+              pkg.isFeatured ? "text-[#03BF62]" : "text-stone-900 group-hover:text-[#03BF62]"
             } transition-colors`}
           >
             {pkg.name}
@@ -103,7 +103,7 @@ export default function WeddingPackageCard({
           <ul className="space-y-2 text-xs sm:text-sm text-stone-700">
             {pkg.includedItems.map((item, idx) => (
               <li key={idx} className="flex items-start gap-2.5">
-                <span className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-purple-100 text-[#7C3AED] mt-0.5">
+                <span className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-[#03BF62]/10 text-[#03BF62] mt-0.5">
                   <CheckIcon className="h-3 w-3 stroke-[3]" />
                 </span>
                 <span className="font-medium text-stone-700 leading-tight">
@@ -157,8 +157,8 @@ export default function WeddingPackageCard({
             }}
             className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 text-xs sm:text-sm font-semibold transition-all active:scale-[0.98] ${
               pkg.isFeatured
-                ? "bg-[#7C3AED] text-white hover:bg-[#6D28D9] shadow-md shadow-purple-600/30"
-                : "bg-stone-900 text-white hover:bg-[#7C3AED]"
+                ? "bg-[#03BF62] text-white hover:bg-[#029e51] shadow-md shadow-emerald-600/30"
+                : "bg-stone-900 text-white hover:bg-[#03BF62]"
             }`}
           >
             <span>Choose Package</span>

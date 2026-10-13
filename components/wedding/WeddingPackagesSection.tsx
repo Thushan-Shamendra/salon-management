@@ -23,13 +23,13 @@ export default function WeddingPackagesSection({
   }
 
   return (
-    <section className="py-16 sm:py-24 bg-[#FAF7FE] border-b border-purple-100/70" data-customization-section="wedding-packages">
+    <section className="py-16 sm:py-24 bg-[#F8FAF9] border-b border-[#03BF62]/10" data-customization-section="wedding-packages">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 mb-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+            <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               SPECIAL OFFERS
             </>}</span>
           </div>

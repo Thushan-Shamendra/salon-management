@@ -76,8 +76,8 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
           {/* Label */}
           <div className="inline-flex items-center gap-2 mb-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+            <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               OUR WORK
             </>}</span>
           </div>
@@ -111,8 +111,8 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
                     onClick={() => setSelectedCategory(cat)}
                     className={`rounded-full px-5 py-2 text-xs font-semibold transition-all duration-200 active:scale-95 ${
                       isActive
-                        ? "bg-[#7C3AED] text-white shadow-md shadow-purple-600/30 ring-2 ring-[#7C3AED]/20"
-                        : "bg-white text-stone-600 border border-stone-200 hover:border-purple-300 hover:text-[#7C3AED]"
+                        ? "bg-[#03BF62] text-white shadow-md shadow-emerald-600/30 ring-2 ring-[#03BF62]/20"
+                        : "bg-white text-stone-600 border border-stone-200 hover:border-[#03BF62]/40 hover:text-[#03BF62]"
                     }`}
                   >
                     {cat}
@@ -132,7 +132,7 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
           {/* Empty State */}
           {filteredPhotos.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-stone-300 bg-white p-12 text-center max-w-md mx-auto shadow-2xs">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-50 text-[#7C3AED] mb-4">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#03BF62]/10 text-[#03BF62] mb-4">
                 <ImageIcon className="h-7 w-7" />
               </div>
               <h3 className="text-lg font-bold text-stone-900">
@@ -149,7 +149,7 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
                 <button
                   type="button"
                   onClick={() => setSelectedCategory("All")}
-                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-6 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#6D28D9]"
+                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#03BF62] px-6 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#029e51]"
                 >
                   <span>View All Photos</span>
                   <ArrowRightIcon className="h-3.5 w-3.5" />
@@ -320,7 +320,7 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
         {/* Card Content Bar */}
         <div className="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-5 flex items-end justify-between text-white z-10 pointer-events-none">
           <div className="max-w-[80%] pr-2">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#C4B5FD]">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#03BF62]">
               {photo.category}
             </p>
             <h3 className="text-sm sm:text-base font-bold tracking-tight mt-0.5 truncate text-white">
@@ -329,7 +329,7 @@ export default function GalleryView({ photos, bookingUrl = "" }: GalleryViewProp
           </div>
 
           {/* Search / Zoom View Icon Badge */}
-          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white shadow-xs transition-all duration-300 group-hover:bg-[#7C3AED] group-hover:scale-110 pointer-events-auto">
+          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white shadow-xs transition-all duration-300 group-hover:bg-[#03BF62] group-hover:scale-110 pointer-events-auto">
             <SearchIcon className="h-4 w-4" />
           </div>
         </div>

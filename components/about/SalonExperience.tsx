@@ -32,8 +32,8 @@ export default function SalonExperience() {
             <div>
               {/* Small Label */}
               <div className="inline-flex items-center gap-2 mb-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+                <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                   OUR SALON
                 </>}</span>
               </div>
@@ -56,7 +56,7 @@ export default function SalonExperience() {
             <div className="pt-2">
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-7 py-3.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-purple-600/20 transition-all hover:bg-[#6D28D9] hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
+                className="inline-flex items-center gap-2 rounded-full bg-[#03BF62] px-7 py-3.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-emerald-600/20 transition-all hover:bg-[#029e51] hover:gap-3 active:scale-[0.98]" data-customization-role="primaryButton"
               >
                 <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Visit Our Salon</>}</span>
                 <ArrowRightIcon className="h-4 w-4" />

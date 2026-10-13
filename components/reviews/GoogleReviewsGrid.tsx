@@ -204,7 +204,7 @@ export default function GoogleReviewsGrid() {
         {/* ============================================================== */}
         {branches.length > 1 && (
           <div className="flex flex-col items-center justify-center space-y-3">
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7C3AED]">
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#03BF62]">
               SELECT BRANCH LOCATION
             </span>
             <div className="flex flex-wrap items-center justify-center gap-2">
@@ -217,11 +217,11 @@ export default function GoogleReviewsGrid() {
                     onClick={() => handleSelectBranch(b._id)}
                     className={`inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                       isSelected
-                        ? "bg-[#7C3AED] text-white shadow-md shadow-purple-950/20"
+                        ? "bg-[#03BF62] text-white shadow-md shadow-emerald-950/20"
                         : "bg-stone-100 text-stone-700 hover:bg-stone-200"
                     }`}
                   >
-                    <MapPinIcon className={`h-3.5 w-3.5 ${isSelected ? "text-purple-200" : "text-stone-400"}`} />
+                    <MapPinIcon className={`h-3.5 w-3.5 ${isSelected ? "text-emerald-100" : "text-stone-400"}`} />
                     <span>{b.name}</span>
                   </button>
                 );
@@ -288,8 +288,8 @@ export default function GoogleReviewsGrid() {
               <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10">
                 <div>
                   <div className="inline-flex items-center gap-2 mb-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-                    <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+                    <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                       OUR CLIENTS
                     </>}</span>
                   </div>
@@ -318,7 +318,7 @@ export default function GoogleReviewsGrid() {
                       }}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#6D28D9] hover:shadow-md active:scale-[0.98]" data-customization-role="primaryButton"
+                      className="inline-flex items-center gap-2 rounded-full bg-[#03BF62] px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#029e51] hover:shadow-md active:scale-[0.98]" data-customization-role="primaryButton"
                     >
                       <StarIcon className="h-3.5 w-3.5 fill-amber-300 text-amber-300" />
                       <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Write a Review</>}</span>
@@ -331,7 +331,7 @@ export default function GoogleReviewsGrid() {
                       href={businessUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-5 py-2.5 text-xs font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="secondaryButton"
+                      className="inline-flex items-center gap-2 rounded-full border border-[#03BF62]/30 bg-white px-5 py-2.5 text-xs font-semibold text-[#03BF62] shadow-2xs transition-all hover:bg-[#03BF62]/10 hover:border-[#03BF62] active:scale-[0.98]" data-customization-role="secondaryButton"
                     >
                       <span data-customization-role="buttonText">{custom.has("secondaryButtonText") ? custom.text("secondaryButtonText", "") : <>View on Google</>}</span>
                       <ArrowRightIcon className="h-3.5 w-3.5" />
@@ -343,7 +343,7 @@ export default function GoogleReviewsGrid() {
               {/* Reviews Cards Grid OR Friendly Empty State */}
               {!hasReviews ? (
                 <div className="rounded-3xl border border-dashed border-stone-300 bg-white p-10 sm:p-12 text-center max-w-lg mx-auto shadow-2xs">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-50 text-[#7C3AED] mb-4">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#03BF62]/10 text-[#03BF62] mb-4">
                     <MessageCircleIcon className="h-7 w-7" />
                   </div>
                   <h3 className="text-lg font-bold text-stone-900">
@@ -372,7 +372,7 @@ export default function GoogleReviewsGrid() {
                         }}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#6D28D9]" data-customization-role="primaryButton"
+                        className="inline-flex items-center gap-2 rounded-full bg-[#03BF62] px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#029e51]" data-customization-role="primaryButton"
                       >
                         <StarIcon className="h-3.5 w-3.5 fill-amber-300 text-amber-300" />
                         <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Write a Review</>}</span>
@@ -391,7 +391,7 @@ export default function GoogleReviewsGrid() {
                     return (
                       <div
                         key={idx}
-                        className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-6 shadow-xs transition-all duration-300 hover:border-purple-300 hover:shadow-lg hover:-translate-y-1"
+                        className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-6 shadow-xs transition-all duration-300 hover:border-[#03BF62]/40 hover:shadow-lg hover:-translate-y-1"
                       >
                         <div className="space-y-4">
                           {/* Top Row: Avatar, Name, Rating & Relative Date */}
@@ -402,17 +402,17 @@ export default function GoogleReviewsGrid() {
                                 <img
                                   src={review.authorPhoto}
                                   alt={review.authorName}
-                                  className="h-11 w-11 rounded-full object-cover border border-purple-100 ring-2 ring-stone-100 shrink-0"
+                                  className="h-11 w-11 rounded-full object-cover border border-[#03BF62]/20 ring-2 ring-stone-100 shrink-0"
                                   onError={() => handleAvatarError(idx)}
                                 />
                               ) : (
-                                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-purple-100 text-[#7C3AED] font-bold text-sm shrink-0 border border-purple-200">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#03BF62]/10 text-[#03BF62] font-bold text-sm shrink-0 border border-[#03BF62]/20">
                                   {review.authorName?.charAt(0) || "C"}
                                 </div>
                               )}
 
                               <div>
-                                <h3 className="text-sm font-bold text-stone-900 group-hover:text-[#7C3AED] transition-colors line-clamp-1">
+                                <h3 className="text-sm font-bold text-stone-900 group-hover:text-[#03BF62] transition-colors line-clamp-1">
                                   {review.authorName}
                                 </h3>
 
@@ -452,7 +452,7 @@ export default function GoogleReviewsGrid() {
                               <button
                                 type="button"
                                 onClick={() => toggleExpand(idx)}
-                                className="mt-2 text-xs font-semibold text-[#7C3AED] hover:underline cursor-pointer"
+                                className="mt-2 text-xs font-semibold text-[#03BF62] hover:underline cursor-pointer"
                               >
                                 {isExpanded ? "Show Less" : "Read More"}
                               </button>

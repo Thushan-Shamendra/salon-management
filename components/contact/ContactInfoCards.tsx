@@ -99,8 +99,8 @@ export default function ContactInfoCards({
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 mb-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]">
               GET IN TOUCH
             </span>
           </div>
@@ -130,16 +130,16 @@ export default function ContactInfoCards({
             return (
               <div
                 key={card.key}
-                className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-7 min-h-[220px] shadow-xs transition-all duration-300 hover:border-purple-300 hover:shadow-lg hover:-translate-y-1"
+                className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-7 min-h-[220px] shadow-xs transition-all duration-300 hover:border-[#03BF62]/40 hover:shadow-lg hover:-translate-y-1"
               >
                 <div>
                   {/* Icon Badge */}
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#EDE9FE] text-[#6D28D9] border border-[#DDD6FE] shadow-2xs mb-5 transition-colors duration-300 group-hover:bg-[#7C3AED] group-hover:text-white group-hover:border-[#7C3AED]">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#03BF62]/10 text-[#03BF62] border border-[#03BF62]/20 shadow-2xs mb-5 transition-colors duration-300 group-hover:bg-[#03BF62] group-hover:text-white group-hover:border-[#03BF62]">
                     <Icon className="h-6 w-6" />
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-base font-bold text-stone-900 group-hover:text-[#7C3AED] transition-colors">
+                  <h3 className="text-base font-bold text-stone-900 group-hover:text-[#03BF62] transition-colors">
                     {card.title}
                   </h3>
 
@@ -150,7 +150,7 @@ export default function ContactInfoCards({
                         href={card.href}
                         target={card.target}
                         rel={card.target ? "noopener noreferrer" : undefined}
-                        className="hover:text-[#7C3AED] transition-colors whitespace-pre-line"
+                        className="hover:text-[#03BF62] transition-colors whitespace-pre-line"
                       >
                         {card.value}
                       </a>

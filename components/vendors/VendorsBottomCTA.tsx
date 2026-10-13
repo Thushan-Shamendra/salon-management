@@ -43,15 +43,15 @@ export default function VendorsBottomCTA({
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-xl space-y-4">
           {/* Eyebrow */}
-          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#A78BFA]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#A78BFA]" />
+          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#03BF62]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
             <span data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>Plan Your Special Day</>}</span>
           </div>
 
           {/* Heading */}
           <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>
             Let’s Make Your Event <br /></>}
-            <span className="bg-gradient-to-r from-[#A78BFA] to-[#C4B5FD] bg-clip-text text-transparent" data-customization-role="highlight">{custom.has("highlightedText") ? custom.text("highlightedText", "") : <>
+            <span className="bg-gradient-to-r from-[#03BF62] via-[#21C81E] to-[#03BF62] bg-clip-text text-transparent" data-customization-role="highlight">{custom.has("highlightedText") ? custom.text("highlightedText", "") : <>
               Truly Special
             </>}</span>
           </h2>
@@ -67,7 +67,7 @@ export default function VendorsBottomCTA({
             <button
               type="button"
               onClick={handleScrollToVendors}
-              className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] px-7 py-3 text-sm font-bold text-white shadow-lg shadow-purple-950/40 hover:from-[#6D28D9] hover:to-[#5B21B6] transition-all cursor-pointer active:scale-[0.98]" data-customization-role="primaryButton"
+              className="inline-flex items-center gap-2.5 rounded-full bg-[#03BF62] px-7 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-950/40 hover:bg-[#029e51] transition-all cursor-pointer active:scale-[0.98]" data-customization-role="primaryButton"
             >
               <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>Explore Vendors</>}</span>
               <ArrowRightIcon className="h-4 w-4" />

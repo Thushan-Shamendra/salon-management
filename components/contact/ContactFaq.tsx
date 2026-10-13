@@ -67,8 +67,8 @@ export default function ContactFaq({ address = "" }: ContactFaqProps) {
             <div>
               {/* Label */}
               <div className="inline-flex items-center gap-2 mb-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+                <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                   FREQUENTLY ASKED
                 </>}</span>
               </div>
@@ -94,8 +94,8 @@ export default function ContactFaq({ address = "" }: ContactFaqProps) {
                     key={index}
                     className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
                       isOpen
-                        ? "border-purple-300 bg-purple-50/30 shadow-xs"
-                        : "border-stone-200/90 bg-white hover:border-purple-200"
+                        ? "border-[#03BF62]/40 bg-[#03BF62]/5 shadow-xs"
+                        : "border-stone-200/90 bg-white hover:border-[#03BF62]/30"
                     }`}
                   >
                     <button
@@ -110,8 +110,8 @@ export default function ContactFaq({ address = "" }: ContactFaqProps) {
                       <div
                         className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors shrink-0 ${
                           isOpen
-                            ? "bg-[#7C3AED] text-white"
-                            : "bg-purple-50 text-[#7C3AED]"
+                            ? "bg-[#03BF62] text-white"
+                            : "bg-[#03BF62]/10 text-[#03BF62]"
                         }`}
                       >
                         {isOpen ? (
@@ -123,7 +123,7 @@ export default function ContactFaq({ address = "" }: ContactFaqProps) {
                     </button>
 
                     {isOpen && (
-                      <div className="px-4 pb-5 sm:px-5 sm:pb-5 pt-0 text-xs sm:text-sm text-stone-600 leading-relaxed border-t border-purple-100/60 mt-1">
+                      <div className="px-4 pb-5 sm:px-5 sm:pb-5 pt-0 text-xs sm:text-sm text-stone-600 leading-relaxed border-t border-[#03BF62]/15 mt-1">
                         <p className="pt-2">{faq.answer}</p>
                       </div>
                     )}

@@ -28,8 +28,8 @@ export default function ContactHero() {
         <div className="max-w-2xl space-y-4 text-left">
           {/* Label / Pill */}
           <div className="inline-flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#C4B5FD]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+            <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               GET IN TOUCH
             </>}</span>
           </div>
@@ -53,7 +53,7 @@ export default function ContactHero() {
               Home
             </Link>
             <span className="text-stone-600">/</span>
-            <span className="text-[#C4B5FD] font-semibold">Contact</span>
+            <span className="text-[#03BF62] font-semibold">Contact</span>
           </nav>
         </div>
       </div>

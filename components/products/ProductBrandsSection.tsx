@@ -33,8 +33,8 @@ export default function ProductBrandsSection({ products }: ProductBrandsSectionP
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 mb-2 justify-center">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+            <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
               PRODUCTS WE USE
             </>}</span>
           </div>
@@ -50,7 +50,7 @@ export default function ProductBrandsSection({ products }: ProductBrandsSectionP
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6 items-stretch">
           {products.map((brand) => {
             const cardContent = (
-              <div className="group relative flex flex-col items-center justify-between h-full rounded-2xl border border-stone-200/80 bg-white p-5 shadow-2xs transition-all duration-300 hover:border-purple-300 hover:shadow-md hover:-translate-y-0.5">
+              <div className="group relative flex flex-col items-center justify-between h-full rounded-2xl border border-stone-200/80 bg-white p-5 shadow-2xs transition-all duration-300 hover:border-[#03BF62]/40 hover:shadow-md hover:-translate-y-0.5">
                 {/* Logo Frame */}
                 <div className="relative h-20 w-full flex items-center justify-center p-2">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -65,7 +65,7 @@ export default function ProductBrandsSection({ products }: ProductBrandsSectionP
                 {/* Brand Name */}
                 <div className="w-full text-center mt-3 pt-2.5 border-t border-stone-100">
                   <div className="flex items-center justify-center gap-1">
-                    <p className="text-xs font-bold text-stone-800 group-hover:text-[#7C3AED] transition-colors truncate">
+                    <p className="text-xs font-bold text-stone-800 group-hover:text-[#03BF62] transition-colors truncate">
                       {brand.name}
                     </p>
                     {brand.websiteUrl && (
@@ -99,7 +99,7 @@ export default function ProductBrandsSection({ products }: ProductBrandsSectionP
                   }}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block h-full focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 rounded-2xl"
+                  className="block h-full focus:outline-none focus:ring-2 focus:ring-[#03BF62]/20 rounded-2xl"
                   title={`Visit ${brand.name}`}
                 >
                   {cardContent}

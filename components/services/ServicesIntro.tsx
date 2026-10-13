@@ -11,8 +11,8 @@ export default function ServicesIntro() {
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
         {/* Label */}
         <div className="inline-flex items-center gap-2 mb-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+          <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
             WHAT WE OFFER
           </>}</span>
         </div>

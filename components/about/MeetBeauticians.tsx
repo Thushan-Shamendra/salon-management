@@ -88,8 +88,8 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-8">
           <div>
             <div className="inline-flex items-center gap-2 mb-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7C3AED]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
+              <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>
                 OUR TEAM
               </>}</span>
             </div>
@@ -100,7 +100,7 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
 
           <Link
             href="/services"
-            className="self-start sm:self-auto inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-5 py-2.5 text-xs font-semibold text-[#7C3AED] shadow-2xs transition-all hover:bg-purple-50 hover:border-[#7C3AED] active:scale-[0.98]" data-customization-role="primaryButton"
+            className="self-start sm:self-auto inline-flex items-center gap-2 rounded-full border border-[#03BF62]/30 bg-white px-5 py-2.5 text-xs font-semibold text-[#03BF62] shadow-2xs transition-all hover:bg-[#03BF62]/10 hover:border-[#03BF62] active:scale-[0.98]" data-customization-role="primaryButton"
           >
             <span data-customization-role="buttonText">{custom.has("primaryButtonText") ? custom.text("primaryButtonText", "") : <>View Our Services</>}</span>
             <ArrowRightIcon className="h-3.5 w-3.5" />
@@ -115,7 +115,7 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
               onClick={() => setSelectedBranchId("all")}
               className={`rounded-full px-4 py-2 text-xs font-semibold transition-all cursor-pointer ${
                 selectedBranchId === "all"
-                  ? "bg-[#7C3AED] text-white shadow-xs"
+                  ? "bg-[#03BF62] text-white shadow-xs"
                   : "bg-stone-100 text-stone-600 hover:bg-stone-200"
               }`}
             >
@@ -130,7 +130,7 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
                   onClick={() => setSelectedBranchId(br._id)}
                   className={`rounded-full px-4 py-2 text-xs font-semibold transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-[#7C3AED] text-white shadow-xs"
+                      ? "bg-[#03BF62] text-white shadow-xs"
                       : "bg-stone-100 text-stone-600 hover:bg-stone-200"
                   }`}
                 >
@@ -153,7 +153,7 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
             <button
               type="button"
               onClick={() => setSelectedBranchId("all")}
-              className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-[#7C3AED] hover:underline cursor-pointer"
+              className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-[#03BF62] hover:underline cursor-pointer"
             >
               View All Branches
             </button>
@@ -177,9 +177,9 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
 
           return (
             <div className="max-w-2xl mx-auto">
-              <div className="group relative flex flex-col sm:flex-row items-center gap-6 sm:gap-8 rounded-3xl border border-stone-200/90 bg-white p-6 sm:p-8 shadow-xs transition-all duration-300 hover:border-purple-300 hover:shadow-lg">
+              <div className="group relative flex flex-col sm:flex-row items-center gap-6 sm:gap-8 rounded-3xl border border-stone-200/90 bg-white p-6 sm:p-8 shadow-xs transition-all duration-300 hover:border-[#03BF62]/40 hover:shadow-lg">
                 {/* Circular Portrait with Glow Ring */}
-                <div className="relative h-32 w-32 sm:h-36 sm:w-36 rounded-full overflow-hidden shrink-0 border-4 border-purple-100 ring-4 ring-cyan-100/50 shadow-sm">
+                <div className="relative h-32 w-32 sm:h-36 sm:w-36 rounded-full overflow-hidden shrink-0 border-4 border-[#03BF62]/20 ring-4 ring-cyan-100/50 shadow-sm">
                   <Image
                     src={imageSrc}
                     alt={person.name}
@@ -189,7 +189,7 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
                     onError={() => handleImageError(person._id)}
                   />
                   {person.isFeatured && (
-                    <div className="absolute bottom-1 right-1 rounded-full bg-[#7C3AED] p-1 text-white shadow-xs">
+                    <div className="absolute bottom-1 right-1 rounded-full bg-[#03BF62] p-1 text-white shadow-xs">
                       <SparklesIcon className="h-3.5 w-3.5" />
                     </div>
                   )}
@@ -198,15 +198,15 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
                 {/* Profile Information */}
                 <div className="text-center sm:text-left flex-1 space-y-2">
                   <div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-stone-900 group-hover:text-[#7C3AED] transition-colors">
+                    <h3 className="text-xl sm:text-2xl font-bold text-stone-900 group-hover:text-[#03BF62] transition-colors">
                       {person.name}
                     </h3>
                     <p className="text-xs sm:text-sm font-semibold text-stone-500 capitalize mt-0.5">
                       {person.jobTitle || "Hair Stylist"}
                     </p>
                     {branchName && (
-                      <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-purple-50 px-2.5 py-0.5 text-[11px] font-semibold text-[#7C3AED] border border-purple-100">
-                        <MapPinIcon className="h-3 w-3 text-[#7C3AED]" />
+                      <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-[#03BF62]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#03BF62] border border-[#03BF62]/20">
+                        <MapPinIcon className="h-3 w-3 text-[#03BF62]" />
                         <span>{branchName}</span>
                       </div>
                     )}
@@ -234,7 +234,7 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-label={`${person.name} Facebook`}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
+                          className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#03BF62]/10 text-[#03BF62] hover:bg-[#03BF62] hover:text-white transition-colors"
                         >
                           <FacebookIcon className="h-4 w-4" />
                         </a>
@@ -245,7 +245,7 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-label={`${person.name} Instagram`}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
+                          className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#03BF62]/10 text-[#03BF62] hover:bg-[#03BF62] hover:text-white transition-colors"
                         >
                           <InstagramIcon className="h-4 w-4" />
                         </a>
@@ -292,7 +292,7 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
     return (
       <div
         key={person._id}
-        className="group flex flex-col justify-between rounded-3xl border border-stone-200/90 bg-white p-5 shadow-xs transition-all duration-300 hover:border-purple-300 hover:shadow-xl hover:-translate-y-1"
+        className="group flex flex-col justify-between rounded-3xl border border-stone-200/90 bg-white p-5 shadow-xs transition-all duration-300 hover:border-[#03BF62]/40 hover:shadow-xl hover:-translate-y-1"
       >
         <div>
           {/* Portrait Photo */}
@@ -306,7 +306,7 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
               onError={() => handleImageError(person._id)}
             />
             {person.isFeatured && (
-              <div className="absolute top-3 left-3 rounded-full bg-[#7C3AED] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-white shadow-xs">
+              <div className="absolute top-3 left-3 rounded-full bg-[#03BF62] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-white shadow-xs">
                 Featured Expert
               </div>
             )}
@@ -314,7 +314,7 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
 
           {/* Details */}
           <div className="mt-4">
-            <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#7C3AED] transition-colors truncate">
+            <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#03BF62] transition-colors truncate">
               {person.name}
             </h3>
             <p className="text-xs font-semibold text-stone-500 capitalize mt-0.5">
@@ -323,8 +323,8 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
 
             {/* Branch Label if Assigned */}
             {branchName && (
-              <div className="mt-1.5 flex items-center gap-1 text-[11px] font-semibold text-purple-700">
-                <MapPinIcon className="h-3 w-3 text-purple-500 shrink-0" />
+              <div className="mt-1.5 flex items-center gap-1 text-[11px] font-semibold text-[#03BF62]">
+                <MapPinIcon className="h-3 w-3 text-[#03BF62] shrink-0" />
                 <span className="truncate">{branchName}</span>
               </div>
             )}
@@ -350,7 +350,7 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`${person.name} Instagram`}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
+                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#03BF62]/10 text-[#03BF62] hover:bg-[#03BF62] hover:text-white transition-colors"
                   >
                     <InstagramIcon className="h-3.5 w-3.5" />
                   </a>
@@ -361,7 +361,7 @@ export default function MeetBeauticians({ beauticians, branches = [] }: MeetBeau
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`${person.name} Facebook`}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-colors"
+                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#03BF62]/10 text-[#03BF62] hover:bg-[#03BF62] hover:text-white transition-colors"
                   >
                     <FacebookIcon className="h-3.5 w-3.5" />
                   </a>

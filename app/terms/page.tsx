@@ -46,21 +46,21 @@ export default async function TermsPage() {
 
   return (
     <PageCustomization scope="public" pageKey="terms">
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5]">
+    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-stone-900 selection:bg-[#03BF62]/30 selection:text-stone-900">
       {/* Main Navigation */}
       <Navbar />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-[#0C0A14] text-white py-14 sm:py-16 lg:py-20 border-b border-white/10" data-customization-section="hero">
         {/* Ambient subtle glow for luxury aesthetic */}
-        <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(124,58,237,0.22),rgba(255,255,255,0))]" />
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(3,191,98,0.22),rgba(255,255,255,0))]" />
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl space-y-3.5 text-left">
             {/* Small Label */}
             <div className="inline-flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED]" />
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#C4B5FD]" data-customization-role="eyebrow"><CustomizationText sectionKey="hero" field="eyebrow">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62]" />
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#03BF62]" data-customization-role="eyebrow"><CustomizationText sectionKey="hero" field="eyebrow">
                 LEGAL
               </CustomizationText></span>
             </div>
@@ -84,7 +84,7 @@ export default async function TermsPage() {
                 Home
               </Link>
               <span className="text-stone-600">/</span>
-              <span className="text-[#C4B5FD] font-semibold">Terms & Conditions</span>
+              <span className="text-[#03BF62] font-semibold">Terms & Conditions</span>
             </nav>
           </div>
         </div>
@@ -96,7 +96,7 @@ export default async function TermsPage() {
           <article className="rounded-2xl border border-stone-200/80 bg-white p-6 sm:p-10 lg:p-12 shadow-xs space-y-9" data-customization-section="document">
             {/* Metadata Bar */}
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 pb-5 text-xs text-stone-500">
-              <span className="font-semibold uppercase tracking-wider text-purple-700 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-100">
+              <span className="font-semibold uppercase tracking-wider text-[#03BF62] bg-[#03BF62]/10 px-2.5 py-1 rounded-full border border-[#03BF62]/20">
                 Website Policy
               </span>
               <span className="font-medium text-stone-500">
@@ -107,7 +107,7 @@ export default async function TermsPage() {
             {/* 1. Introduction */}
             <section className="space-y-3">
               <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                   1
                 </span>
                 <span>Introduction</span>
@@ -122,7 +122,7 @@ export default async function TermsPage() {
             {/* 2. Use of the Website */}
             <section className="space-y-3">
               <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                   2
                 </span>
                 <span>Use of the Website</span>
@@ -137,7 +137,7 @@ export default async function TermsPage() {
             {/* 3. Salon Services */}
             <section className="space-y-3">
               <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                   3
                 </span>
                 <span>Salon Services</span>
@@ -152,7 +152,7 @@ export default async function TermsPage() {
             {/* 4. Appointments & External Booking System */}
             <section className="space-y-3">
               <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                   4
                 </span>
                 <span>Appointments & External Booking System</span>
@@ -167,7 +167,7 @@ export default async function TermsPage() {
             {/* 5. Wedding Services & Packages */}
             <section className="space-y-3">
               <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                   5
                 </span>
                 <span>Wedding Services & Packages</span>
@@ -182,7 +182,7 @@ export default async function TermsPage() {
             {/* 6. Cancellations & Rescheduling */}
             <section className="space-y-3">
               <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                   6
                 </span>
                 <span>Cancellations & Rescheduling</span>
@@ -197,7 +197,7 @@ export default async function TermsPage() {
             {/* 7. Website Content */}
             <section className="space-y-3">
               <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                   7
                 </span>
                 <span>Website Content</span>
@@ -212,7 +212,7 @@ export default async function TermsPage() {
             {/* 8. Images & Service Representation */}
             <section className="space-y-3">
               <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                   8
                 </span>
                 <span>Images & Service Representation</span>
@@ -227,7 +227,7 @@ export default async function TermsPage() {
             {/* 9. Third-Party Links */}
             <section className="space-y-3">
               <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                   9
                 </span>
                 <span>Third-Party Links</span>
@@ -253,7 +253,7 @@ export default async function TermsPage() {
             {/* 10. Google Reviews */}
             <section className="space-y-3">
               <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                   10
                 </span>
                 <span>Google Reviews</span>
@@ -268,7 +268,7 @@ export default async function TermsPage() {
             {/* 11. Limitation of Liability */}
             <section className="space-y-3">
               <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                   11
                 </span>
                 <span>Limitation of Liability</span>
@@ -283,7 +283,7 @@ export default async function TermsPage() {
             {/* 12. Privacy */}
             <section className="space-y-3">
               <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                   12
                 </span>
                 <span>Privacy</span>
@@ -292,7 +292,7 @@ export default async function TermsPage() {
                 Your use of this website may also be subject to our{" "}
                 <Link
                   href="/privacy"
-                  className="text-[#7C3AED] font-semibold underline underline-offset-2 hover:text-[#6D28D9] transition-colors"
+                  className="text-[#03BF62] font-semibold underline underline-offset-2 hover:text-[#029e51] transition-colors"
                 >
                   Privacy Policy
                 </Link>
@@ -305,7 +305,7 @@ export default async function TermsPage() {
             {/* 13. Changes to These Terms */}
             <section className="space-y-3">
               <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                   13
                 </span>
                 <span>Changes to These Terms</span>
@@ -320,7 +320,7 @@ export default async function TermsPage() {
             {/* 14. Contact */}
             <section className="space-y-3.5">
               <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5" data-customization-role="sectionHeading">
-                <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-[#03BF62] bg-[#03BF62]/10 border border-[#03BF62]/20 px-2 py-0.5 rounded-md">
                   14
                 </span>
                 <span>Contact Us</span>
@@ -332,7 +332,7 @@ export default async function TermsPage() {
               {/* Dynamic Contact Information Card */}
               <div className="rounded-xl border border-stone-200 bg-[#FAF8F5]/80 p-5 sm:p-6 space-y-3.5 text-sm mt-3">
                 <div className="flex items-start gap-3">
-                  <MapPinIcon className="h-4 w-4 text-[#7C3AED] shrink-0 mt-0.5" />
+                  <MapPinIcon className="h-4 w-4 text-[#03BF62] shrink-0 mt-0.5" />
                   <div>
                     <p className="font-bold text-stone-900" data-customization-role="description">{contact.salonName}</p>
                     <p className="text-stone-600 text-xs sm:text-sm mt-0.5" data-customization-role="description">{contact.address}</p>
@@ -340,20 +340,20 @@ export default async function TermsPage() {
                 </div>
 
                 <div className="flex items-center gap-3 text-stone-700">
-                  <PhoneIcon className="h-4 w-4 text-[#7C3AED] shrink-0" />
+                  <PhoneIcon className="h-4 w-4 text-[#03BF62] shrink-0" />
                   <a
                     href={`tel:${contact.phone.replace(/\s+/g, "")}`}
-                    className="text-stone-700 hover:text-[#7C3AED] transition-colors font-medium text-xs sm:text-sm"
+                    className="text-stone-700 hover:text-[#03BF62] transition-colors font-medium text-xs sm:text-sm"
                   >
                     {contact.phone}
                   </a>
                 </div>
 
                 <div className="flex items-center gap-3 text-stone-700">
-                  <MailIcon className="h-4 w-4 text-[#7C3AED] shrink-0" />
+                  <MailIcon className="h-4 w-4 text-[#03BF62] shrink-0" />
                   <a
                     href={`mailto:${contact.email}`}
-                    className="text-stone-700 hover:text-[#7C3AED] transition-colors font-medium text-xs sm:text-sm"
+                    className="text-stone-700 hover:text-[#03BF62] transition-colors font-medium text-xs sm:text-sm"
                   >
                     {contact.email}
                   </a>

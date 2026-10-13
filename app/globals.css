@@ -89,3 +89,82 @@ body {
   animation: pulse-subtle 8s ease-in-out infinite;
 }
 
+/* SALVORA Scissors Loading Animation */
+@keyframes salvora-scissors-orbit-cw {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes salvora-blade-snip-top {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  30% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(12deg);
+  }
+  70% {
+    transform: rotate(-3deg);
+  }
+}
+
+@keyframes salvora-blade-snip-bottom {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  30% {
+    transform: rotate(6deg);
+  }
+  50% {
+    transform: rotate(-12deg);
+  }
+  70% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes salvora-ring-sweep-dash {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -214;
+  }
+}
+
+.salvora-scissors-orbit {
+  transform-origin: 50px 50px;
+  animation: salvora-scissors-orbit-cw 2s linear infinite;
+}
+
+.salvora-blade-top {
+  transform-origin: 12px 12px;
+  animation: salvora-blade-snip-top 0.67s ease-in-out infinite;
+}
+
+.salvora-blade-bottom {
+  transform-origin: 12px 12px;
+  animation: salvora-blade-snip-bottom 0.67s ease-in-out infinite;
+}
+
+.salvora-ring-sweep {
+  transform-origin: 50px 50px;
+  animation: salvora-ring-sweep-dash 2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .salvora-scissors-orbit,
+  .salvora-blade-top,
+  .salvora-blade-bottom,
+  .salvora-ring-sweep {
+    animation: none !important;
+  }
+}
+
+

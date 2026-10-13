@@ -27,7 +27,7 @@ export default function ServicesGrid({
         {/* Empty State */}
         {services.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-stone-300 bg-white p-12 text-center max-w-md mx-auto shadow-2xs">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-50 text-[#7C3AED] mb-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#03BF62]/10 text-[#03BF62] mb-4">
               <ScissorsIcon className="h-7 w-7" />
             </div>
             <h3 className="text-lg font-bold text-stone-900">
@@ -38,7 +38,7 @@ export default function ServicesGrid({
             </p>
             <Link
               href="/contact"
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#7C3AED] px-6 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#6D28D9] active:scale-[0.98]"
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#03BF62] px-6 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#029e51] active:scale-[0.98]"
             >
               <span>Contact Salvora</span>
               <ArrowRightIcon className="h-3.5 w-3.5" />
