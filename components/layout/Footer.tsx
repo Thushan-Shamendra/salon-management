@@ -63,7 +63,7 @@ export function summarizeBranchHours(
     }
   }
 
-  if (groups.length <= 3) {
+  if (groups.length <= 4) {
     return groups.map((g) => {
       let label = "";
       if (g.count === 1) {
@@ -75,7 +75,15 @@ export function summarizeBranchHours(
     });
   }
 
-  return null;
+  return groups.slice(0, 3).map((g) => {
+    let label = "";
+    if (g.count === 1) {
+      label = g.startDay === "Sunday" ? "Sunday" : g.startDay.slice(0, 3);
+    } else {
+      label = `${g.startDay.slice(0, 3)} – ${g.endDay.slice(0, 3)}`;
+    }
+    return { label, time: g.time };
+  });
 }
 
 export default async function Footer() {
@@ -241,20 +249,20 @@ export default async function Footer() {
       }
     }
 
-    // 4. Branches (display only main branch in footer)
+    // 4. Branches (only ONE branch displayed: priority to active Main branch, else first active branch)
     if (Array.isArray(branchDocs) && branchDocs.length > 0) {
-      const mainBranch = branchDocs.find((b) => b.isMain) || branchDocs[0];
-      if (mainBranch) {
+      const selectedBranch = branchDocs.find((b) => b.isMain) || branchDocs[0];
+      if (selectedBranch) {
         branches = [
           {
-            _id: String(mainBranch._id),
-            name: mainBranch.name,
-            address: mainBranch.address,
-            phone: mainBranch.phone || "",
-            email: mainBranch.email,
-            isMain: Boolean(mainBranch.isMain),
-            openingHours: Array.isArray(mainBranch.openingHours)
-              ? mainBranch.openingHours.map((h) => ({
+            _id: String(selectedBranch._id),
+            name: selectedBranch.name,
+            address: selectedBranch.address,
+            phone: selectedBranch.phone || "",
+            email: selectedBranch.email,
+            isMain: Boolean(selectedBranch.isMain),
+            openingHours: Array.isArray(selectedBranch.openingHours)
+              ? selectedBranch.openingHours.map((h) => ({
                   day: String(h.day),
                   isClosed: Boolean(h.isClosed),
                   openTime: h.openTime || "",
@@ -275,23 +283,33 @@ export default async function Footer() {
         <FooterBackground />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 py-5 sm:py-6 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-8 pb-5 sm:pt-10 sm:pb-6 sm:px-6 lg:pt-12 lg:pb-6 lg:px-8">
         {/* Main Grid: Responsive 12-column layout */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-5 lg:gap-5 xl:gap-6 items-start">
           {/* COLUMN 1: SALVORA Logo, Description, Social Icons, Slogan */}
-          <div className="space-y-2.5 sm:col-span-1 lg:col-span-3 min-w-0">
-            <Link href="/" className="inline-block" aria-label={`${salonName} Home`}>
+          <div
+            className={`space-y-2.5 sm:col-span-1 ${
+              weddingItems.length > 0 && productCategoryLinks.length > 0
+                ? "lg:col-span-2 xl:col-span-2"
+                : "lg:col-span-3 xl:col-span-3"
+            } min-w-0 self-start`}
+          >
+            <Link
+              href="/"
+              className="inline-flex items-start focus:outline-hidden"
+              aria-label={`${salonName} Home`}
+            >
               {footerLogo ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={footerLogo}
                   alt={salonName}
-                  className="h-10 sm:h-11 lg:h-12 w-auto max-w-[220px] object-contain"
+                  className="h-9 sm:h-10 lg:h-10 w-auto max-w-[200px] object-contain object-left-top"
                 />
               ) : (
                 <SalvoraLogo
                   theme="dark"
-                  className="h-10 sm:h-11 lg:h-12 w-auto max-w-[220px] object-contain"
+                  className="h-9 sm:h-10 lg:h-10 w-auto max-w-[200px] object-contain"
                 />
               )}
             </Link>
@@ -394,7 +412,7 @@ export default async function Footer() {
 
           {/* COLUMN 2: Wedding */}
           {weddingItems.length > 0 && (
-            <div className="sm:col-span-1 lg:col-span-2 min-w-0">
+            <div className="sm:col-span-1 lg:col-span-2 xl:col-span-2 min-w-0 self-start">
               <h4 className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-white" data-customization-role="footerHeading">
                 Wedding
               </h4>
@@ -404,19 +422,24 @@ export default async function Footer() {
                   <li key={idx}>
                     <Link
                       href={item.href}
-                      className="group flex items-center justify-between gap-1 text-stone-300 hover:text-white transition-colors py-0.5" data-customization-role="footerLink"
+                      className="group flex items-start justify-between gap-2 text-stone-300 hover:text-white transition-colors py-0.5"
+                      data-customization-role="footerLink"
                     >
-                      <span className="truncate group-hover:text-white transition-colors" data-customization-role="footerText">
+                      <span
+                        className="flex-1 whitespace-normal break-words leading-snug group-hover:text-white transition-colors"
+                        data-customization-role="footerText"
+                      >
                         {item.name}
                       </span>
-                      <ChevronRightIcon className="h-3 w-3 text-stone-500 group-hover:text-[#03BF62] transition-colors shrink-0" />
+                      <ChevronRightIcon className="h-3 w-3 mt-0.5 text-stone-500 group-hover:text-[#03BF62] transition-colors shrink-0" />
                     </Link>
                   </li>
                 ))}
                 <li className="pt-1">
                   <Link
                     href="/wedding"
-                    className="text-[#03BF62] hover:text-white transition-colors font-semibold text-xs inline-flex items-center gap-1" data-customization-role="footerLink"
+                    className="text-[#03BF62] hover:text-white transition-colors font-semibold text-xs inline-flex items-center gap-1"
+                    data-customization-role="footerLink"
                   >
                     <span data-customization-role="footerText">View Wedding</span>
                     <ArrowRightIcon className="h-3 w-3" />
@@ -428,7 +451,11 @@ export default async function Footer() {
 
           {/* COLUMN 3: Our Services */}
           {serviceLinks.length > 0 && (
-            <div className={`sm:col-span-1 ${weddingItems.length > 0 ? "lg:col-span-2" : "lg:col-span-3"} min-w-0`}>
+            <div
+              className={`sm:col-span-1 ${
+                weddingItems.length > 0 ? "lg:col-span-2 xl:col-span-2" : "lg:col-span-3 xl:col-span-3"
+              } min-w-0 self-start`}
+            >
               <h4 className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-white" data-customization-role="footerHeading">
                 Our Services
               </h4>
@@ -438,19 +465,24 @@ export default async function Footer() {
                   <li key={idx}>
                     <Link
                       href={service.href}
-                      className="group flex items-center justify-between gap-1 text-stone-300 hover:text-white transition-colors py-0.5" data-customization-role="footerLink"
+                      className="group flex items-start justify-between gap-2 text-stone-300 hover:text-white transition-colors py-0.5"
+                      data-customization-role="footerLink"
                     >
-                      <span className="truncate group-hover:text-white transition-colors" data-customization-role="footerText">
+                      <span
+                        className="flex-1 whitespace-normal break-words leading-snug group-hover:text-white transition-colors"
+                        data-customization-role="footerText"
+                      >
                         {service.name}
                       </span>
-                      <ChevronRightIcon className="h-3 w-3 text-stone-500 group-hover:text-[#03BF62] transition-colors shrink-0" />
+                      <ChevronRightIcon className="h-3 w-3 mt-0.5 text-stone-500 group-hover:text-[#03BF62] transition-colors shrink-0" />
                     </Link>
                   </li>
                 ))}
                 <li className="pt-1">
                   <Link
                     href="/services"
-                    className="text-[#03BF62] hover:text-white transition-colors font-semibold text-xs inline-flex items-center gap-1" data-customization-role="footerLink"
+                    className="text-[#03BF62] hover:text-white transition-colors font-semibold text-xs inline-flex items-center gap-1"
+                    data-customization-role="footerLink"
                   >
                     <span data-customization-role="footerText">View Services</span>
                     <ArrowRightIcon className="h-3 w-3" />
@@ -462,7 +494,7 @@ export default async function Footer() {
 
           {/* COLUMN 4: Our Products */}
           {productCategoryLinks.length > 0 && (
-            <div className="sm:col-span-1 lg:col-span-2 min-w-0">
+            <div className="sm:col-span-1 lg:col-span-2 xl:col-span-2 min-w-0 self-start">
               <h4 className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-white" data-customization-role="footerHeading">
                 Our Products
               </h4>
@@ -472,19 +504,24 @@ export default async function Footer() {
                   <li key={idx}>
                     <Link
                       href={product.href}
-                      className="group flex items-center justify-between gap-1 text-stone-300 hover:text-white transition-colors py-0.5" data-customization-role="footerLink"
+                      className="group flex items-start justify-between gap-2 text-stone-300 hover:text-white transition-colors py-0.5"
+                      data-customization-role="footerLink"
                     >
-                      <span className="truncate group-hover:text-white transition-colors" data-customization-role="footerText">
+                      <span
+                        className="flex-1 whitespace-normal break-words leading-snug group-hover:text-white transition-colors"
+                        data-customization-role="footerText"
+                      >
                         {product.name}
                       </span>
-                      <ChevronRightIcon className="h-3 w-3 text-stone-500 group-hover:text-[#03BF62] transition-colors shrink-0" />
+                      <ChevronRightIcon className="h-3 w-3 mt-0.5 text-stone-500 group-hover:text-[#03BF62] transition-colors shrink-0" />
                     </Link>
                   </li>
                 ))}
                 <li className="pt-1">
                   <Link
                     href="/products"
-                    className="text-[#03BF62] hover:text-white transition-colors font-semibold text-xs inline-flex items-center gap-1" data-customization-role="footerLink"
+                    className="text-[#03BF62] hover:text-white transition-colors font-semibold text-xs inline-flex items-center gap-1"
+                    data-customization-role="footerLink"
                   >
                     <span data-customization-role="footerText">View Products</span>
                     <ArrowRightIcon className="h-3 w-3" />
@@ -496,76 +533,131 @@ export default async function Footer() {
 
           {/* COLUMN 5: Our Branches */}
           {branches.length > 0 && (
-            <div className={`space-y-2.5 sm:col-span-2 ${weddingItems.length > 0 ? "lg:col-span-3" : "lg:col-span-4"} min-w-0`}>
+            <div
+              className={`space-y-2.5 sm:col-span-2 ${
+                weddingItems.length > 0 && productCategoryLinks.length > 0
+                  ? "lg:col-span-4 xl:col-span-4"
+                  : weddingItems.length > 0 || productCategoryLinks.length > 0
+                  ? "lg:col-span-5 xl:col-span-5"
+                  : "lg:col-span-6 xl:col-span-6"
+              } min-w-0 self-start`}
+            >
               <div>
-                <h4 className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-white" data-customization-role="footerHeading">
+                <h4
+                  className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-white"
+                  data-customization-role="footerHeading"
+                >
                   Our Branches
                 </h4>
-                <div className="h-0.5 w-6 rounded-full bg-[#03BF62] mt-1 mb-2" data-customization-role="footerAccent" />
+                <div
+                  className="h-0.5 w-6 rounded-full bg-[#03BF62] mt-1 mb-2.5"
+                  data-customization-role="footerAccent"
+                />
               </div>
 
-              {/* Compact Branch Cards */}
-              <div className="space-y-2">
-                {branches.map((branch) => {
-                  const branchHours = summarizeBranchHours(branch.openingHours);
+              {/* Single Branch Card */}
+              {branches.map((branch) => {
+                const branchHours = summarizeBranchHours(branch.openingHours);
 
-                  return (
-                    <div
-                      key={branch._id}
-                      className="rounded-lg bg-white/[0.03] border border-white/10 p-2 sm:p-2.5 hover:border-[#03BF62]/40 transition-colors"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <MapPinIcon className="h-3 w-3 text-[#03BF62] shrink-0" />
-                          <p className="font-semibold text-white text-xs truncate leading-tight">
-                            {branch.name}
-                          </p>
-                        </div>
-                        {branch.phone && (
-                          <a
-                            href={`tel:${branch.phone.replace(/\s+/g, "")}`}
-                            className="text-[11px] text-stone-300 hover:text-white transition-colors shrink-0 flex items-center gap-1"
-                          >
-                            <PhoneIcon className="h-2.5 w-2.5 text-[#03BF62]" />
-                            <span>{branch.phone}</span>
-                          </a>
-                        )}
+                return (
+                  <div
+                    key={branch._id}
+                    className="w-full max-w-[400px] rounded-2xl bg-white/[0.025] border border-white/[0.12] p-5 hover:border-[#03BF62]/50 transition-colors"
+                  >
+                    {/* Branch Name & Main Badge */}
+                    <div className="flex items-start justify-between gap-2.5 flex-wrap">
+                      <div className="flex items-start gap-2 flex-1 min-w-0">
+                        <MapPinIcon className="h-4 w-4 text-[#03BF62] shrink-0 mt-0.5" />
+                        <p className="font-bold text-white text-sm sm:text-base leading-snug whitespace-normal break-words flex-1">
+                          {branch.name}
+                        </p>
                       </div>
+                      {branch.isMain && (
+                        <span className="shrink-0 text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-[#03BF62]/[0.12] text-[#03BF62] border border-[#03BF62]/[0.35]">
+                          MAIN
+                        </span>
+                      )}
+                    </div>
 
-                      <p className="text-[11px] text-stone-400 truncate pl-4.5 mt-0.5">
+                    {/* Address */}
+                    {branch.address && (
+                      <p className="text-xs sm:text-[13px] text-stone-300 whitespace-normal break-words leading-relaxed pl-6 mt-3">
                         {branch.address}
                       </p>
+                    )}
 
-                      {branchHours && branchHours.length > 0 && (
-                        <div className="flex flex-wrap items-center gap-x-2 text-[10px] text-stone-400 pl-4.5 pt-1 mt-1 border-t border-white/5">
-                          <ClockIcon className="h-2.5 w-2.5 text-[#03BF62] shrink-0" />
+                    {/* Phone & Email */}
+                    <div className="space-y-2 pl-6 mt-3">
+                      {branch.phone && (
+                        <a
+                          href={`tel:${branch.phone.replace(/\s+/g, "")}`}
+                          className="text-xs sm:text-[13px] text-stone-300 hover:text-white transition-colors flex items-center gap-2.5"
+                        >
+                          <PhoneIcon className="h-3.5 w-3.5 text-[#03BF62] shrink-0" />
+                          <span className="whitespace-normal break-words">{branch.phone}</span>
+                        </a>
+                      )}
+
+                      {branch.email && (
+                        <a
+                          href={`mailto:${branch.email}`}
+                          className="text-xs sm:text-[13px] text-stone-300 hover:text-white transition-colors flex items-center gap-2.5 [overflow-wrap:anywhere]"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="h-3.5 w-3.5 text-[#03BF62] shrink-0"
+                            aria-hidden="true"
+                          >
+                            <rect width="20" height="16" x="2" y="4" rx="2" />
+                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                          </svg>
+                          <span className="[overflow-wrap:anywhere]">{branch.email}</span>
+                        </a>
+                      )}
+                    </div>
+
+                    {/* Opening Hours */}
+                    {branchHours && branchHours.length > 0 && (
+                      <div className="pt-3.5 mt-4 border-t border-white/[0.12]">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-stone-200 mb-2.5">
+                          <ClockIcon className="h-3.5 w-3.5 text-[#03BF62] shrink-0" />
+                          <span>Opening Hours</span>
+                        </div>
+                        <div className="space-y-1.5 pl-5.5">
                           {branchHours.map((h, i) => (
-                            <span key={i} className="inline-flex items-center gap-1">
-                              <span className="text-stone-400">{h.label}:</span>
+                            <div
+                              key={i}
+                              className="flex items-center justify-between gap-4 text-xs"
+                            >
+                              <span className="text-stone-400 shrink-0">{h.label}</span>
                               <span
                                 className={
                                   h.time === "Closed"
                                     ? "text-amber-400 font-medium"
-                                    : "text-stone-200 font-medium"
+                                    : "text-stone-200 font-medium text-right"
                                 }
                               >
                                 {h.time}
                               </span>
-                              {i < branchHours.length - 1 && <span className="text-stone-600">·</span>}
-                            </span>
+                            </div>
                           ))}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
 
               {/* View All Branches link & Suite Logo on a single compact line */}
-              <div className="pt-0.5 flex items-center justify-between gap-2">
+              <div className="mt-4.5 pt-0.5 flex items-center justify-between gap-3 flex-wrap max-w-[400px]">
                 <Link
                   href="/contact"
-                  className="text-[#03BF62] hover:text-white transition-colors font-semibold text-xs inline-flex items-center gap-1"
+                  className="text-[#03BF62] hover:text-white transition-colors font-semibold text-xs inline-flex items-center gap-1.5"
                   data-customization-role="footerLink"
                 >
                   <span data-customization-role="footerText">View All Branches</span>
@@ -584,7 +676,7 @@ export default async function Footer() {
                     alt="Salvora Salon Management Suite by Raxwo (Pvt) Ltd"
                     width={320}
                     height={128}
-                    className="h-10 sm:h-11 lg:h-12 w-auto max-w-[220px] object-contain"
+                    className="h-10 sm:h-11 lg:h-12 w-auto max-w-[200px] object-contain"
                   />
                 </a>
               </div>

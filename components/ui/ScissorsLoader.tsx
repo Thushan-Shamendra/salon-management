@@ -10,7 +10,7 @@ export interface ScissorsLoaderProps {
   size?: number;
   /**
    * Optional label text displayed beneath the loading ring.
-   * Default is undefined (or "Loading..." in fullScreen mode).
+   * Default is undefined.
    */
   label?: string;
   /**
@@ -46,10 +46,8 @@ export default function ScissorsLoader({
   const uniqueId = useId().replace(/[:]/g, "-");
   const ringGradId = `salvora-ring-grad-${uniqueId}`;
   const scissorsGradId = `salvora-scissors-grad-${uniqueId}`;
-  const centerGlowId = `salvora-center-glow-${uniqueId}`;
 
-  const displayLabel = label || (fullScreen ? "Loading..." : undefined);
-  const showCenterMark = size >= 40;
+  const displayLabel = label;
 
   // The core SVG Scissors Loading Widget
   const loaderGraphic = (
@@ -77,12 +75,6 @@ export default function ScissorsLoader({
             <stop offset="0%" stopColor="#14B8A6" />
             <stop offset="100%" stopColor="#03BF62" />
           </linearGradient>
-
-          {/* Subtle Ambient Center Glow */}
-          <radialGradient id={centerGlowId} cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#03BF62" stopOpacity="0.22" />
-            <stop offset="100%" stopColor="#03BF62" stopOpacity="0" />
-          </radialGradient>
         </defs>
 
         {/* 1. Background Ring: Light Neutral */}
@@ -109,28 +101,7 @@ export default function ScissorsLoader({
           className="salvora-ring-sweep"
         />
 
-        {/* 3. Center Minimal SALVORA 'S' Icon (displayed when size >= 40) */}
-        {showCenterMark && (
-          <g className="select-none pointer-events-none">
-            <circle cx="50" cy="50" r="18" fill={`url(#${centerGlowId})`} />
-            <text
-              x="50"
-              y="51.5"
-              textAnchor="middle"
-              dominantBaseline="central"
-              className="font-bold fill-current text-stone-800 dark:text-stone-100"
-              style={{
-                fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
-                fontSize: "17px",
-                letterSpacing: "0.06em",
-              }}
-            >
-              S
-            </text>
-          </g>
-        )}
-
-        {/* 4. Orbiting Scissors (travels continuously clockwise around the ring) */}
+        {/* 3. Orbiting Scissors (travels continuously clockwise around the ring) */}
         <g className="salvora-scissors-orbit">
           {/* Position scissors with hinge centered at (50, 16) */}
           <g transform="translate(38, 4)">
@@ -278,12 +249,9 @@ export default function ScissorsLoader({
           {loaderGraphic}
 
           {displayLabel && (
-            <div className="mt-6 flex flex-col items-center text-center space-y-1.5">
+            <div className="mt-6 flex flex-col items-center text-center">
               <p className="text-sm font-semibold tracking-wider text-stone-800 dark:text-stone-200">
                 {displayLabel}
-              </p>
-              <p className="text-[10px] uppercase tracking-[0.25em] font-bold text-[#03BF62]">
-                SALVORA
               </p>
             </div>
           )}
