@@ -10,7 +10,6 @@ import Service from "@/models/Service";
 import WeddingService from "@/models/WeddingService";
 import WeddingPackage from "@/models/WeddingPackage";
 import RetailProduct from "@/models/RetailProduct";
-import { RETAIL_CATEGORY_LABELS } from "@/lib/retail-product-constants";
 import {
   PhoneIcon,
   MapPinIcon,
@@ -97,7 +96,7 @@ export default async function Footer() {
 
   let serviceLinks: Array<{ name: string; href: string }> = [];
   let weddingItems: Array<{ name: string; href: string }> = [];
-  const productCategoryLinks: Array<{ name: string; href: string }> = [];
+  let productLinks: Array<{ name: string; href: string }> = [];
   let branches: Array<{
     _id: string;
     name: string;
@@ -124,7 +123,7 @@ export default async function Footer() {
       serviceDocs,
       weddingServiceDocs,
       weddingPackageDocs,
-      activeCategories,
+      productDocs,
     ] = await Promise.all([
       SalonSettings.findOne()
         .select("salonName logo footerLogo socialMedia pageVisibility")
@@ -135,21 +134,25 @@ export default async function Footer() {
         .select("name address phone email isMain openingHours")
         .lean(),
       Service.find({ isActive: { $ne: false } })
-        .sort({ displayOrder: 1, name: 1, createdAt: -1 })
-        .limit(4)
+        .sort({ displayOrder: 1, createdAt: -1 })
+        .limit(6)
         .select("name")
         .lean(),
       WeddingService.find({ isActive: true })
-        .sort({ displayOrder: 1, name: 1 })
-        .limit(4)
+        .sort({ displayOrder: 1, createdAt: -1 })
+        .limit(6)
         .select("name")
         .lean(),
       WeddingPackage.find({ isActive: true })
-        .sort({ isFeatured: -1, displayOrder: 1, name: 1 })
-        .limit(4)
+        .sort({ isFeatured: -1, displayOrder: 1, createdAt: -1 })
+        .limit(6)
         .select("name")
         .lean(),
-      RetailProduct.distinct("category", { isActive: true }),
+      RetailProduct.find({ isActive: true })
+        .sort({ isFeatured: -1, displayOrder: 1, createdAt: -1 })
+        .limit(6)
+        .select("name")
+        .lean(),
     ]);
 
     if (settings) {
@@ -174,32 +177,32 @@ export default async function Footer() {
       }
     }
 
-    // 1. Services (max 4 active)
+    // 1. Services (up to 6 active, keeping "View Services" within range of "View All Branches")
     if (Array.isArray(serviceDocs)) {
-      serviceLinks = serviceDocs.slice(0, 4).map((s) => ({
+      serviceLinks = serviceDocs.slice(0, 6).map((s) => ({
         name: s.name,
         href: "/services",
       }));
     }
 
-    // 2. Wedding (preferred max 2 services + max 2 packages, up to 4 combined)
+    // 2. Wedding (up to 3 services + up to 3 packages, max 6 combined)
     if (pageVisibility.wedding) {
       const combinedWedding: Array<{ name: string; href: string }> = [
-        ...(Array.isArray(weddingServiceDocs) ? weddingServiceDocs.slice(0, 2) : []).map((w) => ({
+        ...(Array.isArray(weddingServiceDocs) ? weddingServiceDocs.slice(0, 3) : []).map((w) => ({
           name: w.name,
           href: "/wedding",
         })),
-        ...(Array.isArray(weddingPackageDocs) ? weddingPackageDocs.slice(0, 2) : []).map((p) => ({
+        ...(Array.isArray(weddingPackageDocs) ? weddingPackageDocs.slice(0, 3) : []).map((p) => ({
           name: p.name,
           href: "/wedding",
         })),
       ];
 
-      if (combinedWedding.length < 4) {
+      if (combinedWedding.length < 6) {
         const existingNames = new Set(combinedWedding.map((i) => i.name));
         if (Array.isArray(weddingServiceDocs)) {
           for (const w of weddingServiceDocs) {
-            if (combinedWedding.length >= 4) break;
+            if (combinedWedding.length >= 6) break;
             if (!existingNames.has(w.name)) {
               combinedWedding.push({ name: w.name, href: "/wedding" });
               existingNames.add(w.name);
@@ -208,7 +211,7 @@ export default async function Footer() {
         }
         if (Array.isArray(weddingPackageDocs)) {
           for (const p of weddingPackageDocs) {
-            if (combinedWedding.length >= 4) break;
+            if (combinedWedding.length >= 6) break;
             if (!existingNames.has(p.name)) {
               combinedWedding.push({ name: p.name, href: "/wedding" });
               existingNames.add(p.name);
@@ -216,37 +219,15 @@ export default async function Footer() {
           }
         }
       }
-      weddingItems = combinedWedding.slice(0, 4);
+      weddingItems = combinedWedding.slice(0, 6);
     }
 
-    // 3. Products Categories (unique active categories from RetailProduct)
-    if (pageVisibility.products && Array.isArray(activeCategories) && activeCategories.length > 0) {
-      const preferredCategoryOrder = [
-        "hair_care",
-        "skin_care",
-        "nail_care",
-        "styling",
-        "makeup",
-        "other",
-      ];
-      const sortedCategories = [...activeCategories].sort((a, b) => {
-        const idxA = preferredCategoryOrder.indexOf(a);
-        const idxB = preferredCategoryOrder.indexOf(b);
-        if (idxA !== -1 && idxB !== -1) return idxA - idxB;
-        if (idxA !== -1) return -1;
-        if (idxB !== -1) return 1;
-        return String(a).localeCompare(String(b));
-      });
-
-      for (const cat of sortedCategories) {
-        if (productCategoryLinks.length >= 4) break;
-        const label =
-          RETAIL_CATEGORY_LABELS[cat as keyof typeof RETAIL_CATEGORY_LABELS] || String(cat);
-        productCategoryLinks.push({
-          name: label,
-          href: "/products",
-        });
-      }
+    // 3. Products (up to 6 active products added on products page)
+    if (pageVisibility.products && Array.isArray(productDocs) && productDocs.length > 0) {
+      productLinks = productDocs.slice(0, 6).map((p) => ({
+        name: p.name,
+        href: "/products",
+      }));
     }
 
     // 4. Branches (only ONE branch displayed: priority to active Main branch, else first active branch)
@@ -289,7 +270,7 @@ export default async function Footer() {
           {/* COLUMN 1: SALVORA Logo, Description, Social Icons, Slogan */}
           <div
             className={`space-y-2.5 sm:col-span-1 ${
-              weddingItems.length > 0 && productCategoryLinks.length > 0
+              weddingItems.length > 0 && productLinks.length > 0
                 ? "lg:col-span-2 xl:col-span-2"
                 : "lg:col-span-3 xl:col-span-3"
             } min-w-0 self-start`}
@@ -493,14 +474,14 @@ export default async function Footer() {
           )}
 
           {/* COLUMN 4: Our Products */}
-          {productCategoryLinks.length > 0 && (
+          {productLinks.length > 0 && (
             <div className="sm:col-span-1 lg:col-span-2 xl:col-span-2 min-w-0 self-start">
               <h4 className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-white" data-customization-role="footerHeading">
                 Our Products
               </h4>
               <div className="h-0.5 w-6 rounded-full bg-[#03BF62] mt-1 mb-2.5" data-customization-role="footerAccent" />
               <ul className="space-y-1.5 text-xs sm:text-[13px]">
-                {productCategoryLinks.map((product, idx) => (
+                {productLinks.map((product, idx) => (
                   <li key={idx}>
                     <Link
                       href={product.href}
@@ -535,9 +516,9 @@ export default async function Footer() {
           {branches.length > 0 && (
             <div
               className={`space-y-2.5 sm:col-span-2 ${
-                weddingItems.length > 0 && productCategoryLinks.length > 0
+                weddingItems.length > 0 && productLinks.length > 0
                   ? "lg:col-span-4 xl:col-span-4"
-                  : weddingItems.length > 0 || productCategoryLinks.length > 0
+                  : weddingItems.length > 0 || productLinks.length > 0
                   ? "lg:col-span-5 xl:col-span-5"
                   : "lg:col-span-6 xl:col-span-6"
               } min-w-0 self-start`}

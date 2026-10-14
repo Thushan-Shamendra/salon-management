@@ -102,7 +102,7 @@ export default function AdminHeader({
             type="text"
             placeholder="Search anything..."
             aria-label="Search admin portal"
-            className="w-full rounded-xl border border-stone-200 bg-stone-50/70 pl-10 pr-4 py-2 text-xs sm:text-sm text-stone-800 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20"
+            className="w-full rounded-xl border border-stone-200 bg-stone-50/70 pl-10 pr-4 py-2 text-xs sm:text-sm text-stone-800 placeholder:text-stone-400 outline-none transition-all focus:border-[#03BF62] focus:bg-white focus:ring-2 focus:ring-[#03BF62]/20"
           />
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function AdminHeader({
           href="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-xl border border-[#7C3AED] bg-white px-4 py-2 text-xs font-semibold text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white transition-all shadow-2xs"
+          className="inline-flex items-center gap-2 rounded-xl border border-[#03BF62] bg-white px-4 py-2 text-xs font-semibold text-[#03BF62] hover:bg-[#03BF62] hover:text-white transition-all shadow-2xs"
         >
           <ExternalLinkIcon className="h-4 w-4" />
           <span className="hidden sm:inline">View Website</span>
@@ -125,7 +125,7 @@ export default function AdminHeader({
           <button
             type="button"
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-3 rounded-full border border-stone-200 bg-white p-1 sm:pr-3.5 sm:pl-1 text-left transition-all hover:border-[#7C3AED]/40 focus:outline-none cursor-pointer"
+            className="flex items-center gap-3 rounded-full border border-stone-200 bg-white p-1 sm:pr-3.5 sm:pl-1 text-left transition-all hover:border-[#03BF62]/40 focus:outline-none cursor-pointer"
             aria-expanded={dropdownOpen}
           >
             {/* Avatar */}
@@ -171,7 +171,7 @@ export default function AdminHeader({
                   onClick={() => setDropdownOpen(false)}
                   className="sm:hidden flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
                 >
-                  <ExternalLinkIcon className="h-4 w-4 text-[#7C3AED]" />
+                  <ExternalLinkIcon className="h-4 w-4 text-[#03BF62]" />
                   <span>View Website</span>
                 </a>
 

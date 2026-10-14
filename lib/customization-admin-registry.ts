@@ -36,6 +36,7 @@ export const adminPages: PageRegistration[] = [
   page("backup", "Backup & Restore", "Backup & Restore", "Protect SALVORA website content by downloading backups and safely restoring previous data.", "Download Backup", true),
   page("settings", "Website Settings", "Website Settings", "Manage global website branding, logos, social media, and your Main Branch configuration.", "Save Global Settings", true),
   page("customize", "Website Customizer", "Website Customizer", "Customize SALVORA website content, typography, colors, backgrounds and buttons without changing application structure.", "Save Changes", true),
+  page("login", "Admin Login", "Admin Sign In", "Sign in to manage your salon website content, services, and gallery.", "Sign In to Admin Portal"),
   { key: "change-password", label: "Change Password", sections: [{ key: "page", label: "Page design (security text protected)", styles: ["backgroundColor", "iconColor", "heading", "description", "sectionHeading"] }] },
 ];
 

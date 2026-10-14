@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { EyeIcon, EyeOffIcon, LockIcon, CheckCircleIcon, ChevronLeftIcon } from "@/components/ui/icons";
+import { useGlobalCustomization } from "@/components/customization/CustomizationProvider";
+import { normalizeHex, getRgbComponents } from "@/lib/dashboard-theme";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -12,6 +14,22 @@ function ResetPasswordForm() {
 
   const queryEmail = searchParams.get("email") || "";
   const queryToken = searchParams.get("token") || "";
+
+  const globalCustomization = useGlobalCustomization();
+  const themeColor = normalizeHex(
+    globalCustomization?.adminWebsite?.style?.iconColor ||
+    globalCustomization?.adminWebsite?.style?.primaryButton?.backgroundColor,
+    "#03BF62"
+  );
+  const buttonBg = normalizeHex(
+    globalCustomization?.adminWebsite?.style?.primaryButton?.backgroundColor,
+    themeColor
+  );
+  const buttonTextColor =
+    globalCustomization?.adminWebsite?.style?.primaryButton?.textColor ||
+    "#FFFFFF";
+  const { r, g, b } = getRgbComponents(themeColor);
+  const { r: br, g: bg, b: bb } = getRgbComponents(buttonBg);
 
   const [email] = useState<string>(() => {
     if (typeof window !== "undefined") {
@@ -106,7 +124,14 @@ function ResetPasswordForm() {
   };
 
   return (
-    <div className="w-full max-w-md rounded-3xl bg-white p-8 sm:p-10 shadow-xl border border-stone-200/90">
+    <div
+      className="w-full max-w-md rounded-3xl bg-white p-8 sm:p-10 shadow-xl border border-stone-200/90"
+      style={{
+        ["--admin-theme" as string]: themeColor,
+        ["--auth-focus-color" as string]: themeColor,
+        ["--auth-focus-ring" as string]: `rgba(${r}, ${g}, ${b}, 0.2)`,
+      }}
+    >
       <div className="flex flex-col items-center text-center">
         {/* SALVORA Branding */}
         <div className="relative h-10 w-36 mb-2">
@@ -118,7 +143,10 @@ function ResetPasswordForm() {
             priority
           />
         </div>
-        <span className="text-[10px] uppercase tracking-[0.25em] text-[#7C3AED] font-bold">
+        <span
+          className="text-[10px] uppercase tracking-[0.25em] font-bold transition-colors"
+          style={{ color: themeColor }}
+        >
           SECURITY PORTAL
         </span>
         <h1 className="text-2xl font-extrabold text-stone-900 mt-3 tracking-tight">
@@ -155,7 +183,7 @@ function ResetPasswordForm() {
               onChange={(e) => setNewPassword(e.target.value)}
               required
               placeholder="••••••••••••"
-              className="w-full rounded-xl border border-stone-300 px-4 py-2.5 pr-11 text-sm text-stone-900 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
+              className="admin-auth-input w-full rounded-xl border border-stone-300 px-4 py-2.5 pr-11 text-sm text-stone-900 outline-none transition-all"
             />
             <button
               type="button"
@@ -184,7 +212,7 @@ function ResetPasswordForm() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               placeholder="••••••••••••"
-              className="w-full rounded-xl border border-stone-300 px-4 py-2.5 pr-11 text-sm text-stone-900 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
+              className="admin-auth-input w-full rounded-xl border border-stone-300 px-4 py-2.5 pr-11 text-sm text-stone-900 outline-none transition-all"
             />
             <button
               type="button"
@@ -259,9 +287,19 @@ function ResetPasswordForm() {
         <button
           type="submit"
           disabled={loading || !isFormValid || !resetToken || Boolean(successMessage)}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#7C3AED] py-3 text-sm font-semibold text-white hover:bg-[#6D28D9] disabled:opacity-50 transition-all shadow-md shadow-purple-600/20 active:scale-[0.99] cursor-pointer mt-2"
+          className="w-full flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all shadow-md active:scale-[0.99] cursor-pointer mt-2 disabled:opacity-50"
+          style={{
+            backgroundColor: buttonBg,
+            color: buttonTextColor,
+            boxShadow: `0 4px 14px 0 rgba(${br}, ${bg}, ${bb}, 0.28)`,
+          }}
+          data-customization-role="primaryButton"
+          data-customization-admin-primary="true"
         >
-          <LockIcon className="h-4 w-4 text-purple-200" />
+          <LockIcon
+            className="h-4 w-4"
+            style={{ color: buttonTextColor ? `${buttonTextColor}E6` : "#FFFFFFE6" }}
+          />
           <span>{loading ? "Updating Password..." : "Reset Password"}</span>
         </button>
       </form>
@@ -269,7 +307,8 @@ function ResetPasswordForm() {
       <div className="mt-6 pt-5 border-t border-stone-100 flex items-center justify-center">
         <Link
           href="/admin/login"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 hover:text-[#7C3AED] transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 hover:opacity-80 transition-colors"
+          style={{ color: themeColor }}
         >
           <ChevronLeftIcon className="h-3.5 w-3.5" />
           <span>Back to Login</span>

@@ -12,9 +12,14 @@ export interface ChartBucket {
 interface ActivityChartProps {
   buckets: ChartBucket[];
   rangeTitle?: string;
+  accentColor?: string;
 }
 
-export default function ActivityChart({ buckets, rangeTitle = "Website Activity" }: ActivityChartProps) {
+export default function ActivityChart({
+  buckets,
+  rangeTitle = "Website Activity",
+  accentColor = "#03BF62",
+}: ActivityChartProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   if (!buckets || buckets.length === 0) {
@@ -88,13 +93,13 @@ export default function ActivityChart({ buckets, rangeTitle = "Website Activity"
         {/* Legend */}
         <div className="flex items-center gap-4 text-xs font-semibold">
           <div className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-full bg-[#7C3AED]" />
+            <span className="h-3 w-3 rounded-full" style={{ backgroundColor: accentColor }} />
             <span className="text-stone-700">Page Views</span>
             <span className="text-stone-400 font-normal">({totalPageViews})</span>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-full bg-emerald-500" />
+            <span className="h-3 w-3 rounded-full bg-stone-800" />
             <span className="text-stone-700">Customer Actions</span>
             <span className="text-stone-400 font-normal">({totalActions})</span>
           </div>
@@ -110,12 +115,12 @@ export default function ActivityChart({ buckets, rangeTitle = "Website Activity"
         >
           <defs>
             <linearGradient id="viewsGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.22" />
-              <stop offset="100%" stopColor="#7C3AED" stopOpacity="0.0" />
+              <stop offset="0%" stopColor={accentColor} stopOpacity="0.22" />
+              <stop offset="100%" stopColor={accentColor} stopOpacity="0.0" />
             </linearGradient>
             <linearGradient id="actionsGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#10B981" stopOpacity="0.22" />
-              <stop offset="100%" stopColor="#10B981" stopOpacity="0.0" />
+              <stop offset="0%" stopColor="#334155" stopOpacity="0.20" />
+              <stop offset="100%" stopColor="#334155" stopOpacity="0.0" />
             </linearGradient>
           </defs>
 
@@ -155,7 +160,7 @@ export default function ActivityChart({ buckets, rangeTitle = "Website Activity"
           {/* Trend Lines */}
           <polyline
             fill="none"
-            stroke="#7C3AED"
+            stroke={accentColor}
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -164,7 +169,7 @@ export default function ActivityChart({ buckets, rangeTitle = "Website Activity"
 
           <polyline
             fill="none"
-            stroke="#10B981"
+            stroke="#334155"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -221,7 +226,7 @@ export default function ActivityChart({ buckets, rangeTitle = "Website Activity"
       {/* Floating Hover Details Bar */}
       {hoveredBucket && (
         <div className="mt-4 rounded-xl bg-stone-900 px-4 py-2 text-white text-xs flex items-center justify-between shadow-md transition-all">
-          <div className="font-semibold text-purple-300">
+          <div className="font-semibold" style={{ color: accentColor }}>
             {hoveredBucket.label} ({hoveredBucket.date})
           </div>
           <div className="flex items-center gap-4">
@@ -231,7 +236,7 @@ export default function ActivityChart({ buckets, rangeTitle = "Website Activity"
             </div>
             <div>
               <span className="text-stone-400">Actions:</span>{" "}
-              <span className="font-bold text-emerald-400">{hoveredBucket.customerActions}</span>
+              <span className="font-bold" style={{ color: accentColor }}>{hoveredBucket.customerActions}</span>
             </div>
           </div>
         </div>

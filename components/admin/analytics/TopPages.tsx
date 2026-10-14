@@ -10,9 +10,10 @@ export interface TopPageItem {
 
 interface TopPagesProps {
   pages: TopPageItem[];
+  accentColor?: string;
 }
 
-export default function TopPages({ pages }: TopPagesProps) {
+export default function TopPages({ pages, accentColor = "#03BF62" }: TopPagesProps) {
   return (
     <div className="flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-xs h-full">
       <div>
@@ -25,7 +26,14 @@ export default function TopPages({ pages }: TopPagesProps) {
               Top visitor destinations based on real page views
             </p>
           </div>
-          <span className="rounded-full bg-purple-50 px-2.5 py-1 text-[11px] font-bold text-[#7C3AED] border border-purple-100">
+          <span
+            className="rounded-full px-2.5 py-1 text-[11px] font-bold border"
+            style={{
+              backgroundColor: `${accentColor}18`,
+              borderColor: `${accentColor}33`,
+              color: accentColor,
+            }}
+          >
             Top 5
           </span>
         </div>
@@ -63,8 +71,11 @@ export default function TopPages({ pages }: TopPagesProps) {
                 {/* Visual Progress Bar */}
                 <div className="h-2 w-full overflow-hidden rounded-full bg-stone-100">
                   <div
-                    className="h-full rounded-full bg-[#7C3AED] transition-all duration-500"
-                    style={{ width: `${Math.max(item.percentage, 3)}%` }}
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${Math.max(item.percentage, 3)}%`,
+                      backgroundColor: accentColor,
+                    }}
                   />
                 </div>
               </div>

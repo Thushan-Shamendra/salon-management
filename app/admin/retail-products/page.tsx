@@ -558,7 +558,7 @@ export default function AdminRetailProductsPage() {
           <button
             type="button"
             onClick={handleOpenAddForm}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] px-4 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md shadow-purple-950/20 hover:from-[#6D28D9] hover:to-[#5B21B6] transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#7C3AED] px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-xs transition-all hover:bg-[#6D28D9] hover:shadow-md cursor-pointer"
           >
             <PlusIcon className="h-4 w-4" />
             <span>Add Product</span>

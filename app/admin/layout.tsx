@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { getCurrentUser } from "@/lib/auth";
 import AdminLayoutClient from "@/components/admin/AdminLayoutClient";
+import CustomizationProvider from "@/components/customization/CustomizationProvider";
 import { getGlobalCustomization, getPageCustomizations } from "@/lib/customization";
 import { getAdminPageKey } from "@/lib/customization-admin-registry";
 import type { GlobalOverrides } from "@/lib/customization-types";
@@ -21,12 +22,36 @@ export default async function AdminLayout({
   const rawPath = headersList.get("x-pathname") || "";
   const currentPath = rawPath.replace(/\/$/, "");
 
-  // If viewing the admin login page
-  if (currentPath === "/admin/login") {
+  const isAuthPage = [
+    "/admin/login",
+    "/admin/forgot-password",
+    "/admin/reset-password",
+    "/admin/verify-otp",
+  ].includes(currentPath);
+
+  // If viewing an unauthenticated admin auth page
+  if (isAuthPage) {
     if (user && user.role === "admin") {
       redirect("/admin");
     }
-    return <>{children}</>;
+    const allGlobal = await getGlobalCustomization();
+    const customizationGlobal: GlobalOverrides = {};
+    for (const group of ["adminHeader", "adminSidebar", "adminWebsite"] as const) {
+      if (allGlobal[group]) customizationGlobal[group] = allGlobal[group];
+    }
+    const authPageKey = currentPath === "/admin/login" ? "login" : currentPath.split("/")[2] || "login";
+    const initialSections = await getPageCustomizations("admin", authPageKey);
+
+    return (
+      <CustomizationProvider
+        scope="admin"
+        pageKey={authPageKey}
+        global={customizationGlobal}
+        sections={initialSections}
+      >
+        {children}
+      </CustomizationProvider>
+    );
   }
 
   // Access rules:

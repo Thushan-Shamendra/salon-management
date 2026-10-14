@@ -10,9 +10,24 @@ import {
   CheckIcon,
   AlertCircleIcon,
 } from "@/components/ui/icons";
+import { useGlobalCustomization } from "@/components/customization/CustomizationProvider";
+import { normalizeHex } from "@/lib/dashboard-theme";
 
 export default function AdminChangePasswordPage() {
   const router = useRouter();
+  const globalCustomization = useGlobalCustomization();
+  const themeColor = normalizeHex(
+    globalCustomization?.adminWebsite?.style?.iconColor ||
+    globalCustomization?.adminWebsite?.style?.primaryButton?.backgroundColor,
+    "#03BF62"
+  );
+  const buttonBg = normalizeHex(
+    globalCustomization?.adminWebsite?.style?.primaryButton?.backgroundColor,
+    themeColor
+  );
+  const buttonTextColor =
+    globalCustomization?.adminWebsite?.style?.primaryButton?.textColor ||
+    "#FFFFFF";
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -107,7 +122,13 @@ export default function AdminChangePasswordPage() {
   };
 
   return (
-    <div className="space-y-8 animate-fadeIn max-w-2xl mx-auto">
+    <div
+      className="space-y-8 animate-fadeIn max-w-2xl mx-auto"
+      style={{
+        "--auth-focus-color": themeColor,
+        "--auth-focus-ring": `${themeColor}33`,
+      } as React.CSSProperties}
+    >
       {/* 1. Page Header */}
       <AdminPageHeader
         title={isInitialSetup ? "Initial Admin Password Setup" : "Change Admin Password"}
@@ -166,7 +187,7 @@ export default function AdminChangePasswordPage() {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Enter current password"
-                className="w-full rounded-xl border border-stone-200 px-4 py-2.5 pr-11 text-xs sm:text-sm text-stone-900 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
+                className="admin-auth-input w-full rounded-xl border border-stone-200 px-4 py-2.5 pr-11 text-xs sm:text-sm text-stone-900 outline-none transition-all"
               />
               <button
                 type="button"
@@ -191,7 +212,7 @@ export default function AdminChangePasswordPage() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="At least 8 chars, uppercase, lowercase, number"
-                className="w-full rounded-xl border border-stone-200 px-4 py-2.5 pr-11 text-xs sm:text-sm text-stone-900 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
+                className="admin-auth-input w-full rounded-xl border border-stone-200 px-4 py-2.5 pr-11 text-xs sm:text-sm text-stone-900 outline-none transition-all"
               />
               <button
                 type="button"
@@ -216,7 +237,7 @@ export default function AdminChangePasswordPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Re-enter new password"
-                className="w-full rounded-xl border border-stone-200 px-4 py-2.5 pr-11 text-xs sm:text-sm text-stone-900 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20"
+                className="admin-auth-input w-full rounded-xl border border-stone-200 px-4 py-2.5 pr-11 text-xs sm:text-sm text-stone-900 outline-none transition-all"
               />
               <button
                 type="button"
@@ -245,9 +266,17 @@ export default function AdminChangePasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-[#7C3AED] py-3 text-xs sm:text-sm font-semibold text-white hover:bg-[#6D28D9] disabled:opacity-50 transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full rounded-xl py-3 text-xs sm:text-sm font-semibold disabled:opacity-50 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer hover:opacity-90"
+            style={{
+              backgroundColor: buttonBg,
+              color: buttonTextColor,
+              boxShadow: `0 4px 12px ${themeColor}33`,
+            }}
           >
-            <ShieldCheckIcon className="h-4 w-4 text-purple-200" />
+            <ShieldCheckIcon
+              className="h-4 w-4"
+              style={{ color: buttonTextColor ? `${buttonTextColor}E6` : "#FFFFFFE6" }}
+            />
             <span>{loading ? "Updating Password..." : "Update Password & Unlock Portal"}</span>
           </button>
         </form>

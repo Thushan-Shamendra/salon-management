@@ -48,7 +48,7 @@ export function buildCustomizationCss(scope: CustomizationScope, pageKey: string
   let css = rule(editableText, { color: color(website?.textColor), "font-family": font(website?.bodyFont) });
   css += rule(headings, {color: color(website?.headingColor), "font-family": font(website?.headingFont)});
   const sectionRoots = `${page} [data-customization-section]`;
-  const sectionIcons = `${sectionRoots} svg:not([data-customization-role="primaryButton"] svg):not([data-customization-role="secondaryButton"] svg)`;
+  const sectionIcons = `${sectionRoots} svg:not([data-icon-color="white"]):not([data-icon-color="white"] svg):not([data-customization-role="primaryButton"] svg):not([data-customization-role="secondaryButton"] svg)`;
   css += rule(`${page} > div,${sectionRoots}`, {"background-color": color(website?.backgroundColor)});
   css += rule(sectionIcons, {color: color(website?.iconColor)});
   if (scope === "admin") {
@@ -79,7 +79,7 @@ export function buildCustomizationCss(scope: CustomizationScope, pageKey: string
     css += headingRules([target("sectionHeading"), target("subheading")].join(","), s.sectionHeading);
     css += rule(target("highlight"), {color: color(s.highlightedText?.color)});
     css += descriptionRules(target("description"), s.description);
-    css += rule(`${section} svg:not([data-customization-role="primaryButton"] svg):not([data-customization-role="secondaryButton"] svg)`, {color: color(s.iconColor)});
+    css += rule(`${section} svg:not([data-icon-color="white"]):not([data-icon-color="white"] svg):not([data-customization-role="primaryButton"] svg):not([data-customization-role="secondaryButton"] svg)`, {color: color(s.iconColor)});
     css += buttonRules(target("primaryButton"), s.primaryButton);
     css += buttonRules(target("secondaryButton"), s.secondaryButton);
   }

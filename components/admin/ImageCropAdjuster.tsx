@@ -213,12 +213,12 @@ export default function ImageCropAdjuster({
   };
 
   return (
-    <div className="rounded-2xl border border-purple-200/90 bg-purple-50/40 p-4 sm:p-5 space-y-4">
+    <div className="rounded-2xl border border-emerald-200/90 bg-emerald-50/40 p-4 sm:p-5 space-y-4">
       {/* Top Header & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 pb-2 border-b border-purple-100">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 pb-2 border-b border-emerald-100">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2 rounded-full bg-[#7C3AED]" />
+            <span className="flex h-2 w-2 rounded-full bg-[#03BF62]" />
             <h3 className="text-xs sm:text-sm font-bold text-stone-900 tracking-tight">
               Adjust Image Framing & Crop
             </h3>
@@ -244,7 +244,7 @@ export default function ImageCropAdjuster({
           <button
             type="button"
             onClick={handleResetActiveTab}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-purple-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-purple-700 shadow-2xs hover:bg-purple-100/60 transition cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-emerald-700 shadow-2xs hover:bg-emerald-100/60 transition cursor-pointer"
             title="Reset active tab crop to default (Center, 1.0x)"
           >
             <span>Reset Active Tab</span>
@@ -391,9 +391,9 @@ export default function ImageCropAdjuster({
               >
                 <div className="relative flex items-center justify-center h-8 w-8">
                   {/* Outer Pulsing Ring */}
-                  <div className="absolute inset-0 rounded-full border-2 border-[#7C3AED] bg-purple-500/20 shadow-md animate-pulse" />
+                  <div className="absolute inset-0 rounded-full border-2 border-[#03BF62] bg-emerald-500/20 shadow-md animate-pulse" />
                   {/* Center Dot */}
-                  <div className="h-2 w-2 rounded-full bg-white border border-[#7C3AED]" />
+                  <div className="h-2 w-2 rounded-full bg-white border border-[#03BF62]" />
                   {/* Crosshairs */}
                   <div className="absolute h-full w-0.5 bg-white/70" />
                   <div className="absolute w-full h-0.5 bg-white/70" />
@@ -422,7 +422,7 @@ export default function ImageCropAdjuster({
 
               {/* Card Meta Content */}
               <div className="absolute bottom-3.5 left-3.5 right-3.5 text-white pointer-events-none">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-[#C4B5FD]">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">
                   {category || "Category"}
                 </span>
                 <p className="text-xs sm:text-sm font-bold tracking-tight truncate mt-0.5">
@@ -437,7 +437,7 @@ export default function ImageCropAdjuster({
               </div>
 
               <div className="absolute top-2.5 left-2.5 pointer-events-none">
-                <span className="rounded-full bg-black/65 backdrop-blur-xs px-2.5 py-0.5 text-[10px] font-mono text-purple-300 border border-white/15">
+                <span className="rounded-full bg-black/65 backdrop-blur-xs px-2.5 py-0.5 text-[10px] font-mono text-emerald-300 border border-white/15">
                   Zoom: {activeCrop.zoom.toFixed(2)}x
                 </span>
               </div>
@@ -452,7 +452,7 @@ export default function ImageCropAdjuster({
         <div>
           <div className="flex items-center justify-between text-xs font-semibold text-stone-700 mb-1">
             <label htmlFor={`zoom-slider-${activeTab}`}>
-              Zoom: <span className="font-mono text-purple-700">{activeCrop.zoom.toFixed(2)}x</span>
+              Zoom: <span className="font-mono text-emerald-700">{activeCrop.zoom.toFixed(2)}x</span>
             </label>
             <span className="text-[11px] text-stone-400">
               Applies only to {activeTab.toUpperCase()} preview
@@ -472,7 +472,7 @@ export default function ImageCropAdjuster({
                   zoom: parseFloat(e.target.value) || 1,
                 })
               }
-              className="flex-1 h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#7C3AED]"
+              className="flex-1 h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#03BF62]"
             />
             <span className="text-[11px] font-medium text-stone-400">3.0x</span>
           </div>
@@ -487,8 +487,8 @@ export default function ImageCropAdjuster({
                 onClick={() => updateActiveCrop({ zoom: preset })}
                 className={`rounded-md px-2 py-0.5 text-[10px] font-semibold transition cursor-pointer ${
                   Math.abs(activeCrop.zoom - preset) < 0.03
-                    ? "bg-[#7C3AED] text-white"
-                    : "bg-white text-stone-600 border border-stone-200 hover:bg-purple-50 hover:text-purple-700"
+                    ? "bg-[#03BF62] text-white"
+                    : "bg-white text-stone-600 border border-stone-200 hover:bg-emerald-50 hover:text-emerald-700"
                 }`}
               >
                 {preset.toFixed(2)}x
@@ -516,7 +516,7 @@ export default function ImageCropAdjuster({
                   x: parseInt(e.target.value, 10) || 50,
                 })
               }
-              className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#7C3AED]"
+              className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#03BF62]"
             />
           </div>
 
@@ -537,19 +537,19 @@ export default function ImageCropAdjuster({
                   y: parseInt(e.target.value, 10) || 50,
                 })
               }
-              className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#7C3AED]"
+              className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#03BF62]"
             />
           </div>
         </div>
 
         {/* 3. Micro-Adjustment Directional D-Pad & Center Action */}
-        <div className="flex items-center justify-between pt-1 border-t border-purple-100">
+        <div className="flex items-center justify-between pt-1 border-t border-emerald-100">
           <span className="text-[11px] text-stone-500">Fine nudge:</span>
           <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={() => nudge(-5, 0)}
-              className="flex h-7 w-7 items-center justify-center rounded-lg bg-white border border-stone-200 text-stone-700 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 transition text-xs font-bold cursor-pointer"
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-white border border-stone-200 text-stone-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition text-xs font-bold cursor-pointer"
               title="Nudge Left 5%"
             >
               ◀
@@ -558,7 +558,7 @@ export default function ImageCropAdjuster({
               <button
                 type="button"
                 onClick={() => nudge(0, -5)}
-                className="flex h-6 w-7 items-center justify-center rounded-lg bg-white border border-stone-200 text-stone-700 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 transition text-[10px] font-bold cursor-pointer"
+                className="flex h-6 w-7 items-center justify-center rounded-lg bg-white border border-stone-200 text-stone-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition text-[10px] font-bold cursor-pointer"
                 title="Nudge Up 5%"
               >
                 ▲
@@ -566,7 +566,7 @@ export default function ImageCropAdjuster({
               <button
                 type="button"
                 onClick={() => nudge(0, 5)}
-                className="flex h-6 w-7 items-center justify-center rounded-lg bg-white border border-stone-200 text-stone-700 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 transition text-[10px] font-bold cursor-pointer"
+                className="flex h-6 w-7 items-center justify-center rounded-lg bg-white border border-stone-200 text-stone-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition text-[10px] font-bold cursor-pointer"
                 title="Nudge Down 5%"
               >
                 ▼
@@ -575,7 +575,7 @@ export default function ImageCropAdjuster({
             <button
               type="button"
               onClick={() => nudge(5, 0)}
-              className="flex h-7 w-7 items-center justify-center rounded-lg bg-white border border-stone-200 text-stone-700 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 transition text-xs font-bold cursor-pointer"
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-white border border-stone-200 text-stone-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition text-xs font-bold cursor-pointer"
               title="Nudge Right 5%"
             >
               ▶

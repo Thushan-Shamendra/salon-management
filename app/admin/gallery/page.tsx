@@ -761,7 +761,7 @@ export default function AdminGalleryPage() {
                 featuredFilter !== "all" ||
                 categoryFilter !== "all"
                   ? "Clear All Filters"
-                  : "+ Add Photo"
+                  : "Add Photo"
               }
               onAction={
                 searchQuery ||

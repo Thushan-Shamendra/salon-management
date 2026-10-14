@@ -22,7 +22,7 @@ export default function AdminButton({
   ...props
 }: AdminButtonProps) {
   const baseStyles =
-    "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]/30 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer";
+    "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#03BF62]/30 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer";
 
   const sizeStyles = {
     sm: "px-3 py-1.5 text-xs gap-1.5",
@@ -32,7 +32,7 @@ export default function AdminButton({
 
   const variantStyles = {
     primary:
-      "bg-[#7C3AED] text-white hover:bg-[#6D28D9] shadow-xs active:scale-[0.99]",
+      "bg-[#03BF62] text-white hover:bg-[#029E51] shadow-xs active:scale-[0.99]",
     secondary:
       "border border-stone-300 bg-white text-stone-700 hover:bg-stone-50 hover:text-stone-900 shadow-2xs active:scale-[0.99]",
     danger:

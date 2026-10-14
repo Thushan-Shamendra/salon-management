@@ -98,7 +98,7 @@ function CropModalDialog({
         {/* Modal Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100 bg-stone-50/70 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-[#7C3AED]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-[#03BF62] border border-emerald-100">
               <CropIcon className="h-5 w-5" />
             </div>
             <div>
@@ -110,7 +110,7 @@ function CropModalDialog({
               </h2>
               <p className="text-xs text-stone-500 truncate max-w-xs sm:max-w-md">
                 {photo.title} •{" "}
-                <span className="text-purple-700 font-semibold">
+                <span className="text-emerald-700 font-semibold">
                   {photo.category || "Gallery"}
                 </span>
               </p>
@@ -167,7 +167,7 @@ function CropModalDialog({
               type="button"
               onClick={handleSaveCrop}
               disabled={isSaving}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#7C3AED] px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-[#6D28D9] transition-all cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#03BF62] px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-[#029E51] transition-all cursor-pointer disabled:opacity-50"
             >
               {isSaving && (
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

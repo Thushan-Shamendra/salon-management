@@ -53,7 +53,7 @@ export default function AdminPageHeader({
           >
             <Link
               href="/admin"
-              className="hover:text-[#7C3AED] transition-colors"
+              className="hover:text-[#03BF62] transition-colors"
             >
               Admin
             </Link>
@@ -63,7 +63,7 @@ export default function AdminPageHeader({
                 {crumb.href ? (
                   <Link
                     href={crumb.href}
-                    className="hover:text-[#7C3AED] transition-colors"
+                    className="hover:text-[#03BF62] transition-colors"
                   >
                     {crumb.label}
                   </Link>

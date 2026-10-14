@@ -26,7 +26,8 @@ import TopPages, { TopPageItem } from "@/components/admin/analytics/TopPages";
 import BranchPerformance, { BranchPerformanceItem } from "@/components/admin/analytics/BranchPerformance";
 import WebsiteHealth, { WebsiteHealthData } from "@/components/admin/analytics/WebsiteHealth";
 import RecentActivity, { RecentActivityItem } from "@/components/admin/analytics/RecentActivity";
-import { useSectionCustomization } from "@/components/customization/CustomizationProvider";
+import { useSectionCustomization, useGlobalCustomization } from "@/components/customization/CustomizationProvider";
+import { normalizeHex, adjustColor, getRgbComponents } from "@/lib/dashboard-theme";
 
 type DateRange = "today" | "7d" | "30d";
 
@@ -82,6 +83,12 @@ interface AnalyticsData {
 
 export default function AdminDashboardPage() {
   const customization = useSectionCustomization("page");
+  const globalCustomization = useGlobalCustomization();
+  const themeColor = normalizeHex(
+    customization.style?.iconColor ||
+    globalCustomization?.adminWebsite?.style?.iconColor,
+    "#03BF62"
+  );
   const [range, setRange] = useState<DateRange>("30d");
   const [contentStats, setContentStats] = useState<ContentStats | null>(null);
   const [websiteHealth, setWebsiteHealth] = useState<WebsiteHealthData | null>(null);
@@ -199,8 +206,18 @@ export default function AdminDashboardPage() {
       ? "Last 7 Days (Daily Trends)"
       : "Last 30 Days (Daily Trends)";
 
+  const { r, g, b } = getRgbComponents(themeColor);
+
   return (
-    <div className="space-y-8 animate-fadeIn pb-14">
+    <div
+      className="space-y-8 animate-fadeIn pb-14"
+      style={{
+        ["--admin-theme" as string]: themeColor,
+        ["--admin-theme-rgb" as string]: `${r}, ${g}, ${b}`,
+        ["--admin-hover-border" as string]: `rgba(${r}, ${g}, ${b}, 0.55)`,
+        ["--admin-hover-glow" as string]: `0 6px 20px -2px rgba(${r}, ${g}, ${b}, 0.32)`,
+      }}
+    >
       {/* ========================================================== */}
       {/* 1. DASHBOARD HEADER: TITLE + DATE RANGE FILTER             */}
       {/* ========================================================== */}
@@ -210,7 +227,14 @@ export default function AdminDashboardPage() {
             <h1 data-customization-role="heading" className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900">
               {customization.text("heading", "SALVORA Salon Dashboard")}
             </h1>
-            <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-bold text-[#7C3AED]">
+            <span
+              className="rounded-full px-2.5 py-0.5 text-xs font-bold border"
+              style={{
+                backgroundColor: `${themeColor}18`,
+                borderColor: `${themeColor}33`,
+                color: themeColor,
+              }}
+            >
               Live
             </span>
           </div>
@@ -223,7 +247,7 @@ export default function AdminDashboardPage() {
         <div className="flex flex-wrap items-center gap-3">
           {/* Current Date/Time Pill */}
           <div className="inline-flex items-center gap-2 rounded-xl border border-stone-200/90 bg-white px-3.5 py-2 text-xs font-bold text-stone-700 shadow-2xs">
-            <CalendarIcon className="h-4 w-4 text-[#7C3AED]" />
+            <CalendarIcon className="h-4 w-4" style={{ color: themeColor }} />
             <span>{currentDateTime || "Today"}</span>
           </div>
 
@@ -234,9 +258,10 @@ export default function AdminDashboardPage() {
               onClick={() => handleRangeChange("today")}
               className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
                 range === "today"
-                  ? "bg-[#7C3AED] text-white shadow-xs"
+                  ? "text-white shadow-xs"
                   : "text-stone-600 hover:text-stone-900"
               }`}
+              style={range === "today" ? { backgroundColor: themeColor } : undefined}
             >
               Today
             </button>
@@ -245,9 +270,10 @@ export default function AdminDashboardPage() {
               onClick={() => handleRangeChange("7d")}
               className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
                 range === "7d"
-                  ? "bg-[#7C3AED] text-white shadow-xs"
+                  ? "text-white shadow-xs"
                   : "text-stone-600 hover:text-stone-900"
               }`}
+              style={range === "7d" ? { backgroundColor: themeColor } : undefined}
             >
               7 Days
             </button>
@@ -256,9 +282,10 @@ export default function AdminDashboardPage() {
               onClick={() => handleRangeChange("30d")}
               className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
                 range === "30d"
-                  ? "bg-[#7C3AED] text-white shadow-xs"
+                  ? "text-white shadow-xs"
                   : "text-stone-600 hover:text-stone-900"
               }`}
+              style={range === "30d" ? { backgroundColor: themeColor } : undefined}
             >
               30 Days
             </button>
@@ -291,13 +318,20 @@ export default function AdminDashboardPage() {
           {/* 1. Branches */}
           <Link
             href="/admin/branches"
-            className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs hover:border-purple-300 hover:shadow-xs transition-all"
+            className="admin-glow-card group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs cursor-pointer"
           >
             <div className="flex items-start justify-between">
-              <span className="text-xs font-bold text-stone-600 group-hover:text-[#7C3AED] transition-colors">
+              <span className="admin-glow-title text-xs font-bold text-stone-600 transition-colors">
                 Branches
               </span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
+              <div
+                className="admin-glow-icon flex h-8 w-8 items-center justify-center rounded-xl border transition-all duration-200"
+                style={{
+                  backgroundColor: `${themeColor}18`,
+                  borderColor: `${themeColor}26`,
+                  color: themeColor,
+                }}
+              >
                 <StoreIcon className="h-4 w-4" />
               </div>
             </div>
@@ -314,13 +348,20 @@ export default function AdminDashboardPage() {
           {/* 2. Services */}
           <Link
             href="/admin/services"
-            className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs hover:border-purple-300 hover:shadow-xs transition-all"
+            className="admin-glow-card group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs cursor-pointer"
           >
             <div className="flex items-start justify-between">
-              <span className="text-xs font-bold text-stone-600 group-hover:text-[#7C3AED] transition-colors">
+              <span className="admin-glow-title text-xs font-bold text-stone-600 transition-colors">
                 Services
               </span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
+              <div
+                className="admin-glow-icon flex h-8 w-8 items-center justify-center rounded-xl border transition-all duration-200"
+                style={{
+                  backgroundColor: `${themeColor}18`,
+                  borderColor: `${themeColor}26`,
+                  color: themeColor,
+                }}
+              >
                 <ScissorsIcon className="h-4 w-4" />
               </div>
             </div>
@@ -337,13 +378,20 @@ export default function AdminDashboardPage() {
           {/* 3. Beauticians */}
           <Link
             href="/admin/beauticians"
-            className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs hover:border-purple-300 hover:shadow-xs transition-all"
+            className="admin-glow-card group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs cursor-pointer"
           >
             <div className="flex items-start justify-between">
-              <span className="text-xs font-bold text-stone-600 group-hover:text-[#7C3AED] transition-colors">
+              <span className="admin-glow-title text-xs font-bold text-stone-600 transition-colors">
                 Beauticians
               </span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
+              <div
+                className="admin-glow-icon flex h-8 w-8 items-center justify-center rounded-xl border transition-all duration-200"
+                style={{
+                  backgroundColor: `${themeColor}18`,
+                  borderColor: `${themeColor}26`,
+                  color: themeColor,
+                }}
+              >
                 <UsersIcon className="h-4 w-4" />
               </div>
             </div>
@@ -360,13 +408,20 @@ export default function AdminDashboardPage() {
           {/* 4. Products & Brands */}
           <Link
             href="/admin/products"
-            className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs hover:border-purple-300 hover:shadow-xs transition-all"
+            className="admin-glow-card group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs cursor-pointer"
           >
             <div className="flex items-start justify-between">
-              <span className="text-xs font-bold text-stone-600 group-hover:text-[#7C3AED] transition-colors">
+              <span className="admin-glow-title text-xs font-bold text-stone-600 transition-colors">
                 Products / Brands
               </span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
+              <div
+                className="admin-glow-icon flex h-8 w-8 items-center justify-center rounded-xl border transition-all duration-200"
+                style={{
+                  backgroundColor: `${themeColor}18`,
+                  borderColor: `${themeColor}26`,
+                  color: themeColor,
+                }}
+              >
                 <TagIcon className="h-4 w-4" />
               </div>
             </div>
@@ -383,13 +438,20 @@ export default function AdminDashboardPage() {
           {/* 5. Gallery */}
           <Link
             href="/admin/gallery"
-            className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs hover:border-purple-300 hover:shadow-xs transition-all"
+            className="admin-glow-card group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs cursor-pointer"
           >
             <div className="flex items-start justify-between">
-              <span className="text-xs font-bold text-stone-600 group-hover:text-[#7C3AED] transition-colors">
+              <span className="admin-glow-title text-xs font-bold text-stone-600 transition-colors">
                 Gallery Photos
               </span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
+              <div
+                className="admin-glow-icon flex h-8 w-8 items-center justify-center rounded-xl border transition-all duration-200"
+                style={{
+                  backgroundColor: `${themeColor}18`,
+                  borderColor: `${themeColor}26`,
+                  color: themeColor,
+                }}
+              >
                 <ImageIcon className="h-4 w-4" />
               </div>
             </div>
@@ -406,13 +468,20 @@ export default function AdminDashboardPage() {
           {/* 6. Vendors */}
           <Link
             href="/admin/vendors"
-            className="group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs hover:border-purple-300 hover:shadow-xs transition-all"
+            className="admin-glow-card group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs cursor-pointer"
           >
             <div className="flex items-start justify-between">
-              <span className="text-xs font-bold text-stone-600 group-hover:text-[#7C3AED] transition-colors">
+              <span className="admin-glow-title text-xs font-bold text-stone-600 transition-colors">
                 Vendors
               </span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
+              <div
+                className="admin-glow-icon flex h-8 w-8 items-center justify-center rounded-xl border transition-all duration-200"
+                style={{
+                  backgroundColor: `${themeColor}18`,
+                  borderColor: `${themeColor}26`,
+                  color: themeColor,
+                }}
+              >
                 <BriefcaseIcon className="h-4 w-4" />
               </div>
             </div>
@@ -429,13 +498,20 @@ export default function AdminDashboardPage() {
           {/* 7. Wedding */}
           <Link
             href="/admin/wedding"
-            className="group flex flex-col justify-between rounded-2xl border border-purple-200/90 bg-purple-50/30 p-4 shadow-2xs hover:border-purple-400 hover:shadow-xs transition-all"
+            className="admin-glow-card group flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs cursor-pointer"
           >
             <div className="flex items-start justify-between">
-              <span className="text-xs font-bold text-stone-700 group-hover:text-[#7C3AED] transition-colors">
+              <span className="admin-glow-title text-xs font-bold text-stone-600 transition-colors">
                 Wedding
               </span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-100 text-[#7C3AED] group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
+              <div
+                className="admin-glow-icon flex h-8 w-8 items-center justify-center rounded-xl border transition-all duration-200"
+                style={{
+                  backgroundColor: `${themeColor}18`,
+                  borderColor: `${themeColor}26`,
+                  color: themeColor,
+                }}
+              >
                 <SparklesIcon className="h-4 w-4" />
               </div>
             </div>
@@ -446,7 +522,7 @@ export default function AdminDashboardPage() {
                   : (contentStats?.weddingServices.active ?? 0) +
                     (contentStats?.weddingPackages.active ?? 0)}
               </span>
-              <p className="text-[11px] text-purple-700 font-medium mt-0.5">
+              <p className="text-[11px] font-medium mt-0.5" style={{ color: themeColor }}>
                 {contentStats?.weddingServices.active ?? 0} svc •{" "}
                 {contentStats?.weddingPackages.active ?? 0} pkgs
               </p>
@@ -481,6 +557,7 @@ export default function AdminDashboardPage() {
             change={analytics?.metrics.pageViews.change}
             icon={EyeIcon}
             rangeLabel={rangeCompareLabel}
+            accentColor={themeColor}
           />
           <AnalyticsStatCard
             title="WhatsApp Clicks"
@@ -488,6 +565,7 @@ export default function AdminDashboardPage() {
             change={analytics?.metrics.whatsappClicks.change}
             icon={WhatsAppIcon}
             rangeLabel={rangeCompareLabel}
+            accentColor={themeColor}
           />
           <AnalyticsStatCard
             title="Call Clicks"
@@ -495,6 +573,7 @@ export default function AdminDashboardPage() {
             change={analytics?.metrics.callClicks.change}
             icon={PhoneIcon}
             rangeLabel={rangeCompareLabel}
+            accentColor={themeColor}
           />
           <AnalyticsStatCard
             title="Booking Clicks"
@@ -502,15 +581,16 @@ export default function AdminDashboardPage() {
             change={analytics?.metrics.bookingClicks.change}
             icon={CalendarIcon}
             rangeLabel={rangeCompareLabel}
+            accentColor={themeColor}
           />
         </div>
 
         {/* Secondary Engagement Metrics Row */}
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <div className="rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs">
+          <div className="admin-glow-card rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs">
             <div className="flex items-center gap-2 text-stone-500 text-xs font-semibold">
               <StarIcon className="h-3.5 w-3.5 text-amber-500 fill-current" />
-              <span>Review Clicks</span>
+              <span className="admin-glow-title transition-colors">Review Clicks</span>
             </div>
             <p className="mt-2 text-lg font-extrabold text-stone-900">
               {analytics?.metrics.reviewClicks.value ?? 0}
@@ -518,10 +598,10 @@ export default function AdminDashboardPage() {
             <p className="text-[10px] text-stone-400 mt-0.5">Google Reviews</p>
           </div>
 
-          <div className="rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs">
+          <div className="admin-glow-card rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs">
             <div className="flex items-center gap-2 text-stone-500 text-xs font-semibold">
-              <CompassIcon className="h-3.5 w-3.5 text-blue-500" />
-              <span className="truncate">Map / Directions Clicks</span>
+              <CompassIcon className="h-3.5 w-3.5" style={{ color: themeColor }} />
+              <span className="admin-glow-title transition-colors truncate">Map / Directions Clicks</span>
             </div>
             <p className="mt-2 text-lg font-extrabold text-stone-900">
               {analytics?.metrics.mapClicks.value ?? 0}
@@ -529,10 +609,10 @@ export default function AdminDashboardPage() {
             <p className="text-[10px] text-stone-400 mt-0.5">Branch directions</p>
           </div>
 
-          <div className="rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs">
+          <div className="admin-glow-card rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs">
             <div className="flex items-center gap-2 text-stone-500 text-xs font-semibold">
-              <ScissorsIcon className="h-3.5 w-3.5 text-purple-600" />
-              <span>Service Views</span>
+              <ScissorsIcon className="h-3.5 w-3.5" style={{ color: themeColor }} />
+              <span className="admin-glow-title transition-colors">Service Views</span>
             </div>
             <p className="mt-2 text-lg font-extrabold text-stone-900">
               {analytics?.metrics.serviceViews.value ?? 0}
@@ -540,10 +620,10 @@ export default function AdminDashboardPage() {
             <p className="text-[10px] text-stone-400 mt-0.5">Catalog inquiries</p>
           </div>
 
-          <div className="rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs">
+          <div className="admin-glow-card rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs">
             <div className="flex items-center gap-2 text-stone-500 text-xs font-semibold">
-              <SparklesIcon className="h-3.5 w-3.5 text-purple-500" />
-              <span>Wedding Views</span>
+              <SparklesIcon className="h-3.5 w-3.5" style={{ color: themeColor }} />
+              <span className="admin-glow-title transition-colors">Wedding Views</span>
             </div>
             <p className="mt-2 text-lg font-extrabold text-stone-900">
               {analytics?.metrics.weddingViews.value ?? 0}
@@ -551,10 +631,10 @@ export default function AdminDashboardPage() {
             <p className="text-[10px] text-stone-400 mt-0.5">Packages & services</p>
           </div>
 
-          <div className="rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs">
+          <div className="admin-glow-card rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs">
             <div className="flex items-center gap-2 text-stone-500 text-xs font-semibold">
               <TagIcon className="h-3.5 w-3.5 text-pink-500" />
-              <span>Brand Clicks</span>
+              <span className="admin-glow-title transition-colors">Brand Clicks</span>
             </div>
             <p className="mt-2 text-lg font-extrabold text-stone-900">
               {analytics?.metrics.productClicks.value ?? 0}
@@ -562,10 +642,10 @@ export default function AdminDashboardPage() {
             <p className="text-[10px] text-stone-400 mt-0.5">Product brands</p>
           </div>
 
-          <div className="rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs">
+          <div className="admin-glow-card rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs">
             <div className="flex items-center gap-2 text-stone-500 text-xs font-semibold">
-              <BriefcaseIcon className="h-3.5 w-3.5 text-emerald-600" />
-              <span>Vendor Clicks</span>
+              <BriefcaseIcon className="h-3.5 w-3.5" style={{ color: themeColor }} />
+              <span className="admin-glow-title transition-colors">Vendor Clicks</span>
             </div>
             <p className="mt-2 text-lg font-extrabold text-stone-900">
               {analytics?.metrics.vendorClicks.value ?? 0}
@@ -582,6 +662,7 @@ export default function AdminDashboardPage() {
         <ActivityChart
           buckets={analytics?.chart.buckets || []}
           rangeTitle={rangeTitle}
+          accentColor={themeColor}
         />
       </div>
 
@@ -590,10 +671,10 @@ export default function AdminDashboardPage() {
       {/* ========================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
-          <TopPages pages={analytics?.topPages || []} />
+          <TopPages pages={analytics?.topPages || []} accentColor={themeColor} />
         </div>
         <div>
-          <BranchPerformance branches={analytics?.branchPerformance || []} />
+          <BranchPerformance branches={analytics?.branchPerformance || []} accentColor={themeColor} />
         </div>
       </div>
 
@@ -613,7 +694,14 @@ export default function AdminDashboardPage() {
                   Most converting customer action channel during selected period
                 </p>
               </div>
-              <span className="rounded-full bg-purple-50 px-2.5 py-1 text-[11px] font-bold text-[#7C3AED] border border-purple-100">
+              <span
+                className="rounded-full px-2.5 py-1 text-[11px] font-bold border"
+                style={{
+                  backgroundColor: `${themeColor}18`,
+                  borderColor: `${themeColor}33`,
+                  color: themeColor,
+                }}
+              >
                 Conversion Leader
               </span>
             </div>
@@ -630,15 +718,21 @@ export default function AdminDashboardPage() {
                 </div>
               ) : (
                 <div>
-                  <div className="rounded-xl border border-purple-200 bg-purple-50/40 p-4">
-                    <p className="text-xs font-semibold text-purple-700 uppercase tracking-wider">
+                  <div
+                    className="rounded-xl border p-4"
+                    style={{
+                      borderColor: `${themeColor}44`,
+                      backgroundColor: `${themeColor}0D`,
+                    }}
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: themeColor }}>
                       #1 Inquiries Channel
                     </p>
                     <p className="text-xl sm:text-2xl font-extrabold text-stone-900 mt-1">
                       {analytics.topAction.name} is your #1 inquiry channel
                     </p>
                     <p className="text-xs text-stone-600 mt-1">
-                      Generated <strong className="text-purple-700">{analytics.topAction.clicks}</strong> customer interactions in this period.
+                      Generated <strong style={{ color: themeColor }}>{analytics.topAction.clicks}</strong> customer interactions in this period.
                     </p>
                   </div>
 
@@ -669,8 +763,11 @@ export default function AdminDashboardPage() {
                           </div>
                           <div className="h-1.5 w-full overflow-hidden rounded-full bg-stone-100">
                             <div
-                              className="h-full rounded-full bg-[#7C3AED]"
-                              style={{ width: `${Math.max(pct, 2)}%` }}
+                              className="h-full rounded-full"
+                              style={{
+                                width: `${Math.max(pct, 2)}%`,
+                                backgroundColor: themeColor,
+                              }}
                             />
                           </div>
                         </div>
@@ -700,7 +797,7 @@ export default function AdminDashboardPage() {
       {/* ========================================================== */}
       <div className="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-xs">
         <div className="flex items-center gap-2 mb-1">
-          <CheckCircleIcon className="h-5 w-5 text-emerald-600" />
+          <CheckCircleIcon className="h-5 w-5" style={{ color: themeColor }} />
           <h2 data-customization-role="sectionHeading" className="text-base font-bold text-stone-900">Quick Actions</h2>
         </div>
         <p className="text-xs text-stone-500 mb-5">
@@ -710,12 +807,19 @@ export default function AdminDashboardPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <Link
             href="/admin/branches"
-            className="group flex flex-col items-center justify-center p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 hover:bg-purple-50/40 hover:border-purple-300 transition-all text-center"
+            className="admin-glow-card group flex flex-col items-center justify-center p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 transition-all text-center cursor-pointer"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100 group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
+            <div
+              className="admin-glow-icon flex h-10 w-10 items-center justify-center rounded-xl border transition-all duration-200"
+              style={{
+                backgroundColor: `${themeColor}18`,
+                borderColor: `${themeColor}26`,
+                color: themeColor,
+              }}
+            >
               <StoreIcon className="h-5 w-5" />
             </div>
-            <span className="mt-2 text-xs font-bold text-stone-800 group-hover:text-[#7C3AED] transition-colors">
+            <span className="admin-glow-title mt-2 text-xs font-bold text-stone-800 transition-colors">
               + Add Branch
             </span>
             <span className="text-[10px] text-stone-400">Locations</span>
@@ -723,12 +827,19 @@ export default function AdminDashboardPage() {
 
           <Link
             href="/admin/services"
-            className="group flex flex-col items-center justify-center p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 hover:bg-purple-50/40 hover:border-purple-300 transition-all text-center"
+            className="admin-glow-card group flex flex-col items-center justify-center p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 transition-all text-center cursor-pointer"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100 group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
+            <div
+              className="admin-glow-icon flex h-10 w-10 items-center justify-center rounded-xl border transition-all duration-200"
+              style={{
+                backgroundColor: `${themeColor}18`,
+                borderColor: `${themeColor}26`,
+                color: themeColor,
+              }}
+            >
               <ScissorsIcon className="h-5 w-5" />
             </div>
-            <span className="mt-2 text-xs font-bold text-stone-800 group-hover:text-[#7C3AED] transition-colors">
+            <span className="admin-glow-title mt-2 text-xs font-bold text-stone-800 transition-colors">
               + Add Service
             </span>
             <span className="text-[10px] text-stone-400">Catalog</span>
@@ -736,12 +847,19 @@ export default function AdminDashboardPage() {
 
           <Link
             href="/admin/beauticians"
-            className="group flex flex-col items-center justify-center p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 hover:bg-purple-50/40 hover:border-purple-300 transition-all text-center"
+            className="admin-glow-card group flex flex-col items-center justify-center p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 transition-all text-center cursor-pointer"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100 group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
+            <div
+              className="admin-glow-icon flex h-10 w-10 items-center justify-center rounded-xl border transition-all duration-200"
+              style={{
+                backgroundColor: `${themeColor}18`,
+                borderColor: `${themeColor}26`,
+                color: themeColor,
+              }}
+            >
               <UsersIcon className="h-5 w-5" />
             </div>
-            <span className="mt-2 text-xs font-bold text-stone-800 group-hover:text-[#7C3AED] transition-colors">
+            <span className="admin-glow-title mt-2 text-xs font-bold text-stone-800 transition-colors">
               + Add Beautician
             </span>
             <span className="text-[10px] text-stone-400">Team</span>
@@ -749,12 +867,19 @@ export default function AdminDashboardPage() {
 
           <Link
             href="/admin/products"
-            className="group flex flex-col items-center justify-center p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 hover:bg-purple-50/40 hover:border-purple-300 transition-all text-center"
+            className="admin-glow-card group flex flex-col items-center justify-center p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 transition-all text-center cursor-pointer"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100 group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
+            <div
+              className="admin-glow-icon flex h-10 w-10 items-center justify-center rounded-xl border transition-all duration-200"
+              style={{
+                backgroundColor: `${themeColor}18`,
+                borderColor: `${themeColor}26`,
+                color: themeColor,
+              }}
+            >
               <TagIcon className="h-5 w-5" />
             </div>
-            <span className="mt-2 text-xs font-bold text-stone-800 group-hover:text-[#7C3AED] transition-colors">
+            <span className="admin-glow-title mt-2 text-xs font-bold text-stone-800 transition-colors">
               + Add Product
             </span>
             <span className="text-[10px] text-stone-400">Brands</span>
@@ -762,12 +887,19 @@ export default function AdminDashboardPage() {
 
           <Link
             href="/admin/vendors"
-            className="group flex flex-col items-center justify-center p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 hover:bg-purple-50/40 hover:border-purple-300 transition-all text-center"
+            className="admin-glow-card group flex flex-col items-center justify-center p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 transition-all text-center cursor-pointer"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100 group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
+            <div
+              className="admin-glow-icon flex h-10 w-10 items-center justify-center rounded-xl border transition-all duration-200"
+              style={{
+                backgroundColor: `${themeColor}18`,
+                borderColor: `${themeColor}26`,
+                color: themeColor,
+              }}
+            >
               <BriefcaseIcon className="h-5 w-5" />
             </div>
-            <span className="mt-2 text-xs font-bold text-stone-800 group-hover:text-[#7C3AED] transition-colors">
+            <span className="admin-glow-title mt-2 text-xs font-bold text-stone-800 transition-colors">
               + Add Vendor
             </span>
             <span className="text-[10px] text-stone-400">Partners</span>
@@ -775,12 +907,19 @@ export default function AdminDashboardPage() {
 
           <Link
             href="/admin/settings"
-            className="group flex flex-col items-center justify-center p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 hover:bg-purple-50/40 hover:border-purple-300 transition-all text-center"
+            className="admin-glow-card group flex flex-col items-center justify-center p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 transition-all text-center cursor-pointer"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100 group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
+            <div
+              className="admin-glow-icon flex h-10 w-10 items-center justify-center rounded-xl border transition-all duration-200"
+              style={{
+                backgroundColor: `${themeColor}18`,
+                borderColor: `${themeColor}26`,
+                color: themeColor,
+              }}
+            >
               <SettingsIcon className="h-5 w-5" />
             </div>
-            <span className="mt-2 text-xs font-bold text-stone-800 group-hover:text-[#7C3AED] transition-colors">
+            <span className="admin-glow-title mt-2 text-xs font-bold text-stone-800 transition-colors">
               Edit Settings
             </span>
             <span className="text-[10px] text-stone-400">Salon info</span>
@@ -794,33 +933,68 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Activity (2 Columns) */}
         <div className="lg:col-span-2">
-          <RecentActivity activity={analytics?.recentActivity || []} />
+          <RecentActivity activity={analytics?.recentActivity || []} accentColor={themeColor} />
         </div>
 
         {/* AI Website Assistant Placeholder Card (1 Column) */}
-        <div className="flex flex-col justify-between rounded-2xl border border-purple-200/90 bg-gradient-to-br from-purple-50/40 via-white to-purple-50/20 p-5 sm:p-6 shadow-xs h-full relative overflow-hidden">
+        <div
+          className="flex flex-col justify-between rounded-2xl border p-5 sm:p-6 shadow-xs h-full relative overflow-hidden"
+          style={{
+            borderColor: `${themeColor}44`,
+            background: `linear-gradient(135deg, ${themeColor}12 0%, #FFFFFF 50%, ${themeColor}08 100%)`,
+          }}
+        >
           {/* Decorative background glow */}
-          <div className="absolute top-0 right-0 -mr-10 -mt-10 h-32 w-32 rounded-full bg-purple-200/40 blur-2xl pointer-events-none" />
+          <div
+            className="absolute top-0 right-0 -mr-10 -mt-10 h-32 w-32 rounded-full blur-2xl pointer-events-none"
+            style={{ backgroundColor: `${themeColor}26` }}
+          />
 
           <div>
-            <div className="flex items-center justify-between pb-3 border-b border-purple-100">
-              <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-[10px] font-bold text-[#7C3AED] uppercase tracking-wider">
+            <div
+              className="flex items-center justify-between pb-3 border-b"
+              style={{ borderColor: `${themeColor}26` }}
+            >
+              <span
+                className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                style={{
+                  backgroundColor: `${themeColor}1F`,
+                  color: themeColor,
+                }}
+              >
                 Group 5 • AI Analytics
               </span>
-              <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-100">
+              <span
+                className="rounded-full px-2.5 py-0.5 text-[10px] font-semibold border"
+                style={{
+                  backgroundColor: `${themeColor}14`,
+                  color: themeColor,
+                  borderColor: `${themeColor}33`,
+                }}
+              >
                 Ready
               </span>
             </div>
 
             <div className="mt-4 flex items-start gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#7C3AED] to-purple-600 text-white shadow-xs">
-                <SparklesIcon className="h-5 w-5" />
+              <div
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-white shadow-xs"
+                style={{
+                  background: `linear-gradient(135deg, ${themeColor}, ${adjustColor(themeColor, -25)})`,
+                }}
+                data-icon-color="white"
+              >
+                <SparklesIcon
+                  className="h-5 w-5 !text-white text-white"
+                  style={{ color: "#FFFFFF" }}
+                  data-icon-color="white"
+                />
               </div>
               <div>
                 <h3 className="text-base font-extrabold text-stone-900 tracking-tight">
                   SALVORA AI Assistant
                 </h3>
-                <p className="text-xs font-semibold text-[#7C3AED]">
+                <p className="text-xs font-semibold" style={{ color: themeColor }}>
                   Powered by real salon analytics
                 </p>
               </div>
@@ -831,26 +1005,30 @@ export default function AdminDashboardPage() {
             </p>
 
             {/* Feature Highlights */}
-            <div className="mt-4 space-y-2 border-t border-purple-100/70 pt-3 text-xs text-stone-700">
+            <div
+              className="mt-4 space-y-2 border-t pt-3 text-xs text-stone-700"
+              style={{ borderColor: `${themeColor}26` }}
+            >
               <div className="flex items-start gap-2">
-                <span className="text-purple-600 font-bold">📊</span>
+                <span className="font-bold" style={{ color: themeColor }}>📊</span>
                 <span>Analyze branch traffic & customer inquiry patterns</span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-purple-600 font-bold">💬</span>
+                <span className="font-bold" style={{ color: themeColor }}>💬</span>
                 <span>Track service demand and WhatsApp conversion trends</span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-purple-600 font-bold">💡</span>
+                <span className="font-bold" style={{ color: themeColor }}>💡</span>
                 <span>Smart salon recommendations powered by real MongoDB data</span>
               </div>
             </div>
           </div>
 
-          <div className="mt-5 pt-3 border-t border-purple-100/70">
+          <div className="mt-5 pt-3 border-t" style={{ borderColor: `${themeColor}26` }}>
             <Link
               href="/admin/ai-assistant"
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#7C3AED] px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-[#6D28D9] transition-all"
+              className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold text-white shadow-xs transition-all"
+              style={{ backgroundColor: themeColor }}
             >
               <SparklesIcon className="h-4 w-4" />
               <span>Open AI Assistant →</span>

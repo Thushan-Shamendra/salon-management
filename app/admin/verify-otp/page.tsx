@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ShieldCheckIcon, ChevronLeftIcon } from "@/components/ui/icons";
+import { useGlobalCustomization } from "@/components/customization/CustomizationProvider";
+import { normalizeHex, getRgbComponents } from "@/lib/dashboard-theme";
 
 function VerifyOtpForm() {
   const router = useRouter();
@@ -20,6 +22,22 @@ function VerifyOtpForm() {
   const [cooldown, setCooldown] = useState(60);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const globalCustomization = useGlobalCustomization();
+  const themeColor = normalizeHex(
+    globalCustomization?.adminWebsite?.style?.iconColor ||
+    globalCustomization?.adminWebsite?.style?.primaryButton?.backgroundColor,
+    "#03BF62"
+  );
+  const buttonBg = normalizeHex(
+    globalCustomization?.adminWebsite?.style?.primaryButton?.backgroundColor,
+    themeColor
+  );
+  const buttonTextColor =
+    globalCustomization?.adminWebsite?.style?.primaryButton?.textColor ||
+    "#FFFFFF";
+  const { r, g, b } = getRgbComponents(themeColor);
+  const { r: br, g: bg, b: bb } = getRgbComponents(buttonBg);
 
   // Timer cooldown countdown
   useEffect(() => {
@@ -150,7 +168,14 @@ function VerifyOtpForm() {
   };
 
   return (
-    <div className="w-full max-w-md rounded-3xl bg-white p-8 sm:p-10 shadow-xl border border-stone-200/90">
+    <div
+      className="w-full max-w-md rounded-3xl bg-white p-8 sm:p-10 shadow-xl border border-stone-200/90"
+      style={{
+        ["--admin-theme" as string]: themeColor,
+        ["--auth-focus-color" as string]: themeColor,
+        ["--auth-focus-ring" as string]: `rgba(${r}, ${g}, ${b}, 0.2)`,
+      }}
+    >
       <div className="flex flex-col items-center text-center">
         {/* SALVORA Branding */}
         <div className="relative h-10 w-36 mb-2">
@@ -162,7 +187,10 @@ function VerifyOtpForm() {
             priority
           />
         </div>
-        <span className="text-[10px] uppercase tracking-[0.25em] text-[#7C3AED] font-bold">
+        <span
+          className="text-[10px] uppercase tracking-[0.25em] font-bold transition-colors"
+          style={{ color: themeColor }}
+        >
           SECURITY VERIFICATION
         </span>
         <h1 className="text-2xl font-extrabold text-stone-900 mt-3 tracking-tight">
@@ -202,7 +230,7 @@ function VerifyOtpForm() {
               value={digit}
               onChange={(e) => handleDigitChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
-              className="h-12 w-11 sm:h-14 sm:w-12 rounded-xl border border-stone-300 text-center text-xl sm:text-2xl font-bold text-stone-900 outline-none transition-all focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 focus:scale-105"
+              className="admin-auth-input h-12 w-11 sm:h-14 sm:w-12 rounded-xl border border-stone-300 text-center text-xl sm:text-2xl font-bold text-stone-900 outline-none transition-all focus:scale-105"
             />
           ))}
         </div>
@@ -210,7 +238,14 @@ function VerifyOtpForm() {
         <button
           type="submit"
           disabled={loading || otpValue.length !== 6}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#7C3AED] py-3 text-sm font-semibold text-white hover:bg-[#6D28D9] disabled:opacity-50 transition-all shadow-md shadow-purple-600/20 active:scale-[0.99] cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all shadow-md active:scale-[0.99] cursor-pointer disabled:opacity-50"
+          style={{
+            backgroundColor: buttonBg,
+            color: buttonTextColor,
+            boxShadow: `0 4px 14px 0 rgba(${br}, ${bg}, ${bb}, 0.28)`,
+          }}
+          data-customization-role="primaryButton"
+          data-customization-admin-primary="true"
         >
           <ShieldCheckIcon className="h-4 w-4" />
           <span>{loading ? "Verifying..." : "Verify Code"}</span>
@@ -222,14 +257,15 @@ function VerifyOtpForm() {
         <p>Didn&apos;t receive the code?</p>
         {cooldown > 0 ? (
           <p className="mt-1 font-medium text-stone-400">
-            Resend available in <span className="text-[#7C3AED] font-semibold">{cooldown}s</span>
+            Resend available in <span className="font-semibold" style={{ color: themeColor }}>{cooldown}s</span>
           </p>
         ) : (
           <button
             type="button"
             onClick={handleResend}
             disabled={resending}
-            className="mt-1 font-semibold text-[#7C3AED] hover:text-[#6D28D9] hover:underline cursor-pointer"
+            className="mt-1 font-semibold hover:underline cursor-pointer transition-colors"
+            style={{ color: themeColor }}
           >
             {resending ? "Dispatching..." : "Resend Code"}
           </button>
@@ -239,7 +275,8 @@ function VerifyOtpForm() {
       <div className="mt-6 pt-5 border-t border-stone-100 flex items-center justify-center">
         <Link
           href="/admin/login"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 hover:text-[#7C3AED] transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 hover:opacity-80 transition-colors"
+          style={{ color: themeColor }}
         >
           <ChevronLeftIcon className="h-3.5 w-3.5" />
           <span>Back to Login</span>

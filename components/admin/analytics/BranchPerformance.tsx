@@ -16,9 +16,13 @@ export interface BranchPerformanceItem {
 
 interface BranchPerformanceProps {
   branches: BranchPerformanceItem[];
+  accentColor?: string;
 }
 
-export default function BranchPerformance({ branches }: BranchPerformanceProps) {
+export default function BranchPerformance({
+  branches,
+  accentColor = "#03BF62",
+}: BranchPerformanceProps) {
   const hasAnyData = branches.some((b) => b.interactions > 0);
   const maxInteractions = Math.max(...branches.map((b) => b.interactions), 0);
 
@@ -34,7 +38,14 @@ export default function BranchPerformance({ branches }: BranchPerformanceProps) 
               Customer inquiries, calls, reviews, and interactions per location
             </p>
           </div>
-          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 border border-emerald-100">
+          <span
+            className="rounded-full px-2.5 py-1 text-[11px] font-bold border"
+            style={{
+              backgroundColor: `${accentColor}18`,
+              borderColor: `${accentColor}33`,
+              color: accentColor,
+            }}
+          >
             {branches.length} Active {branches.length === 1 ? "Branch" : "Branches"}
           </span>
         </div>
@@ -61,24 +72,33 @@ export default function BranchPerformance({ branches }: BranchPerformanceProps) 
               return (
                 <div
                   key={branch.branchId}
-                  className={`rounded-xl border p-3.5 transition-all ${
+                  className="rounded-xl border p-3.5 transition-all shadow-2xs"
+                  style={
                     isTopPerformer
-                      ? "border-purple-200 bg-purple-50/30 shadow-2xs"
-                      : "border-stone-100 bg-stone-50/50 hover:bg-stone-50"
-                  }`}
+                      ? {
+                          borderColor: `${accentColor}55`,
+                          backgroundColor: `${accentColor}0D`,
+                        }
+                      : {
+                          borderColor: "#f5f5f4",
+                          backgroundColor: "#fafaf9",
+                        }
+                  }
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <StoreIcon
-                        className={`h-4 w-4 ${
-                          isTopPerformer ? "text-[#7C3AED]" : "text-stone-400"
-                        }`}
+                        className="h-4 w-4"
+                        style={isTopPerformer ? { color: accentColor } : { color: "#a8a29e" }}
                       />
                       <span className="text-xs font-bold text-stone-900">
                         {branch.name}
                       </span>
                       {isTopPerformer && (
-                        <span className="rounded-full bg-[#7C3AED] px-2 py-0.2 text-[9px] font-bold text-white uppercase tracking-wider">
+                        <span
+                          className="rounded-full px-2 py-0.2 text-[9px] font-bold text-white uppercase tracking-wider"
+                          style={{ backgroundColor: accentColor }}
+                        >
                           Top
                         </span>
                       )}
@@ -101,7 +121,7 @@ export default function BranchPerformance({ branches }: BranchPerformanceProps) 
                     </div>
 
                     <div className="flex items-center gap-1 text-stone-600">
-                      <PhoneIcon className="h-3 w-3 text-purple-600" />
+                      <PhoneIcon className="h-3 w-3 text-emerald-600" />
                       <span className="font-semibold">{branch.calls}</span>
                       <span className="text-stone-400 text-[10px] hidden sm:inline">Calls</span>
                     </div>
@@ -113,7 +133,7 @@ export default function BranchPerformance({ branches }: BranchPerformanceProps) 
                     </div>
 
                     <div className="flex items-center gap-1 text-stone-600">
-                      <CompassIcon className="h-3 w-3 text-blue-500" />
+                      <CompassIcon className="h-3 w-3 text-emerald-500" />
                       <span className="font-semibold">{branch.maps}</span>
                       <span className="text-stone-400 text-[10px] hidden sm:inline">Maps</span>
                     </div>

@@ -40,11 +40,6 @@ export default function HeroSection({
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-2xl space-y-6">
-          {/* Label: Professional Beauty & Wellness */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#03BF62]/40 bg-[#03BF62]/15 px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#03BF62] backdrop-blur-md">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#03BF62] animate-pulse" />
-            <span data-customization-role="eyebrow">{custom.has("eyebrow") ? custom.text("eyebrow", "") : <>Professional Beauty & Wellness</>}</span>
-          </div>
 
           {/* Main Heading */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.12]" data-customization-role="heading">{custom.has("heading") ? custom.text("heading", "") : <>

@@ -220,7 +220,7 @@ export default function AdminSidebar({
                   >
                     <Icon
                       className={`h-4.5 w-4.5 shrink-0 transition-colors ${
-                        isActive ? "text-white" : "text-stone-400 group-hover:text-purple-300"
+                        isActive ? "text-white" : "text-stone-400 group-hover:text-emerald-300"
                       }`}
                     />
                     <span>{item.name}</span>
@@ -242,7 +242,7 @@ export default function AdminSidebar({
           onClick={onClose}
           className="group flex items-center gap-3.5 rounded-xl px-4 py-3 text-xs sm:text-sm font-semibold text-stone-400 hover:bg-white/5 hover:text-white transition-colors"
         >
-          <ExternalLinkIcon className="h-4.5 w-4.5 text-stone-400 group-hover:text-[#A78BFA]" />
+          <ExternalLinkIcon className="h-4.5 w-4.5 text-stone-400 group-hover:text-[#03BF62]" />
           <span>View Website</span>
         </a>
       </div>

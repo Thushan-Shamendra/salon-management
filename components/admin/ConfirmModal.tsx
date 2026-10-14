@@ -68,7 +68,7 @@ export default function ConfirmModal({
               className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
                 variant === "danger"
                   ? "bg-red-50 text-red-600 border border-red-100"
-                  : "bg-purple-50 text-[#7C3AED] border border-purple-100"
+                  : "bg-emerald-50 text-[#03BF62] border border-emerald-100"
               }`}
             >
               <AlertCircleIcon className="h-5 w-5" />

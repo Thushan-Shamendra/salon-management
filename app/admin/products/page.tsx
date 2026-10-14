@@ -580,7 +580,7 @@ export default function AdminProductsPage() {
             actionText={
               searchQuery || statusFilter !== "all" || branchFilter !== "all"
                 ? "Clear All Filters"
-                : "+ Add Brand / Product"
+                : "Add Brand / Product"
             }
             onAction={
               searchQuery || statusFilter !== "all" || branchFilter !== "all"

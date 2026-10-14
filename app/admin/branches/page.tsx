@@ -726,7 +726,7 @@ function AdminBranchesPageContent() {
               ? `No branches match your search "${searchQuery}". Try a different search term or clear filters.`
               : "Create your first SALVORA salon branch location to display on the contact page."
           }
-          actionText={searchQuery ? undefined : "+ Add Branch"}
+          actionText={searchQuery ? undefined : "Add Branch"}
           onAction={searchQuery ? undefined : handleOpenAdd}
         />
       ) : (

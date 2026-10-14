@@ -14,6 +14,7 @@ export interface RecentActivityItem {
 
 interface RecentActivityProps {
   activity: RecentActivityItem[];
+  accentColor?: string;
 }
 
 function formatTimeAgo(isoString: string): string {
@@ -38,24 +39,27 @@ function formatTimeAgo(isoString: string): string {
   }
 }
 
-function getEventIcon(eventType: string) {
+function getEventIcon(eventType: string, accentColor = "#03BF62") {
   switch (eventType) {
     case "WHATSAPP_CLICK":
-      return <WhatsAppIcon className="h-3.5 w-3.5 text-emerald-600 fill-current" />;
+      return <WhatsAppIcon className="h-3.5 w-3.5 fill-current" style={{ color: accentColor }} />;
     case "CALL_CLICK":
-      return <PhoneIcon className="h-3.5 w-3.5 text-purple-600" />;
+      return <PhoneIcon className="h-3.5 w-3.5" style={{ color: accentColor }} />;
     case "BOOKING_CLICK":
       return <CalendarIcon className="h-3.5 w-3.5 text-stone-700" />;
     case "GOOGLE_REVIEW_CLICK":
       return <StarIcon className="h-3.5 w-3.5 text-amber-500 fill-current" />;
     case "MAP_CLICK":
-      return <CompassIcon className="h-3.5 w-3.5 text-blue-500" />;
+      return <CompassIcon className="h-3.5 w-3.5" style={{ color: accentColor }} />;
     default:
-      return <SparklesIcon className="h-3.5 w-3.5 text-[#7C3AED]" />;
+      return <SparklesIcon className="h-3.5 w-3.5" style={{ color: accentColor }} />;
   }
 }
 
-export default function RecentActivity({ activity }: RecentActivityProps) {
+export default function RecentActivity({
+  activity,
+  accentColor = "#03BF62",
+}: RecentActivityProps) {
   return (
     <div className="flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-xs h-full">
       <div>
@@ -69,8 +73,14 @@ export default function RecentActivity({ activity }: RecentActivityProps) {
             </p>
           </div>
           <span className="flex h-2.5 w-2.5 relative">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#7C3AED]" />
+            <span
+              className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+              style={{ backgroundColor: accentColor }}
+            />
+            <span
+              className="relative inline-flex rounded-full h-2.5 w-2.5"
+              style={{ backgroundColor: accentColor }}
+            />
           </span>
         </div>
 
@@ -92,7 +102,7 @@ export default function RecentActivity({ activity }: RecentActivityProps) {
               >
                 <div className="flex items-start gap-2.5">
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white border border-stone-200/70 shadow-2xs mt-0.5">
-                    {getEventIcon(item.eventType)}
+                    {getEventIcon(item.eventType, accentColor)}
                   </div>
                   <div>
                     <p className="font-semibold text-stone-800 leading-snug">

@@ -926,7 +926,7 @@ export default function AdminWeddingPage() {
                     icon={ScissorsIcon}
                     title="No wedding services yet"
                     description="Create your first wedding service to display it on the /wedding page."
-                    actionText="+ Add Wedding Service"
+                    actionText="Add Wedding Service"
                     onAction={handleOpenAddService}
                   />
                 ) : (
@@ -1403,7 +1403,7 @@ export default function AdminWeddingPage() {
                     icon={SparklesIcon}
                     title="No wedding packages yet"
                     description="Create your first curated wedding package to display it on the /wedding page."
-                    actionText="+ Add Wedding Package"
+                    actionText="Add Wedding Package"
                     onAction={handleOpenAddPackage}
                   />
                 ) : (

@@ -40,8 +40,8 @@ export default function StatusBadge({
       break;
 
     case "featured":
-      styles = "bg-purple-50 text-[#7C3AED] border-purple-200/90";
-      dotColor = "bg-[#7C3AED]";
+      styles = "bg-emerald-50 text-[#03BF62] border-emerald-200/90";
+      dotColor = "bg-[#03BF62]";
       break;
 
     case "hidden":

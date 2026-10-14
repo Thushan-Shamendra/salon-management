@@ -764,7 +764,7 @@ export default function AdminBeauticiansPage() {
               actionText={
                 searchQuery || statusFilter !== "all" || featuredFilter !== "all" || branchFilter !== "all"
                   ? "Clear All Filters"
-                  : "+ Add Beautician"
+                  : "Add Beautician"
               }
               onAction={
                 searchQuery || statusFilter !== "all" || featuredFilter !== "all" || branchFilter !== "all"

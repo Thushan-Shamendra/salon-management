@@ -17,6 +17,7 @@ interface AnalyticsStatCardProps {
   icon: React.ComponentType<{ className?: string }>;
   rangeLabel?: string;
   subtitle?: string;
+  accentColor?: string;
 }
 
 export default function AnalyticsStatCard({
@@ -26,12 +27,13 @@ export default function AnalyticsStatCard({
   icon: Icon,
   rangeLabel = "vs previous period",
   subtitle,
+  accentColor = "#03BF62",
 }: AnalyticsStatCardProps) {
   return (
-    <div className="flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-5 shadow-xs transition-all hover:border-purple-200 hover:shadow-sm">
+    <div className="admin-glow-card flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-5 shadow-xs transition-all cursor-pointer">
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+          <p className="admin-glow-title text-xs font-semibold uppercase tracking-wider text-stone-500 transition-colors">
             {title}
           </p>
           <p className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
@@ -39,7 +41,14 @@ export default function AnalyticsStatCard({
           </p>
         </div>
 
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-[#7C3AED] border border-purple-100">
+        <div
+          className="admin-glow-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all duration-200"
+          style={{
+            backgroundColor: `${accentColor}18`,
+            borderColor: `${accentColor}33`,
+            color: accentColor,
+          }}
+        >
           <Icon className="h-5 w-5" />
         </div>
       </div>
