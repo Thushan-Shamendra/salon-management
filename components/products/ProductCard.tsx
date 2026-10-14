@@ -26,6 +26,7 @@ export interface PublicRetailProduct {
   isMostPopular?: boolean;
   isFastMoving?: boolean;
   isDiscountProduct?: boolean;
+  audience?: "male" | "female" | "unisex";
   branchWhatsapp?: string;
 }
 

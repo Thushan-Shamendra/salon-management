@@ -12,6 +12,7 @@ export interface WeddingServiceCardData {
   price: number;
   duration: number;
   image?: string;
+  audience?: "male" | "female" | "unisex";
 }
 
 interface WeddingServiceCardProps {

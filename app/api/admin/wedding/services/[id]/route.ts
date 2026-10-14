@@ -5,6 +5,9 @@ import { getCurrentUser } from "@/lib/auth";
 import WeddingService from "@/models/WeddingService";
 import { deleteCloudinaryImage } from "@/lib/cloudinary";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type RouteContext = {
   params: Promise<{
     id: string;
@@ -112,22 +115,36 @@ export async function PATCH(
         { status: 400 }
       );
     }
+    if (body.audience !== undefined) {
+      if (!["male", "female", "unisex"].includes(body.audience)) {
+        return NextResponse.json(
+          { success: false, message: "Invalid audience. Must be male, female, or unisex" },
+          { status: 400 }
+        );
+      }
+    }
 
     const oldPublicId = existingService.imagePublicId;
 
-    const updateData = { ...body };
-    if (updateData.name) updateData.name = updateData.name.trim();
-    if (updateData.description) updateData.description = updateData.description.trim();
-    if (updateData.price !== undefined) updateData.price = Number(updateData.price);
-    if (updateData.duration !== undefined) updateData.duration = Number(updateData.duration);
-    if (updateData.displayOrder !== undefined) {
-      updateData.displayOrder = Math.max(0, Number(updateData.displayOrder) || 0);
+    const updateData: Record<string, unknown> = {};
+    if (body.name !== undefined) updateData.name = body.name.trim();
+    if (body.description !== undefined) updateData.description = body.description.trim();
+    if (body.price !== undefined) updateData.price = Number(body.price);
+    if (body.duration !== undefined) updateData.duration = Number(body.duration);
+    if (body.image !== undefined) updateData.image = body.image.trim();
+    if (body.imagePublicId !== undefined) updateData.imagePublicId = body.imagePublicId.trim();
+    if (body.isActive !== undefined) updateData.isActive = Boolean(body.isActive);
+    if (body.displayOrder !== undefined) {
+      updateData.displayOrder = Math.max(0, Number(body.displayOrder) || 0);
+    }
+    if (body.audience !== undefined) {
+      updateData.audience = body.audience;
     }
 
     const updatedService = await WeddingService.findByIdAndUpdate(
       id,
       { $set: updateData },
-      { new: true, runValidators: true }
+      { new: true, returnDocument: "after", runValidators: true }
     );
 
     // If new imagePublicId uploaded and different from old, clean up old Cloudinary asset

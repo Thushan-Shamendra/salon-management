@@ -229,8 +229,8 @@ export default function BranchContactSection({
 
   // Active view information
   const branchName = selectedBranch
-    ? `SALVORA ${selectedBranch.name}`
-    : fallbackSettings?.salonName || "SALVORA Salon";
+    ? selectedBranch.name
+    : fallbackSettings?.salonName || "Salon";
 
   const branchPhone = selectedBranch ? selectedBranch.phone : fallbackSettings?.phone || "";
   const branchEmail = selectedBranch ? selectedBranch.email : fallbackSettings?.email || "";
@@ -285,7 +285,7 @@ export default function BranchContactSection({
         {!hasBranches && (
           <div className="mb-8 rounded-2xl border border-[#03BF62]/20 bg-[#03BF62]/10 p-4 text-center text-xs text-stone-600 max-w-2xl mx-auto">
             <span className="font-semibold text-stone-800">
-              Welcome to SALVORA Salon
+              Welcome to {fallbackSettings?.salonName || "our Salon"}
             </span>{" "}
             — Displaying our primary salon studio location and contact information.
           </div>

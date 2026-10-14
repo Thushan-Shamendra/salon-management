@@ -122,6 +122,7 @@ export default async function ProductsPage() {
           isMostPopular: Boolean(p.isMostPopular),
           isFastMoving: Boolean(p.isFastMoving),
           isDiscountProduct: Boolean(p.isDiscountProduct),
+          audience: p.audience || "unisex",
           branchWhatsapp: productBranchWhatsapp || undefined,
         };
       });

@@ -31,6 +31,7 @@ interface Service {
   image: string;
   imagePublicId?: string;
   isActive: boolean;
+  audience?: "male" | "female" | "unisex";
   createdAt?: string;
   updatedAt?: string;
 }
@@ -43,6 +44,7 @@ interface ServiceFormState {
   image: string;
   imagePublicId: string;
   isActive: boolean;
+  audience: "male" | "female" | "unisex";
 }
 
 const emptyForm: ServiceFormState = {
@@ -53,6 +55,7 @@ const emptyForm: ServiceFormState = {
   image: "",
   imagePublicId: "",
   isActive: true,
+  audience: "unisex",
 };
 
 export default function AdminServicesPage() {
@@ -66,6 +69,7 @@ export default function AdminServicesPage() {
   // Search, filter, and sort state
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "hidden">("all");
+  const [audienceFilter, setAudienceFilter] = useState<"all" | "female" | "male" | "unisex">("all");
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "price-asc" | "price-desc" | "duration">("newest");
 
   // Notification feedback
@@ -87,7 +91,10 @@ export default function AdminServicesPage() {
 
   const loadServices = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/services");
+      const res = await fetch(`/api/admin/services?t=${Date.now()}`, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache" },
+      });
       const data = await res.json();
       if (res.ok && data.success) {
         setServices(data.services || []);
@@ -105,7 +112,10 @@ export default function AdminServicesPage() {
     let isMounted = true;
     async function init() {
       try {
-        const res = await fetch("/api/admin/services");
+        const res = await fetch(`/api/admin/services?t=${Date.now()}`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" },
+        });
         const data = await res.json();
         if (isMounted && res.ok && data.success) {
           setServices(data.services || []);
@@ -147,6 +157,12 @@ export default function AdminServicesPage() {
         if (statusFilter === "active" && !service.isActive) return false;
         if (statusFilter === "hidden" && service.isActive) return false;
 
+        // Audience filter
+        if (audienceFilter !== "all") {
+          const sAudience = service.audience ?? "unisex";
+          if (sAudience !== audienceFilter) return false;
+        }
+
         // Search query
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase().trim();
@@ -173,7 +189,7 @@ export default function AdminServicesPage() {
           new Date(a.createdAt || 0).getTime()
         );
       });
-  }, [services, searchQuery, statusFilter, sortBy]);
+  }, [services, searchQuery, statusFilter, audienceFilter, sortBy]);
 
   // Open add modal/drawer
   const handleOpenAdd = () => {
@@ -193,6 +209,7 @@ export default function AdminServicesPage() {
       image: service.image || "",
       imagePublicId: service.imagePublicId || "",
       isActive: service.isActive,
+      audience: service.audience ?? "unisex",
     });
     setIsFormOpen(true);
   };
@@ -237,6 +254,7 @@ export default function AdminServicesPage() {
           image: form.image,
           imagePublicId: form.imagePublicId,
           isActive: form.isActive,
+          audience: form.audience || "unisex",
         }),
       });
 
@@ -251,6 +269,17 @@ export default function AdminServicesPage() {
         "success",
         editingId ? "Service updated successfully." : "Service added successfully."
       );
+
+      if (data.service) {
+        const savedService = data.service as Service;
+        if (editingId) {
+          setServices((prev) =>
+            prev.map((s) => (s._id === savedService._id ? savedService : s))
+          );
+        } else {
+          setServices((prev) => [savedService, ...prev]);
+        }
+      }
 
       handleCloseForm();
       await loadServices();
@@ -478,6 +507,25 @@ export default function AdminServicesPage() {
             </select>
           </div>
 
+          {/* Audience Dropdown */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-stone-500 hidden md:inline">
+              Audience
+            </span>
+            <select
+              value={audienceFilter}
+              onChange={(e) =>
+                setAudienceFilter(e.target.value as "all" | "female" | "male" | "unisex")
+              }
+              className="rounded-xl border border-stone-200 bg-stone-50/70 px-3.5 py-2 text-xs sm:text-sm font-medium text-stone-700 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20 cursor-pointer"
+            >
+              <option value="all">All</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="unisex">Both</option>
+            </select>
+          </div>
+
           {/* Sort By Dropdown */}
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-stone-500 hidden md:inline">
@@ -548,6 +596,7 @@ export default function AdminServicesPage() {
                   onClick={() => {
                     setSearchQuery("");
                     setStatusFilter("all");
+                    setAudienceFilter("all");
                   }}
                   className="mt-3 text-xs font-semibold text-[#7C3AED] hover:underline"
                 >
@@ -578,6 +627,25 @@ export default function AdminServicesPage() {
                           <ScissorsIcon className="h-10 w-10" />
                         </div>
                       )}
+
+                      {/* Floating Audience Badge on top-left */}
+                      <div className="absolute top-3 left-3 z-10 shadow-xs">
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border ${
+                            (service.audience ?? "unisex") === "male"
+                              ? "bg-blue-50 text-blue-700 border-blue-200/80"
+                              : (service.audience ?? "unisex") === "female"
+                              ? "bg-rose-50 text-rose-700 border-rose-200/80"
+                              : "bg-emerald-50 text-emerald-700 border-emerald-200/80"
+                          }`}
+                        >
+                          {(service.audience ?? "unisex") === "male"
+                            ? "Male"
+                            : (service.audience ?? "unisex") === "female"
+                            ? "Female"
+                            : "Both"}
+                        </span>
+                      </div>
 
                       {/* Floating Status Badge on top-right */}
                       <div className="absolute top-3 right-3 z-10 shadow-xs">
@@ -758,6 +826,38 @@ export default function AdminServicesPage() {
                     placeholder="Describe the service, benefits and what customers can expect..."
                     className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-all focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20 resize-y"
                   />
+                </div>
+
+                {/* Service For (Audience) */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                    SERVICE FOR <span className="text-red-500">*</span>
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: "female", label: "Female" },
+                      { id: "male", label: "Male" },
+                      { id: "unisex", label: "Both" },
+                    ].map((option) => (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() =>
+                          setForm((prev) => ({
+                            ...prev,
+                            audience: option.id as "male" | "female" | "unisex",
+                          }))
+                        }
+                        className={`rounded-xl py-2 px-3 text-xs sm:text-sm font-semibold transition-all border cursor-pointer ${
+                          form.audience === option.id
+                            ? "bg-[#7C3AED] text-white border-[#7C3AED] shadow-xs"
+                            : "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Price and Duration in 2 Columns */}

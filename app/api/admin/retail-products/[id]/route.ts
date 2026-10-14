@@ -267,6 +267,16 @@ export async function PATCH(request: Request, context: RouteContext) {
       product.isActive = Boolean(body.isActive);
     }
 
+    if (body.audience !== undefined && body.audience !== null && body.audience !== "") {
+      if (!["male", "female", "unisex"].includes(body.audience)) {
+        return NextResponse.json(
+          { success: false, message: "Invalid audience. Must be male, female, or unisex" },
+          { status: 400 }
+        );
+      }
+      product.audience = body.audience;
+    }
+
     if (body.displayOrder !== undefined) {
       product.displayOrder = typeof body.displayOrder === "number" ? body.displayOrder : 0;
     }

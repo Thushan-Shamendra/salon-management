@@ -67,8 +67,17 @@ export async function GET(request: Request) {
     const status = searchParams.get("status");
     const feature = searchParams.get("feature");
     const search = searchParams.get("search")?.trim();
+    const audience = searchParams.get("audience");
 
     const query: Record<string, unknown> = {};
+
+    if (audience && audience !== "all") {
+      if (audience === "male" || audience === "female") {
+        query.audience = audience;
+      } else if (audience === "unisex" || audience === "both") {
+        query.audience = { $in: ["unisex", null, ""] };
+      }
+    }
 
     if (category && category !== "all") {
       query.category = category;
@@ -209,9 +218,19 @@ export async function POST(request: Request) {
       isDiscountProduct,
       isActive,
       displayOrder,
+      audience,
     } = body;
 
     // Validations
+    if (audience !== undefined && audience !== null && audience !== "") {
+      if (!["male", "female", "unisex"].includes(audience)) {
+        return NextResponse.json(
+          { success: false, message: "Invalid audience. Must be male, female, or unisex" },
+          { status: 400 }
+        );
+      }
+    }
+
     if (!name || typeof name !== "string" || !name.trim()) {
       return NextResponse.json(
         { success: false, message: "Product name is required" },
@@ -309,6 +328,7 @@ export async function POST(request: Request) {
       isDiscountProduct: Boolean(isDiscountProduct),
       isActive: isActive !== undefined ? Boolean(isActive) : true,
       displayOrder: typeof displayOrder === "number" ? displayOrder : 0,
+      audience: audience && ["male", "female", "unisex"].includes(audience) ? audience : "unisex",
     });
 
     try {

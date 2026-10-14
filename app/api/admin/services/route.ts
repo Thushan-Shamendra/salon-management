@@ -4,7 +4,10 @@ import { connectDB } from "@/lib/mongodb";
 import { getCurrentUser } from "@/lib/auth";
 import Service from "@/models/Service";
 
-export async function GET() {
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function GET(request: Request) {
   try {
     const user = await getCurrentUser();
 
@@ -30,7 +33,19 @@ export async function GET() {
 
     await connectDB();
 
-    const services = await Service.find().sort({
+    const { searchParams } = new URL(request.url);
+    const audience = searchParams.get("audience");
+
+    const query: Record<string, unknown> = {};
+    if (audience && audience !== "all") {
+      if (audience === "male" || audience === "female") {
+        query.audience = audience;
+      } else if (audience === "unisex" || audience === "both") {
+        query.$or = [{ audience: "unisex" }, { audience: null }, { audience: "" }, { audience: { $exists: false } }];
+      }
+    }
+
+    const services = await Service.find(query).sort({
       createdAt: -1,
     });
 

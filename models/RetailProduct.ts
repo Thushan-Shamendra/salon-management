@@ -35,6 +35,7 @@ export interface IRetailProduct extends Document {
   isFastMoving: boolean;
   isDiscountProduct: boolean;
   isActive: boolean;
+  audience: "male" | "female" | "unisex";
   displayOrder: number;
   createdAt: Date;
   updatedAt: Date;
@@ -158,6 +159,12 @@ const RetailProductSchema = new Schema<IRetailProduct>(
     displayOrder: {
       type: Number,
       default: 0,
+      index: true,
+    },
+    audience: {
+      type: String,
+      enum: ["male", "female", "unisex"],
+      default: "unisex",
       index: true,
     },
   },

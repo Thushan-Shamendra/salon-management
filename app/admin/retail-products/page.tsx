@@ -55,6 +55,7 @@ interface RetailProductItem {
   isFastMoving?: boolean;
   isDiscountProduct?: boolean;
   isActive: boolean;
+  audience?: "male" | "female" | "unisex";
   displayOrder: number;
   createdAt?: string;
   updatedAt?: string;
@@ -79,6 +80,7 @@ interface ProductFormState {
   isFastMoving: boolean;
   isDiscountProduct: boolean;
   isActive: boolean;
+  audience: "male" | "female" | "unisex";
   displayOrder: string;
 }
 
@@ -101,6 +103,7 @@ const emptyForm: ProductFormState = {
   isFastMoving: false,
   isDiscountProduct: false,
   isActive: true,
+  audience: "unisex",
   displayOrder: "0",
 };
 
@@ -142,6 +145,7 @@ export default function AdminRetailProductsPage() {
   const [stockFilter, setStockFilter] = useState<string>("all");
   const [branchFilter, setBranchFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "hidden">("all");
+  const [audienceFilter, setAudienceFilter] = useState<"all" | "female" | "male" | "unisex">("all");
   const [featureFilter, setFeatureFilter] = useState<
     "all" | "most_popular" | "fast_moving" | "discount" | "featured"
   >("all");
@@ -165,7 +169,10 @@ export default function AdminRetailProductsPage() {
 
   const fetchProducts = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/retail-products");
+      const res = await fetch(`/api/admin/retail-products?t=${Date.now()}`, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache" },
+      });
       const data = await res.json();
       if (data?.success) {
         setProducts(data.products || []);
@@ -186,7 +193,7 @@ export default function AdminRetailProductsPage() {
     async function init() {
       try {
         const [prodRes, branchRes] = await Promise.all([
-          fetch("/api/admin/retail-products"),
+          fetch(`/api/admin/retail-products?t=${Date.now()}`, { cache: "no-store" }),
           fetch("/api/branches"),
         ]);
         const prodData = await prodRes.json();
@@ -267,6 +274,10 @@ export default function AdminRetailProductsPage() {
       list = list.filter((p) => !p.isActive);
     }
 
+    if (audienceFilter !== "all") {
+      list = list.filter((p) => (p.audience || "unisex") === audienceFilter);
+    }
+
     if (featureFilter === "most_popular") {
       list = list.filter((p) => Boolean(p.isMostPopular));
     } else if (featureFilter === "fast_moving") {
@@ -299,7 +310,7 @@ export default function AdminRetailProductsPage() {
       default:
         return list.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
     }
-  }, [products, searchQuery, categoryFilter, stockFilter, statusFilter, featureFilter, branchFilter, sortBy]);
+  }, [products, searchQuery, categoryFilter, stockFilter, statusFilter, audienceFilter, featureFilter, branchFilter, sortBy]);
 
   const handleOpenAddForm = () => {
     setEditingId(null);
@@ -335,6 +346,7 @@ export default function AdminRetailProductsPage() {
       isFastMoving: Boolean(item.isFastMoving),
       isDiscountProduct: Boolean(item.isDiscountProduct),
       isActive: item.isActive !== undefined ? item.isActive : true,
+      audience: item.audience || "unisex",
       displayOrder: (item.displayOrder || 0).toString(),
     });
     setIsFormOpen(true);
@@ -405,6 +417,7 @@ export default function AdminRetailProductsPage() {
         isFastMoving: form.isFastMoving,
         isDiscountProduct: form.isDiscountProduct,
         isActive: form.isActive,
+        audience: form.audience || "unisex",
         displayOrder: parseInt(form.displayOrder, 10) || 0,
       };
 
@@ -422,6 +435,16 @@ export default function AdminRetailProductsPage() {
       const data = await res.json();
       if (data?.success) {
         showNotification("success", editingId ? "Product updated successfully" : "Product created successfully");
+        if (data.product) {
+          const savedProduct = data.product as RetailProductItem;
+          if (editingId) {
+            setProducts((prev) =>
+              prev.map((p) => (p._id === savedProduct._id ? savedProduct : p))
+            );
+          } else {
+            setProducts((prev) => [savedProduct, ...prev]);
+          }
+        }
         handleCloseForm();
         fetchProducts();
       } else {
@@ -733,7 +756,7 @@ export default function AdminRetailProductsPage() {
 
       {/* Filters & Search Controls */}
       <div className="rounded-2xl border border-stone-200/80 bg-white p-4 shadow-2xs space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
           {/* Search */}
           <div className="relative">
             <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
@@ -810,8 +833,20 @@ export default function AdminRetailProductsPage() {
             <option value="hidden">Hidden Only</option>
           </select>
 
+          {/* Audience Filter */}
+          <select
+            value={audienceFilter}
+            onChange={(e) => setAudienceFilter(e.target.value as "all" | "female" | "male" | "unisex")}
+            className="rounded-xl border border-stone-200 px-3 py-2 text-xs text-stone-800 focus:border-[#7C3AED] focus:outline-none focus:ring-1 focus:ring-[#7C3AED]"
+          >
+            <option value="all">All Audiences</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+            <option value="unisex">Both</option>
+          </select>
+
           {/* Sort By */}
-          <div className="sm:col-span-2 lg:col-span-6 flex justify-end">
+          <div className="sm:col-span-2 lg:col-span-7 flex justify-end">
             <div className="flex items-center gap-2 text-xs text-stone-500">
               <span>Sort by:</span>
               <select
@@ -871,6 +906,23 @@ export default function AdminRetailProductsPage() {
                         Featured
                       </span>
                     )}
+                  </div>
+                  <div className="absolute top-2 right-2">
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                        (item.audience ?? "unisex") === "male"
+                          ? "bg-blue-50 text-blue-700 border-blue-200/80"
+                          : (item.audience ?? "unisex") === "female"
+                          ? "bg-rose-50 text-rose-700 border-rose-200/80"
+                          : "bg-emerald-50 text-emerald-700 border-emerald-200/80"
+                      }`}
+                    >
+                      {(item.audience ?? "unisex") === "male"
+                        ? "Male"
+                        : (item.audience ?? "unisex") === "female"
+                        ? "Female"
+                        : "Both"}
+                    </span>
                   </div>
                 </div>
 
@@ -1105,6 +1157,38 @@ export default function AdminRetailProductsPage() {
                     placeholder="Salvora"
                     className="w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 focus:border-[#7C3AED] focus:outline-none focus:ring-1 focus:ring-[#7C3AED]"
                   />
+                </div>
+              </div>
+
+              {/* Product For (Audience) */}
+              <div>
+                <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                  PRODUCT FOR <span className="text-red-500">*</span>
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: "female", label: "Female" },
+                    { id: "male", label: "Male" },
+                    { id: "unisex", label: "Both" },
+                  ].map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          audience: option.id as "male" | "female" | "unisex",
+                        }))
+                      }
+                      className={`rounded-xl py-2 px-3 text-xs sm:text-sm font-semibold transition-all border cursor-pointer ${
+                        form.audience === option.id
+                          ? "bg-[#7C3AED] text-white border-[#7C3AED] shadow-xs"
+                          : "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 

@@ -268,8 +268,8 @@ export default function BranchOpeningHours({
   const todayDayName = todayStatus.todayDayName;
 
   const displayName = activeBranch
-    ? `SALVORA ${activeBranch.name.replace(/^salvora\s*/i, "")}`
-    : fallbackSettings?.salonName || "SALVORA Salon";
+    ? activeBranch.name
+    : fallbackSettings?.salonName || "Salon";
 
   const branchAddress =
     activeBranch?.address || fallbackSettings?.address || "";
@@ -301,7 +301,7 @@ export default function BranchOpeningHours({
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               {sortedBranches.map((b) => {
                 const isSelected = b._id === activeBranch?._id;
-                const formattedTabName = `SALVORA ${b.name.replace(/^salvora\s*/i, "")}`;
+                const formattedTabName = b.name;
                 return (
                   <button
                     key={b._id}

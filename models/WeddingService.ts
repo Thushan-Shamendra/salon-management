@@ -9,6 +9,7 @@ export interface IWeddingService extends Document {
   imagePublicId?: string;
   isActive: boolean;
   displayOrder: number;
+  audience: "male" | "female" | "unisex";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -54,11 +55,26 @@ const WeddingServiceSchema = new Schema<IWeddingService>(
       default: 0,
       min: 0,
     },
+    audience: {
+      type: String,
+      enum: ["male", "female", "unisex"],
+      default: "unisex",
+      index: true,
+    },
   },
   {
     timestamps: true,
   }
 );
+
+// Avoid caching stale schema during Next.js hot module reloading in dev
+if (
+  process.env.NODE_ENV !== "production" &&
+  mongoose.models &&
+  mongoose.models.WeddingService
+) {
+  delete mongoose.models.WeddingService;
+}
 
 const WeddingService: Model<IWeddingService> =
   mongoose.models.WeddingService ||

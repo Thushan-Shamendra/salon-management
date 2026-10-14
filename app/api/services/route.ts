@@ -4,14 +4,36 @@ import { connectDB } from "@/lib/mongodb";
 import { getCurrentUser } from "@/lib/auth";
 import Service from "@/models/Service";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // Public: get active services
-export async function GET() {
+export async function GET(request: Request) {
   try {
     await connectDB();
 
-    const services = await Service.find({
+    const { searchParams } = new URL(request.url);
+    const audience = searchParams.get("audience");
+
+    const query: Record<string, unknown> = {
       isActive: true,
-    }).sort({ createdAt: -1 });
+    };
+
+    if (audience === "male") {
+      query.$or = [
+        { audience: { $in: ["male", "unisex"] } },
+        { audience: { $in: [null, ""] } },
+        { audience: { $exists: false } },
+      ];
+    } else if (audience === "female") {
+      query.$or = [
+        { audience: { $in: ["female", "unisex"] } },
+        { audience: { $in: [null, ""] } },
+        { audience: { $exists: false } },
+      ];
+    }
+
+    const services = await Service.find(query).sort({ createdAt: -1 });
 
     return NextResponse.json({
       success: true,
@@ -67,6 +89,7 @@ export async function POST(request: Request) {
       image,
       imagePublicId,
       isActive,
+      audience,
     } = body;
 
     if (!name || !description || price === undefined || !duration) {
@@ -100,6 +123,18 @@ export async function POST(request: Request) {
       );
     }
 
+    if (audience !== undefined && audience !== null && audience !== "") {
+      if (!["male", "female", "unisex"].includes(audience)) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Invalid audience. Must be male, female, or unisex",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     const service = await Service.create({
       name: name.trim(),
       description: description.trim(),
@@ -108,6 +143,7 @@ export async function POST(request: Request) {
       image: image?.trim() || "",
       imagePublicId: imagePublicId?.trim() || undefined,
       isActive: isActive ?? true,
+      audience: audience && ["male", "female", "unisex"].includes(audience) ? audience : "unisex",
     });
 
     return NextResponse.json(

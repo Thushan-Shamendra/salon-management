@@ -40,6 +40,7 @@ async function getServices(): Promise<ServiceCardData[]> {
       price: s.price || 0,
       duration: s.duration || 0,
       image: s.image || "",
+      audience: s.audience || "unisex",
     }));
   } catch (error) {
     console.error("Failed to load services for public page:", error);

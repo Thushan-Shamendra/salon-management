@@ -38,6 +38,7 @@ interface WeddingService {
   image: string;
   imagePublicId?: string;
   isActive: boolean;
+  audience?: "male" | "female" | "unisex";
   displayOrder: number;
   createdAt?: string;
   updatedAt?: string;
@@ -68,6 +69,7 @@ interface ServiceFormState {
   image: string;
   imagePublicId: string;
   isActive: boolean;
+  audience: "male" | "female" | "unisex";
 }
 
 interface PackageFormState {
@@ -92,6 +94,7 @@ const emptyServiceForm: ServiceFormState = {
   image: "",
   imagePublicId: "",
   isActive: true,
+  audience: "unisex",
 };
 
 const emptyPackageForm: PackageFormState = {
@@ -122,6 +125,7 @@ export default function AdminWeddingPage() {
   // Services Filters
   const [serviceSearch, setServiceSearch] = useState("");
   const [serviceStatusFilter, setServiceStatusFilter] = useState<"all" | "active" | "hidden">("all");
+  const [serviceAudienceFilter, setServiceAudienceFilter] = useState<"all" | "female" | "male" | "unisex">("all");
   const [serviceSortBy, setServiceSortBy] = useState<"order" | "newest" | "price-asc" | "price-desc">("order");
 
   // Packages State
@@ -160,7 +164,10 @@ export default function AdminWeddingPage() {
 
   const loadServices = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/wedding/services");
+      const res = await fetch(`/api/admin/wedding/services?t=${Date.now()}`, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache" },
+      });
       const data = await res.json();
       if (res.ok && data.success) {
         setServices(data.services || []);
@@ -264,6 +271,11 @@ export default function AdminWeddingPage() {
         if (serviceStatusFilter === "active" && !service.isActive) return false;
         if (serviceStatusFilter === "hidden" && service.isActive) return false;
 
+        if (serviceAudienceFilter !== "all") {
+          const sAudience = service.audience ?? "unisex";
+          if (sAudience !== serviceAudienceFilter) return false;
+        }
+
         if (serviceSearch.trim()) {
           const q = serviceSearch.toLowerCase().trim();
           const nameMatch = service.name.toLowerCase().includes(q);
@@ -278,7 +290,7 @@ export default function AdminWeddingPage() {
         if (serviceSortBy === "price-desc") return (b.price || 0) - (a.price || 0);
         return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
       });
-  }, [services, serviceSearch, serviceStatusFilter, serviceSortBy]);
+  }, [services, serviceSearch, serviceStatusFilter, serviceAudienceFilter, serviceSortBy]);
 
   const filteredPackages = useMemo(() => {
     return packages
@@ -327,6 +339,7 @@ export default function AdminWeddingPage() {
       image: service.image || "",
       imagePublicId: service.imagePublicId || "",
       isActive: service.isActive,
+      audience: service.audience ?? "unisex",
     });
     setIsServiceFormOpen(true);
   };
@@ -377,6 +390,7 @@ export default function AdminWeddingPage() {
           image: serviceForm.image,
           imagePublicId: serviceForm.imagePublicId,
           isActive: serviceForm.isActive,
+          audience: serviceForm.audience || "unisex",
         }),
       });
 
@@ -393,6 +407,17 @@ export default function AdminWeddingPage() {
           ? "Wedding service updated successfully."
           : "Wedding service created successfully."
       );
+
+      if (data.service) {
+        const savedService = data.service as WeddingService;
+        if (editingServiceId) {
+          setServices((prev) =>
+            prev.map((s) => (s._id === savedService._id ? savedService : s))
+          );
+        } else {
+          setServices((prev) => [savedService, ...prev]);
+        }
+      }
 
       handleCloseServiceForm();
       await loadServices();
@@ -884,6 +909,22 @@ export default function AdminWeddingPage() {
               </div>
 
               <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-stone-500 hidden md:inline">Audience</span>
+                <select
+                  value={serviceAudienceFilter}
+                  onChange={(e) =>
+                    setServiceAudienceFilter(e.target.value as "all" | "female" | "male" | "unisex")
+                  }
+                  className="rounded-xl border border-stone-200 bg-stone-50/70 px-3.5 py-2 text-xs sm:text-sm font-medium text-stone-700 outline-none transition-all focus:border-[#7C3AED] focus:bg-white cursor-pointer"
+                >
+                  <option value="all">All</option>
+                  <option value="female">Female</option>
+                  <option value="male">Male</option>
+                  <option value="unisex">Both</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-stone-500 hidden md:inline">Sort By</span>
                 <select
                   value={serviceSortBy}
@@ -939,6 +980,7 @@ export default function AdminWeddingPage() {
                       onClick={() => {
                         setServiceSearch("");
                         setServiceStatusFilter("all");
+                        setServiceAudienceFilter("all");
                       }}
                       className="mt-3 text-xs font-semibold text-[#7C3AED] hover:underline"
                     >
@@ -968,6 +1010,24 @@ export default function AdminWeddingPage() {
                               <ScissorsIcon className="h-10 w-10" />
                             </div>
                           )}
+
+                          <div className="absolute top-3 left-3 z-10 shadow-xs">
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border ${
+                                (service.audience ?? "unisex") === "male"
+                                  ? "bg-blue-50 text-blue-700 border-blue-200/80"
+                                  : (service.audience ?? "unisex") === "female"
+                                  ? "bg-rose-50 text-rose-700 border-rose-200/80"
+                                  : "bg-emerald-50 text-emerald-700 border-emerald-200/80"
+                              }`}
+                            >
+                              {(service.audience ?? "unisex") === "male"
+                                ? "Male"
+                                : (service.audience ?? "unisex") === "female"
+                                ? "Female"
+                                : "Both"}
+                            </span>
+                          </div>
 
                           <div className="absolute top-3 right-3 z-10 shadow-xs">
                             <StatusBadge
@@ -1142,6 +1202,38 @@ export default function AdminWeddingPage() {
                         placeholder="Complete bridal makeup service designed to create an elegant look..."
                         className="w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-stone-900 outline-none focus:border-[#7C3AED] focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/20 resize-y"
                       />
+                    </div>
+
+                    {/* Service For (Audience) */}
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                        SERVICE FOR <span className="text-red-500">*</span>
+                      </label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { id: "female", label: "Female" },
+                          { id: "male", label: "Male" },
+                          { id: "unisex", label: "Both" },
+                        ].map((option) => (
+                          <button
+                            key={option.id}
+                            type="button"
+                            onClick={() =>
+                              setServiceForm((prev) => ({
+                                ...prev,
+                                audience: option.id as "male" | "female" | "unisex",
+                              }))
+                            }
+                            className={`rounded-xl py-2 px-3 text-xs sm:text-sm font-semibold transition-all border cursor-pointer ${
+                              serviceForm.audience === option.id
+                                ? "bg-[#7C3AED] text-white border-[#7C3AED] shadow-xs"
+                                : "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100"
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">

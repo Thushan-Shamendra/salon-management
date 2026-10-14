@@ -12,6 +12,7 @@ export interface ServiceCardData {
   price: number;
   duration: number;
   image?: string;
+  audience?: "male" | "female" | "unisex";
 }
 
 interface ServiceCardProps {

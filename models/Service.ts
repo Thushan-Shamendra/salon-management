@@ -8,6 +8,7 @@ export interface IService extends Document {
   image: string;
   imagePublicId?: string;
   isActive: boolean;
+  audience: "male" | "female" | "unisex";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -54,11 +55,27 @@ const ServiceSchema = new Schema<IService>(
       type: Boolean,
       default: true,
     },
+
+    audience: {
+      type: String,
+      enum: ["male", "female", "unisex"],
+      default: "unisex",
+      index: true,
+    },
   },
   {
     timestamps: true,
   }
 );
+
+// Avoid caching stale schema during Next.js hot module reloading in dev
+if (
+  process.env.NODE_ENV !== "production" &&
+  mongoose.models &&
+  mongoose.models.Service
+) {
+  delete mongoose.models.Service;
+}
 
 const Service: Model<IService> =
   mongoose.models.Service ||

@@ -54,6 +54,7 @@ export default async function WeddingPage() {
         price: s.price || 0,
         duration: s.duration || 0,
         image: s.image || "",
+        audience: s.audience || "unisex",
       }));
     }
 

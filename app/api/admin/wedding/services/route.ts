@@ -3,8 +3,11 @@ import { connectDB } from "@/lib/mongodb";
 import { getCurrentUser } from "@/lib/auth";
 import WeddingService from "@/models/WeddingService";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // Admin: list all wedding services
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const user = await getCurrentUser();
 
@@ -24,7 +27,19 @@ export async function GET() {
 
     await connectDB();
 
-    const services = await WeddingService.find().sort({
+    const { searchParams } = new URL(request.url);
+    const audience = searchParams.get("audience");
+
+    const query: Record<string, unknown> = {};
+    if (audience && audience !== "all") {
+      if (audience === "male" || audience === "female") {
+        query.audience = audience;
+      } else if (audience === "unisex" || audience === "both") {
+        query.audience = { $in: ["unisex", null, ""] };
+      }
+    }
+
+    const services = await WeddingService.find(query).sort({
       displayOrder: 1,
       createdAt: -1,
     });
@@ -73,6 +88,7 @@ export async function POST(request: Request) {
       imagePublicId,
       isActive,
       displayOrder,
+      audience,
     } = body;
 
     if (!name?.trim() || !description?.trim() || price === undefined || !duration) {
@@ -99,6 +115,15 @@ export async function POST(request: Request) {
       );
     }
 
+    if (audience !== undefined && audience !== null && audience !== "") {
+      if (!["male", "female", "unisex"].includes(audience)) {
+        return NextResponse.json(
+          { success: false, message: "Invalid audience. Must be male, female, or unisex" },
+          { status: 400 }
+        );
+      }
+    }
+
     const orderNum = displayOrder !== undefined ? Math.max(0, Number(displayOrder) || 0) : 0;
 
     const service = await WeddingService.create({
@@ -110,6 +135,7 @@ export async function POST(request: Request) {
       imagePublicId: imagePublicId?.trim() || undefined,
       isActive: isActive ?? true,
       displayOrder: orderNum,
+      audience: audience && ["male", "female", "unisex"].includes(audience) ? audience : "unisex",
     });
 
     return NextResponse.json(

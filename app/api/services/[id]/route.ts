@@ -6,6 +6,9 @@ import { getCurrentUser } from "@/lib/auth";
 import Service from "@/models/Service";
 import { deleteCloudinaryImage } from "@/lib/cloudinary";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type RouteContext = {
   params: Promise<{
     id: string;
@@ -93,6 +96,18 @@ export async function PATCH(
 
     const body = await request.json();
 
+    if (body.audience !== undefined && body.audience !== null && body.audience !== "") {
+      if (!["male", "female", "unisex"].includes(body.audience)) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Invalid audience. Must be male, female, or unisex",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     const existingService = await Service.findById(id);
     if (!existingService) {
       return NextResponse.json(
@@ -113,6 +128,7 @@ export async function PATCH(
       },
       {
         new: true,
+        returnDocument: "after",
         runValidators: true,
       }
     );

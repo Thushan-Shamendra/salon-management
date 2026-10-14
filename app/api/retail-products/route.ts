@@ -18,10 +18,33 @@ export async function GET(request: Request) {
     const fastMoving = searchParams.get("fastMoving");
     const discount = searchParams.get("discount");
     const search = searchParams.get("search")?.trim();
+    const audience = searchParams.get("audience");
 
     const query: Record<string, unknown> = {
       isActive: true,
     };
+
+    if (audience === "male") {
+      const maleCondition = {
+        $or: [
+          { audience: { $in: ["male", "unisex"] } },
+          { audience: { $in: [null, ""] } },
+          { audience: { $exists: false } },
+        ],
+      };
+      if (!query.$and) query.$and = [];
+      (query.$and as unknown[]).push(maleCondition);
+    } else if (audience === "female") {
+      const femaleCondition = {
+        $or: [
+          { audience: { $in: ["female", "unisex"] } },
+          { audience: { $in: [null, ""] } },
+          { audience: { $exists: false } },
+        ],
+      };
+      if (!query.$and) query.$and = [];
+      (query.$and as unknown[]).push(femaleCondition);
+    }
 
     if (category && category !== "all") {
       query.category = category;
