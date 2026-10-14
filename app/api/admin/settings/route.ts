@@ -278,6 +278,7 @@ export async function PUT(request: Request) {
         instagram: socialMedia.instagram || "",
         tiktok: socialMedia.tiktok || "",
         whatsapp: socialMedia.whatsapp || "",
+        youtube: socialMedia.youtube || "",
       };
     }
 

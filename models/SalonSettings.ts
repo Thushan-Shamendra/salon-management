@@ -85,6 +85,7 @@ export interface ISalonSettings extends Document {
     instagram: string;
     tiktok: string;
     whatsapp: string;
+    youtube?: string;
   };
   googleReviews?: IGoogleReviewsSettings;
   externalSystem?: IExternalSystemSettings;
@@ -191,6 +192,7 @@ const SalonSettingsSchema = new Schema<ISalonSettings>(
       instagram: { type: String, default: "https://instagram.com/luminasalon" },
       tiktok: { type: String, default: "https://tiktok.com/@luminasalon" },
       whatsapp: { type: String, default: "https://wa.me/94771234567" },
+      youtube: { type: String, default: "" },
     },
     googleReviews: {
       enabled: {

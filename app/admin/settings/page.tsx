@@ -15,6 +15,7 @@ import {
   InstagramIcon,
   TikTokIcon,
   WhatsAppIcon,
+  YoutubeIcon,
   ExternalLinkIcon,
   UploadCloudIcon,
   TrashIcon,
@@ -53,6 +54,7 @@ export interface GlobalSettingsData {
     instagram: string;
     tiktok: string;
     whatsapp: string;
+    youtube: string;
   };
   externalSystem: {
     loginUrl: string;
@@ -220,6 +222,7 @@ export default function AdminSettingsPage() {
       instagram: "",
       tiktok: "",
       whatsapp: "",
+      youtube: "",
     },
     externalSystem: {
       loginUrl: "",
@@ -438,6 +441,7 @@ export default function AdminSettingsPage() {
                 instagram: s.socialMedia?.instagram || "",
                 tiktok: s.socialMedia?.tiktok || "",
                 whatsapp: s.socialMedia?.whatsapp || "",
+                youtube: s.socialMedia?.youtube || "",
               },
               externalSystem: {
                 loginUrl: s.externalSystem?.loginUrl || "",
@@ -1585,6 +1589,27 @@ export default function AdminSettingsPage() {
                         })
                       }
                       placeholder="https://tiktok.com/@salvora"
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs text-stone-900 outline-none focus:border-[#7C3AED] focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                    YouTube URL
+                  </label>
+                  <div className="relative">
+                    <YoutubeIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-red-600 pointer-events-none" />
+                    <input
+                      type="url"
+                      value={globalData.socialMedia.youtube}
+                      onChange={(e) =>
+                        setGlobalData({
+                          ...globalData,
+                          socialMedia: { ...globalData.socialMedia, youtube: e.target.value },
+                        })
+                      }
+                      placeholder="https://youtube.com/@salvora"
                       className="w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-10 pr-3.5 py-2.5 text-xs text-stone-900 outline-none focus:border-[#7C3AED] focus:bg-white"
                     />
                   </div>

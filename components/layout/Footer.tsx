@@ -92,7 +92,8 @@ export default async function Footer() {
   let instagramUrl = "https://instagram.com";
   let facebookUrl = "https://facebook.com";
   let tiktokUrl = "https://tiktok.com";
-  const youtubeUrl = "https://youtube.com";
+  let youtubeUrl = "https://youtube.com";
+  let registerUrl = "https://booking.salvora.lk/register";
 
   let serviceLinks: Array<{ name: string; href: string }> = [];
   let weddingItems: Array<{ name: string; href: string }> = [];
@@ -126,7 +127,7 @@ export default async function Footer() {
       productDocs,
     ] = await Promise.all([
       SalonSettings.findOne()
-        .select("salonName logo footerLogo socialMedia pageVisibility")
+        .select("salonName logo footerLogo socialMedia pageVisibility externalSystem")
         .lean(),
       Branch.find({ isActive: true })
         .sort({ isMain: -1, displayOrder: 1, name: 1 })
@@ -174,6 +175,12 @@ export default async function Footer() {
         if (settings.socialMedia.tiktok && !isLegacyBrand(settings.socialMedia.tiktok)) {
           tiktokUrl = settings.socialMedia.tiktok;
         }
+        if (settings.socialMedia.youtube && !isLegacyBrand(settings.socialMedia.youtube)) {
+          youtubeUrl = settings.socialMedia.youtube;
+        }
+      }
+      if (settings.externalSystem?.registerUrl) {
+        registerUrl = settings.externalSystem.registerUrl;
       }
     }
 
@@ -389,6 +396,22 @@ export default async function Footer() {
               <p data-customization-role="footerText">BEAUTY • CARE • CONFIDENCE</p>
               <p className="text-emerald-400/90 text-[9px] tracking-[0.22em]" data-customization-role="footerText">ALL IN ONE PLACE</p>
             </div>
+
+            {/* Register Button */}
+            {registerUrl && (
+              <div className="pt-2">
+                <a
+                  href={registerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#03BF62] hover:bg-[#029e51] text-white px-4 py-2 text-xs font-semibold shadow-sm transition-all hover:shadow-md hover:shadow-emerald-900/30 active:scale-[0.98]"
+                  data-customization-role="primaryButton"
+                >
+                  <span>Register</span>
+                  <ArrowRightIcon className="h-3.5 w-3.5" />
+                </a>
+              </div>
+            )}
           </div>
 
           {/* COLUMN 2: Wedding */}

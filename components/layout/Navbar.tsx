@@ -160,7 +160,7 @@ export default function Navbar() {
           })}
         </nav>
 
-        {/* Desktop External Actions (Login, Register, Book Appointment) */}
+        {/* Desktop External Actions (Login, Book Appointment) */}
         <div className="hidden lg:flex items-center gap-5">
           {externalSystem.loginUrl && (
             <a
@@ -168,15 +168,6 @@ export default function Navbar() {
               className="text-sm font-medium text-stone-700 hover:text-[#03BF62] transition-colors px-2 py-1.5"
             >
               Login
-            </a>
-          )}
-
-          {externalSystem.registerUrl && (
-            <a
-              href={externalSystem.registerUrl}
-              className="text-sm font-medium text-stone-700 hover:text-[#03BF62] transition-colors px-2 py-1.5"
-            >
-              Register
             </a>
           )}
 
@@ -299,25 +290,16 @@ export default function Navbar() {
               </button>
             )}
 
-            <div className="grid grid-cols-2 gap-3 pt-1">
-              {externalSystem.loginUrl ? (
+            {externalSystem.loginUrl ? (
+              <div className="pt-1">
                 <a
                   href={externalSystem.loginUrl}
-                  className="flex items-center justify-center rounded-xl border border-stone-200 py-2.5 text-xs font-medium text-stone-700 hover:border-[#03BF62] hover:text-[#03BF62] transition-colors"
+                  className="flex w-full items-center justify-center rounded-xl border border-stone-200 py-2.5 text-xs font-medium text-stone-700 hover:border-[#03BF62] hover:text-[#03BF62] transition-colors"
                 >
                   Login
                 </a>
-              ) : null}
-
-              {externalSystem.registerUrl ? (
-                <a
-                  href={externalSystem.registerUrl}
-                  className="flex items-center justify-center rounded-xl border border-stone-200 py-2.5 text-xs font-medium text-stone-700 hover:border-[#03BF62] hover:text-[#03BF62] transition-colors"
-                >
-                  Register
-                </a>
-              ) : null}
-            </div>
+              </div>
+            ) : null}
           </div>
         </div>
       )}
